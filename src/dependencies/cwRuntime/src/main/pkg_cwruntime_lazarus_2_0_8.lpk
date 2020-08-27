@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="pkg_cwruntime_lazarus_2_0_8"/>
+    <Type Value="RunTimeOnly"/>
+    <Author Value="Craig Chapman for ChapmanWorld LLC"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="api;implementation"/>
+        <UnitOutputDirectory Value="../../out/lib/$(TargetCPU)-$(TargetOS)/$(BuildMode)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="cwRuntime
+A compiler agnostic, cross platform runtime library for Freepascal and Delphi."/>
+    <License Value="Copyright 2020 ChapmanWorld LLC ( https://chapmanworld.com )
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"/>
+    <Version Major="1"/>
+    <Files Count="71">
+      <Item1>
+        <Filename Value="api\cwheap.pas"/>
+        <UnitName Value="cwHeap"/>
+      </Item1>
+      <Item2>
+        <Filename Value="api\cwheap.standard.pas"/>
+        <UnitName Value="cwHeap.Standard"/>
+      </Item2>
+      <Item3>
+        <Filename Value="api\cwio.pas"/>
+        <UnitName Value="cwIO"/>
+      </Item3>
+      <Item4>
+        <Filename Value="api\cwio.standard.pas"/>
+        <UnitName Value="cwIO.Standard"/>
+      </Item4>
+      <Item5>
+        <Filename Value="api\cwsockets.pas"/>
+        <UnitName Value="cwSockets"/>
+      </Item5>
+      <Item6>
+        <Filename Value="api\cwsockets.standard.pas"/>
+        <UnitName Value="cwSockets.Standard"/>
+      </Item6>
+      <Item7>
+        <Filename Value="api\cwstatus.pas"/>
+        <UnitName Value="cwStatus"/>
+      </Item7>
+      <Item8>
+        <Filename Value="api\cwtest.pas"/>
+        <UnitName Value="cwTest"/>
+      </Item8>
+      <Item9>
+        <Filename Value="api\cwtest.standard.pas"/>
+        <UnitName Value="cwTest.Standard"/>
+      </Item9>
+      <Item10>
+        <Filename Value="api\cwthreading.pas"/>
+        <UnitName Value="cwThreading"/>
+      </Item10>
+      <Item11>
+        <Filename Value="api\cwthreading.standard.pas"/>
+        <UnitName Value="cwThreading.Standard"/>
+      </Item11>
+      <Item12>
+        <Filename Value="api\cwtiming.pas"/>
+        <UnitName Value="cwTiming"/>
+      </Item12>
+      <Item13>
+        <Filename Value="api\cwtiming.standard.pas"/>
+        <UnitName Value="cwTiming.standard"/>
+      </Item13>
+      <Item14>
+        <Filename Value="api\cwtypes.pas"/>
+        <UnitName Value="cwTypes"/>
+      </Item14>
+      <Item15>
+        <Filename Value="api\cwunicode.pas"/>
+        <UnitName Value="cwUnicode"/>
+      </Item15>
+      <Item16>
+        <Filename Value="api\cwunicode.standard.pas"/>
+        <UnitName Value="cwUnicode.Standard"/>
+      </Item16>
+      <Item17>
+        <Filename Value="api\cwvectors.pas"/>
+        <UnitName Value="cwVectors"/>
+      </Item17>
+      <Item18>
+        <Filename Value="api\cwcollections.pas"/>
+        <UnitName Value="cwCollections"/>
+      </Item18>
+      <Item19>
+        <Filename Value="api\cwcollections.standard.pas"/>
+        <UnitName Value="cwCollections.Standard"/>
+      </Item19>
+      <Item20>
+        <Filename Value="api\cwdynlib.pas"/>
+        <UnitName Value="cwDynLib"/>
+      </Item20>
+      <Item21>
+        <Filename Value="api\cwdynlib.standard.pas"/>
+        <UnitName Value="cwDynLib.Standard"/>
+      </Item21>
+      <Item22>
+        <Filename Value="implementation\cwheap.heap.posix.pas"/>
+        <UnitName Value="cwHeap.Heap.Posix"/>
+      </Item22>
+      <Item23>
+        <Filename Value="implementation\cwheap.heap.windows.pas"/>
+        <UnitName Value="cwHeap.Heap.Windows"/>
+      </Item23>
+      <Item24>
+        <Filename Value="implementation\cwio.buffer.standard.pas"/>
+        <UnitName Value="cwIO.Buffer.Standard"/>
+      </Item24>
+      <Item25>
+        <Filename Value="implementation\cwio.cyclicbuffer.standard.pas"/>
+        <UnitName Value="cwIO.CyclicBuffer.Standard"/>
+      </Item25>
+      <Item26>
+        <Filename Value="implementation\cwio.filestream.standard.pas"/>
+        <UnitName Value="cwIO.FileStream.Standard"/>
+      </Item26>
+      <Item27>
+        <Filename Value="implementation\cwio.memorystream.standard.pas"/>
+        <UnitName Value="cwIO.MemoryStream.Standard"/>
+      </Item27>
+      <Item28>
+        <Filename Value="implementation\cwio.stream.custom.pas"/>
+        <UnitName Value="cwIO.Stream.Custom"/>
+      </Item28>
+      <Item29>
+        <Filename Value="implementation\cwio.typedbuffer.standard.pas"/>
+        <UnitName Value="cwIO.TypedBuffer.Standard"/>
+      </Item29>
+      <Item30>
+        <Filename Value="implementation\cwio.unicodestream.custom.pas"/>
+        <UnitName Value="cwIO.UnicodeStream.Custom"/>
+      </Item30>
+      <Item31>
+        <Filename Value="implementation\cwsockets.common.pas"/>
+        <UnitName Value="cwsockets.common"/>
+      </Item31>
+      <Item32>
+        <Filename Value="implementation\cwsockets.socket.standard.pas"/>
+        <UnitName Value="cwSockets.Socket.Standard"/>
+      </Item32>
+      <Item33>
+        <Filename Value="implementation\cwstatus.messages.pas"/>
+        <UnitName Value="cwStatus.Messages"/>
+      </Item33>
+      <Item34>
+        <Filename Value="implementation\cwstatus.parameterized.pas"/>
+        <UnitName Value="cwStatus.Parameterized"/>
+      </Item34>
+      <Item35>
+        <Filename Value="implementation\cwstatus.placeholders.pas"/>
+        <UnitName Value="cwStatus.Placeholders"/>
+      </Item35>
+      <Item36>
+        <Filename Value="implementation\cwtest.testcase.console.pas"/>
+        <UnitName Value="cwTest.TestCase.Console"/>
+      </Item36>
+      <Item37>
+        <Filename Value="implementation\cwtest.testreport.console.pas"/>
+        <UnitName Value="cwtest.testreport.console"/>
+      </Item37>
+      <Item38>
+        <Filename Value="implementation\cwtest.testsuite.custom.pas"/>
+        <UnitName Value="cwtest.testsuite.custom"/>
+      </Item38>
+      <Item39>
+        <Filename Value="implementation\cwtest.testsuite.delphi.pas"/>
+        <UnitName Value="cwTest.TestSuite.Delphi"/>
+      </Item39>
+      <Item40>
+        <Filename Value="implementation\cwtest.testsuite.fpc.pas"/>
+        <UnitName Value="cwTest.TestSuite.Fpc"/>
+      </Item40>
+      <Item41>
+        <Filename Value="implementation\cwthreading.criticalsection.posix.pas"/>
+        <UnitName Value="cwThreading.CriticalSection.Posix"/>
+      </Item41>
+      <Item42>
+        <Filename Value="implementation\cwthreading.criticalsection.windows.pas"/>
+        <UnitName Value="cwThreading.Criticalsection.Windows"/>
+      </Item42>
+      <Item43>
+        <Filename Value="implementation\cwthreading.internal.forlooptask.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.ForLoopTask.Standard"/>
+      </Item43>
+      <Item44>
+        <Filename Value="implementation\cwthreading.internal.messagechannelreader.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.MessageChannelReader.Standard"/>
+      </Item44>
+      <Item45>
+        <Filename Value="implementation\cwthreading.internal.pas"/>
+        <UnitName Value="cwThreading.Internal"/>
+      </Item45>
+      <Item46>
+        <Filename Value="implementation\cwthreading.internal.taskpool.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.TaskPool.Standard"/>
+      </Item46>
+      <Item47>
+        <Filename Value="implementation\cwthreading.internal.taskrecord.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.TaskRecord.Standard"/>
+      </Item47>
+      <Item48>
+        <Filename Value="implementation\cwthreading.internal.taskset.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.TaskSet.Standard"/>
+      </Item48>
+      <Item49>
+        <Filename Value="implementation\cwthreading.internal.tasksetcollection.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.TaskSetCollection.Standard"/>
+      </Item49>
+      <Item50>
+        <Filename Value="implementation\cwthreading.internal.thread.longthread.pas"/>
+        <UnitName Value="cwThreading.Internal.Thread.LongThread"/>
+      </Item50>
+      <Item51>
+        <Filename Value="implementation\cwthreading.internal.thread.messagedthread.pas"/>
+        <UnitName Value="cwThreading.Internal.Thread.MessagedThread"/>
+      </Item51>
+      <Item52>
+        <Filename Value="implementation\cwthreading.internal.thread.posix.pas"/>
+        <UnitName Value="cwThreading.Internal.Thread.Posix"/>
+      </Item52>
+      <Item53>
+        <Filename Value="implementation\cwthreading.internal.thread.windows.pas"/>
+        <UnitName Value="cwThreading.Internal.Thread.Windows"/>
+      </Item53>
+      <Item54>
+        <Filename Value="implementation\cwthreading.internal.threadpool.standard.pas"/>
+        <UnitName Value="cwThreading.Internal.ThreadPool.Standard"/>
+      </Item54>
+      <Item55>
+        <Filename Value="implementation\cwthreading.signaledcriticalsection.posix.pas"/>
+        <UnitName Value="cwThreading.SignaledCriticalSection.Posix"/>
+      </Item55>
+      <Item56>
+        <Filename Value="implementation\cwthreading.signaledcriticalsection.windows.pas"/>
+        <UnitName Value="cwThreading.SignaledCriticalSection.Windows"/>
+      </Item56>
+      <Item57>
+        <Filename Value="implementation\cwthreading.threadsystem.standard.pas"/>
+        <UnitName Value="cwThreading.ThreadSystem.Standard"/>
+      </Item57>
+      <Item58>
+        <Filename Value="implementation\cwtiming.posix.pas"/>
+        <UnitName Value="cwTiming.posix"/>
+      </Item58>
+      <Item59>
+        <Filename Value="implementation\cwtiming.windows.pas"/>
+        <UnitName Value="cwTiming.windows"/>
+      </Item59>
+      <Item60>
+        <Filename Value="implementation\cwunicode.codec.standard.pas"/>
+        <UnitName Value="cwUnicode.Codec.Standard"/>
+      </Item60>
+      <Item61>
+        <Filename Value="implementation\cwwin32.advapi32.pas"/>
+        <UnitName Value="cwWin32.AdvAPI32"/>
+      </Item61>
+      <Item62>
+        <Filename Value="implementation\cwwin32.constants.pas"/>
+        <UnitName Value="cwWin32.Constants"/>
+      </Item62>
+      <Item63>
+        <Filename Value="implementation\cwwin32.gdi32.pas"/>
+        <UnitName Value="cwWin32.GDI32"/>
+      </Item63>
+      <Item64>
+        <Filename Value="implementation\cwwin32.kernel32.pas"/>
+        <UnitName Value="cwWin32.Kernel32"/>
+      </Item64>
+      <Item65>
+        <Filename Value="implementation\cwwin32.types.pas"/>
+        <UnitName Value="cwWin32.Types"/>
+      </Item65>
+      <Item66>
+        <Filename Value="implementation\cwwin32.user32.pas"/>
+        <UnitName Value="cwWin32.User32"/>
+      </Item66>
+      <Item67>
+        <Filename Value="implementation\cwcollections.dictionary.standard.pas"/>
+        <UnitName Value="cwCollections.Dictionary.Standard"/>
+      </Item67>
+      <Item68>
+        <Filename Value="implementation\cwcollections.list.standard.pas"/>
+        <UnitName Value="cwCollections.List.Standard"/>
+      </Item68>
+      <Item69>
+        <Filename Value="implementation\cwcollections.ringbuffer.standard.pas"/>
+        <UnitName Value="cwCollections.RingBuffer.Standard"/>
+      </Item69>
+      <Item70>
+        <Filename Value="implementation\cwcollections.stack.standard.pas"/>
+        <UnitName Value="cwCollections.Stack.Standard"/>
+      </Item70>
+      <Item71>
+        <Filename Value="implementation\cwcollections.stringlist.standard.pas"/>
+        <UnitName Value="cwCollections.StringList.Standard"/>
+      </Item71>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="FCL"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

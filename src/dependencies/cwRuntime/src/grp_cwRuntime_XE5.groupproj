@@ -1,0 +1,168 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A712C0C7-7ADD-44D8-92C6-CE17CBDC1B1D}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="main\pkg_cwruntime_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\01-EchoServer\EchoServer_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\02_EchoClient\EchoClient_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\01 - Simple Sample\SimpleSample_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\02 - Parameterized\ParameterizedState_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwTest\Sample Tests\cwTest_SampleTests_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\01 - Running Tasks\RunningTasks_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\03 - Long Threads\LongThreads_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="pkg_cwruntime_XE5">
+        <MSBuild Projects="main\pkg_cwruntime_XE5.dproj"/>
+    </Target>
+    <Target Name="pkg_cwruntime_XE5:Clean">
+        <MSBuild Projects="main\pkg_cwruntime_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pkg_cwruntime_XE5:Make">
+        <MSBuild Projects="main\pkg_cwruntime_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="lib_testLoadLib_XE5">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE5.dproj"/>
+    </Target>
+    <Target Name="lib_testLoadLib_XE5:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="lib_testLoadLib_XE5:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_XE5">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE5.dproj"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_XE5:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_XE5:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoServer_XE5">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_XE5.dproj"/>
+    </Target>
+    <Target Name="EchoServer_XE5:Clean">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoServer_XE5:Make">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoClient_XE5">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_XE5.dproj"/>
+    </Target>
+    <Target Name="EchoClient_XE5:Clean">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoClient_XE5:Make">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SimpleSample_XE5">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_XE5.dproj"/>
+    </Target>
+    <Target Name="SimpleSample_XE5:Clean">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleSample_XE5:Make">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParameterizedState_XE5">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_XE5.dproj"/>
+    </Target>
+    <Target Name="ParameterizedState_XE5:Clean">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParameterizedState_XE5:Make">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_XE5">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_XE5.dproj"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_XE5:Clean">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_XE5:Make">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RunningTasks_XE5">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_XE5.dproj"/>
+    </Target>
+    <Target Name="RunningTasks_XE5:Clean">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RunningTasks_XE5:Make">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParallelFor_XE5">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE5.dproj"/>
+    </Target>
+    <Target Name="ParallelFor_XE5:Clean">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParallelFor_XE5:Make">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LongThreads_XE5">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_XE5.dproj"/>
+    </Target>
+    <Target Name="LongThreads_XE5:Clean">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LongThreads_XE5:Make">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MessagedThreads_XE5">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE5.dproj"/>
+    </Target>
+    <Target Name="MessagedThreads_XE5:Clean">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MessagedThreads_XE5:Make">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="pkg_cwruntime_XE5;lib_testLoadLib_XE5;cwDynLib_LoadLibSample_XE5;EchoServer_XE5;EchoClient_XE5;SimpleSample_XE5;ParameterizedState_XE5;cwTest_SampleTests_XE5;RunningTasks_XE5;ParallelFor_XE5;LongThreads_XE5;MessagedThreads_XE5"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="pkg_cwruntime_XE5:Clean;lib_testLoadLib_XE5:Clean;cwDynLib_LoadLibSample_XE5:Clean;EchoServer_XE5:Clean;EchoClient_XE5:Clean;SimpleSample_XE5:Clean;ParameterizedState_XE5:Clean;cwTest_SampleTests_XE5:Clean;RunningTasks_XE5:Clean;ParallelFor_XE5:Clean;LongThreads_XE5:Clean;MessagedThreads_XE5:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="pkg_cwruntime_XE5:Make;lib_testLoadLib_XE5:Make;cwDynLib_LoadLibSample_XE5:Make;EchoServer_XE5:Make;EchoClient_XE5:Make;SimpleSample_XE5:Make;ParameterizedState_XE5:Make;cwTest_SampleTests_XE5:Make;RunningTasks_XE5:Make;ParallelFor_XE5:Make;LongThreads_XE5:Make;MessagedThreads_XE5:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
