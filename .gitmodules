@@ -1,3 +1,0 @@
-[submodule "dependencies/cwRuntime"]
-	path = dependencies/cwRuntime
-	url = https://github.com/chapmanworld/cwRuntime.git
