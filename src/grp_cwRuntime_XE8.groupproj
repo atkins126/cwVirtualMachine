@@ -1,0 +1,168 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{92CC1C67-BBB1-4CC4-80F4-62445947BB8C}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="main\pkg_cwruntime_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\01-EchoServer\EchoServer_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\02_EchoClient\EchoClient_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\01 - Simple Sample\SimpleSample_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\02 - Parameterized\ParameterizedState_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwTest\Sample Tests\cwTest_SampleTests_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\01 - Running Tasks\RunningTasks_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\03 - Long Threads\LongThreads_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE8.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="pkg_cwruntime_XE8">
+        <MSBuild Projects="main\pkg_cwruntime_XE8.dproj"/>
+    </Target>
+    <Target Name="pkg_cwruntime_XE8:Clean">
+        <MSBuild Projects="main\pkg_cwruntime_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pkg_cwruntime_XE8:Make">
+        <MSBuild Projects="main\pkg_cwruntime_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="lib_testLoadLib_XE8">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE8.dproj"/>
+    </Target>
+    <Target Name="lib_testLoadLib_XE8:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="lib_testLoadLib_XE8:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_XE8">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE8.dproj"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_XE8:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_XE8:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoServer_XE8">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_XE8.dproj"/>
+    </Target>
+    <Target Name="EchoServer_XE8:Clean">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoServer_XE8:Make">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoClient_XE8">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_XE8.dproj"/>
+    </Target>
+    <Target Name="EchoClient_XE8:Clean">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoClient_XE8:Make">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SimpleSample_XE8">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_XE8.dproj"/>
+    </Target>
+    <Target Name="SimpleSample_XE8:Clean">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleSample_XE8:Make">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParameterizedState_XE8">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_XE8.dproj"/>
+    </Target>
+    <Target Name="ParameterizedState_XE8:Clean">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParameterizedState_XE8:Make">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_XE8">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_XE8.dproj"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_XE8:Clean">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_XE8:Make">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RunningTasks_XE8">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_XE8.dproj"/>
+    </Target>
+    <Target Name="RunningTasks_XE8:Clean">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RunningTasks_XE8:Make">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParallelFor_XE8">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE8.dproj"/>
+    </Target>
+    <Target Name="ParallelFor_XE8:Clean">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParallelFor_XE8:Make">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LongThreads_XE8">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_XE8.dproj"/>
+    </Target>
+    <Target Name="LongThreads_XE8:Clean">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LongThreads_XE8:Make">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MessagedThreads_XE8">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE8.dproj"/>
+    </Target>
+    <Target Name="MessagedThreads_XE8:Clean">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MessagedThreads_XE8:Make">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_XE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="pkg_cwruntime_XE8;lib_testLoadLib_XE8;cwDynLib_LoadLibSample_XE8;EchoServer_XE8;EchoClient_XE8;SimpleSample_XE8;ParameterizedState_XE8;cwTest_SampleTests_XE8;RunningTasks_XE8;ParallelFor_XE8;LongThreads_XE8;MessagedThreads_XE8"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="pkg_cwruntime_XE8:Clean;lib_testLoadLib_XE8:Clean;cwDynLib_LoadLibSample_XE8:Clean;EchoServer_XE8:Clean;EchoClient_XE8:Clean;SimpleSample_XE8:Clean;ParameterizedState_XE8:Clean;cwTest_SampleTests_XE8:Clean;RunningTasks_XE8:Clean;ParallelFor_XE8:Clean;LongThreads_XE8:Clean;MessagedThreads_XE8:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="pkg_cwruntime_XE8:Make;lib_testLoadLib_XE8:Make;cwDynLib_LoadLibSample_XE8:Make;EchoServer_XE8:Make;EchoClient_XE8:Make;SimpleSample_XE8:Make;ParameterizedState_XE8:Make;cwTest_SampleTests_XE8:Make;RunningTasks_XE8:Make;ParallelFor_XE8:Make;LongThreads_XE8:Make;MessagedThreads_XE8:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
