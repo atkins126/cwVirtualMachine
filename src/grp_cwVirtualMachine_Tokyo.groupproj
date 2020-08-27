@@ -9,6 +9,9 @@
         <Projects Include="samples\01 - Hello VM\HelloVM_Tokyo.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="tests\test_cwVirtualMachine_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="HelloVM_Tokyo:Make">
         <MSBuild Projects="samples\01 - Hello VM\HelloVM_Tokyo.dproj" Targets="Make"/>
     </Target>
+    <Target Name="test_cwVirtualMachine_Tokyo">
+        <MSBuild Projects="tests\test_cwVirtualMachine_Tokyo.dproj"/>
+    </Target>
+    <Target Name="test_cwVirtualMachine_Tokyo:Clean">
+        <MSBuild Projects="tests\test_cwVirtualMachine_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="test_cwVirtualMachine_Tokyo:Make">
+        <MSBuild Projects="tests\test_cwVirtualMachine_Tokyo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="pkg_cwVirtualMachine_Tokyo;HelloVM_Tokyo"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Tokyo;HelloVM_Tokyo;test_cwVirtualMachine_Tokyo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="pkg_cwVirtualMachine_Tokyo:Clean;HelloVM_Tokyo:Clean"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Tokyo:Clean;HelloVM_Tokyo:Clean;test_cwVirtualMachine_Tokyo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="pkg_cwVirtualMachine_Tokyo:Make;HelloVM_Tokyo:Make"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Tokyo:Make;HelloVM_Tokyo:Make;test_cwVirtualMachine_Tokyo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

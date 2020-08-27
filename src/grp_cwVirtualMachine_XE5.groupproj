@@ -9,6 +9,9 @@
         <Projects Include="samples\01 - Hello VM\HelloVM_XE5.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="tests\test_cwVirtualMachine_XE5.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="HelloVM_XE5:Make">
         <MSBuild Projects="samples\01 - Hello VM\HelloVM_XE5.dproj" Targets="Make"/>
     </Target>
+    <Target Name="test_cwVirtualMachine_XE5">
+        <MSBuild Projects="tests\test_cwVirtualMachine_XE5.dproj"/>
+    </Target>
+    <Target Name="test_cwVirtualMachine_XE5:Clean">
+        <MSBuild Projects="tests\test_cwVirtualMachine_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="test_cwVirtualMachine_XE5:Make">
+        <MSBuild Projects="tests\test_cwVirtualMachine_XE5.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="pkg_cwVirtualMachine_XE5;HelloVM_XE5"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_XE5;HelloVM_XE5;test_cwVirtualMachine_XE5"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="pkg_cwVirtualMachine_XE5:Clean;HelloVM_XE5:Clean"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_XE5:Clean;HelloVM_XE5:Clean;test_cwVirtualMachine_XE5:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="pkg_cwVirtualMachine_XE5:Make;HelloVM_XE5:Make"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_XE5:Make;HelloVM_XE5:Make;test_cwVirtualMachine_XE5:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

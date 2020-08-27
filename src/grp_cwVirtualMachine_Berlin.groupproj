@@ -9,6 +9,9 @@
         <Projects Include="samples\01 - Hello VM\HelloVM_Berlin.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="tests\test_cwVirtualMachine_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="HelloVM_Berlin:Make">
         <MSBuild Projects="samples\01 - Hello VM\HelloVM_Berlin.dproj" Targets="Make"/>
     </Target>
+    <Target Name="test_cwVirtualMachine_Berlin">
+        <MSBuild Projects="tests\test_cwVirtualMachine_Berlin.dproj"/>
+    </Target>
+    <Target Name="test_cwVirtualMachine_Berlin:Clean">
+        <MSBuild Projects="tests\test_cwVirtualMachine_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="test_cwVirtualMachine_Berlin:Make">
+        <MSBuild Projects="tests\test_cwVirtualMachine_Berlin.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="pkg_cwVirtualMachine_Berlin;HelloVM_Berlin"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Berlin;HelloVM_Berlin;test_cwVirtualMachine_Berlin"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="pkg_cwVirtualMachine_Berlin:Clean;HelloVM_Berlin:Clean"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Berlin:Clean;HelloVM_Berlin:Clean;test_cwVirtualMachine_Berlin:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="pkg_cwVirtualMachine_Berlin:Make;HelloVM_Berlin:Make"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Berlin:Make;HelloVM_Berlin:Make;test_cwVirtualMachine_Berlin:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

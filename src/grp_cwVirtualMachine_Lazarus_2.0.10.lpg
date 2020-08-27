@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectGroup FileVersion="1">
-    <Targets Count="2">
+    <Targets Count="3">
       <Target0 FileName="main\pkg_cwvirtualmachine_lazarus_2_0_10.lpk"/>
       <Target1 FileName="samples\01 - Hello VM\HelloVM_Lazarus_2_0_10.lpi">
         <BuildModes Count="1"/>
         <Mode1 Name="default"/>
       </Target1>
+      <Target2 FileName="tests\test_cwVirtualMachine_Lazarus_2_0_10.lpi">
+        <BuildModes Count="1"/>
+        <Mode1 Name="Default"/>
+      </Target2>
     </Targets>
   </ProjectGroup>
 </CONFIG>
