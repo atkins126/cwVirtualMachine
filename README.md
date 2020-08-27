@@ -8,5 +8,5 @@ The code is likely to change dramatically as the series continues, therefore, ea
 
 # Getting the code.
 The code now has a dependency on my cwRuntime library, which is included as a submodule in /dependencies/cwRuntime.
-If you are using the GitHub desktop client, it automatically clones this submodule when cloning this repository.
+If you are using the GitHub desktop client, it automatically clones the submodule when cloning this repository.
 Other clients may need you to manually clone the submodule (see respective client documentation).
