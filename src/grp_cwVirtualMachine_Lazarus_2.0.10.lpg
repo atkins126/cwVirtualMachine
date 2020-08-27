@@ -5,7 +5,7 @@
       <Target0 FileName="main\pkg_cwvirtualmachine_lazarus_2_0_10.lpk"/>
       <Target1 FileName="samples\01 - Hello VM\HelloVM_Lazarus_2_0_10.lpi">
         <BuildModes Count="1"/>
-        <Mode1 Name="Default"/>
+        <Mode1 Name="default"/>
       </Target1>
     </Targets>
   </ProjectGroup>
