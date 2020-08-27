@@ -41,7 +41,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\main\api;..\..\main\implementation"/>
+      <OtherUnitFiles Value="..\..\main\api;..\..\main\implementation;..\..\dependencies\cwRuntime\src\main\api;..\..\dependencies\cwRuntime\src\main\implementation"/>
       <UnitOutputDirectory Value="..\..\..\out\lib\$(TargetCPU)-$(TargetOS)\$(BuildMode)"/>
     </SearchPaths>
   </CompilerOptions>

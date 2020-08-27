@@ -81,6 +81,7 @@
         <DCC_Description>A Virtual Machine written in Pascal for fun and education at ChapmanWorld (BSD 3-Clause)</DCC_Description>
         <DCC_K>false</DCC_K>
         <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
+        <DCC_UnitSearchPath>..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <EnabledSysJars>android-support-v4.dex.jar;apk-expansion.dex.jar;cloud-messaging.dex.jar;fmx.dex.jar;google-analytics-v2.dex.jar;google-play-billing.dex.jar;google-play-licensing.dex.jar;google-play-services.dex.jar</EnabledSysJars>

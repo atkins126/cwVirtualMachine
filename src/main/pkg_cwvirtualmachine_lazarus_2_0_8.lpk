@@ -9,6 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
+        <OtherUnitFiles Value="..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation"/>
         <UnitOutputDirectory Value="..\..\out\lib\$(TargetCPU)-$(TargetOS)\$(BuildMode)"/>
       </SearchPaths>
     </CompilerOptions>

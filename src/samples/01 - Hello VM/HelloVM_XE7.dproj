@@ -45,7 +45,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_UnitSearchPath>..\..\main\api;..\..\main\implementation;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\main\api;..\..\main\implementation;..\..\dependencies\cwRuntime\src\main\api;..\..\dependencies\cwRuntime\src\main\implementation;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>HelloVM_XE7</SanitizedProjectName>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_BplOutput>..\..\..\out\lib\bpl</DCC_BplOutput>
