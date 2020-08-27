@@ -32,4 +32,8 @@ package pkg_cwVirtualMachine_XE7;
 requires
   rtl;
 
+contains
+  cwvirtualmachine in 'api\cwvirtualmachine.pas',
+  cwvirtualmachine.standard in 'implementation\cwvirtualmachine.standard.pas';
+
 end.

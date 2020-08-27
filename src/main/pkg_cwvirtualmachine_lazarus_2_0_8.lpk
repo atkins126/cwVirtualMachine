@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation"/>
+        <OtherUnitFiles Value="..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation;api;implementation"/>
         <UnitOutputDirectory Value="..\..\out\lib\$(TargetCPU)-$(TargetOS)\$(BuildMode)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -33,6 +33,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "/>
+    <Files Count="2">
+      <Item1>
+        <Filename Value="api\cwvirtualmachine.pas"/>
+        <UnitName Value="cwVirtualMachine"/>
+      </Item1>
+      <Item2>
+        <Filename Value="implementation\cwvirtualmachine.standard.pas"/>
+        <UnitName Value="cwVirtualMachine.Standard"/>
+      </Item2>
+    </Files>
     <RequiredPkgs Count="1">
       <Item1>
         <PackageName Value="FCL"/>
