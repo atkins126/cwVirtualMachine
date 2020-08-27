@@ -70,3 +70,4 @@ modules/
 *.compiled
 *.s
 *.lps
+/out
