@@ -42,6 +42,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..\main\api;..\..\main\implementation"/>
       <UnitOutputDirectory Value="..\..\..\out\lib\$(TargetCPU)-$(TargetOS)\$(BuildMode)"/>
     </SearchPaths>
   </CompilerOptions>

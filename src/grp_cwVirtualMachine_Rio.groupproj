@@ -6,6 +6,9 @@
         <Projects Include="main\pkg_cwVirtualMachine_Rio.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="samples\01 - Hello VM\HelloVM_Rio.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -23,14 +26,23 @@
     <Target Name="pkg_cwVirtualMachine_Rio:Make">
         <MSBuild Projects="main\pkg_cwVirtualMachine_Rio.dproj" Targets="Make"/>
     </Target>
+    <Target Name="HelloVM_Rio">
+        <MSBuild Projects="samples\01 - Hello VM\HelloVM_Rio.dproj"/>
+    </Target>
+    <Target Name="HelloVM_Rio:Clean">
+        <MSBuild Projects="samples\01 - Hello VM\HelloVM_Rio.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HelloVM_Rio:Make">
+        <MSBuild Projects="samples\01 - Hello VM\HelloVM_Rio.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="pkg_cwVirtualMachine_Rio"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Rio;HelloVM_Rio"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="pkg_cwVirtualMachine_Rio:Clean"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Rio:Clean;HelloVM_Rio:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="pkg_cwVirtualMachine_Rio:Make"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_Rio:Make;HelloVM_Rio:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
