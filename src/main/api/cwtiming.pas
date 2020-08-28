@@ -34,7 +34,7 @@ unit cwTiming;
 
 interface
 
-resourcestring
+const
   stNoHighPrecisionTimer = '{FCF855A5-694F-48D1-994E-D9D60E365930} Could not find a high precision timer on this system.';
 
 const
@@ -105,6 +105,12 @@ type
   end;
 
 implementation
+uses
+  cwStatus
+;
+
+initialization
+  TStatus.Register(stNoHighPrecisionTimer);
 
 end.
 

@@ -45,7 +45,7 @@ uses
   cwTypes
 ;
 
-resourcestring
+const
   stInvalidArrayForVector = '{2A1282A4-320C-4905-97E8-0E1E5FD85285} The provided array was not the correct size for the vecotr.';
 
 type
@@ -11104,5 +11104,8 @@ begin
 end;
 
 {$endregion}
+
+initialization
+  TStatus.Register(stInvalidArrayForVector);
 
 end.

@@ -38,7 +38,7 @@ uses
 , cwIO
 ;
 
-resourcestring
+const
   stSocketError                   = '{25ABA9CE-4D63-4159-BD96-A75200DCF95A} Socket error occurred while performing action: (%action%) with message: (%message%).';
   stInvalidSocket                 = '{A775B8AE-2429-47F3-B2FF-448520988600} Invalid socket handle.';
   stInvalidSocketForBind          = '{E39CB945-466B-4892-9290-F6986F0FFA5E} Invalid socket handle for bind.';
@@ -628,6 +628,24 @@ begin
   Result.IPAddress := IPAddress;
   Result.Port := Port;
 end;
+
+initialization
+  TStatus.Register(stSocketError);
+  TStatus.Register(stInvalidSocket);
+  TStatus.Register(stInvalidSocketForBind);
+  TStatus.Register(stInvalidSocketForListen);
+  TStatus.Register(stInvalidSocketForAccept);
+  TStatus.Register(stInvalidSocketForConnect);
+  TStatus.Register(stInvalidSocketForSend);
+  TStatus.Register(stInvalidSocketForRecieve);
+  TStatus.Register(stBindNotSupportedOnDomain);
+  TStatus.Register(stFailedToConvertNetworkAddress);
+  TStatus.Register(stSocketListenError);
+  TStatus.Register(stSocketAcceptError);
+  TStatus.Register(stBufferNotAssigned);
+  TStatus.Register(stSocketClosed);
+  TStatus.Register(stUnsupportedAddressFormat);
+  TStatus.Register(stUnknownSocketDomain);
 
 end.
 

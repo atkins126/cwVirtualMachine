@@ -38,7 +38,7 @@ uses
 ;
 
 {$region ' Status messages'}
-resourcestring
+const
   stThreadSleepFailed           = '{66B2F278-764D-4746-92A1-06BC71C1A5DD} Failed to put thread to sleep.';
   stErrorInsertingTasks         = '{6281E70E-88EE-45BD-AA5E-133668655ACC} Failed to insert tasks into task pool, pool corrupted?';
   stThreadTerminteFailed        = '{F4C513FD-683B-4CE0-8B52-0E89C4C8AD83} Failed to terminate thread.';
@@ -876,6 +876,25 @@ begin
 end;
 
 {$endregion}
+
+initialization
+  TStatus.Register(stThreadSleepFailed);
+  TStatus.Register(stErrorInsertingTasks);
+  TStatus.Register(stThreadTerminteFailed);
+  TStatus.Register(stThreadStartupFailed);
+  TStatus.Register(stThreadCreateFailed);
+  TStatus.Register(stThreadAffinityFailed);
+  TStatus.Register(stNoTaskAssigned);
+  TStatus.Register(stCreateMutxFailed);
+  TStatus.Register(stInitMutexFailed);
+  TStatus.Register(stInitConditionVariableFailed);
+  TStatus.Register(stThreadAttrInitFailed);
+  TStatus.Register(stThreadStackSetFailed);
+  TStatus.Register(stThreadAttrFnitFailed);
+  TStatus.Register(stThreadJoinFailed);
+  TStatus.Register(stPostMessageDeniedToThread);
+  TStatus.Register(stThreadMessageChannelFull);
+  TStatus.Register(stMessagedThreadUniqueName);
 
 end.
 

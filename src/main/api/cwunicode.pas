@@ -35,7 +35,7 @@ unit cwUnicode;
 interface
 
 {$region ' Status texts'}
-resourcestring
+const
   stUTFUnknownNotSupported = '{037BB311-27C9-4F78-9D1E-BB3307003BF6} Can''t encode utfUnknown';
   stUnicodeConversion      = '{4BE94598-F3AB-4DA1-B08B-C2E6A1F77BD4} Unicode conversion failed.';
 {$endregion}
@@ -439,6 +439,13 @@ type
   end;
 
 implementation
+uses
+  cwStatus
+;
+
+initialization
+  TStatus.Register(stUTFUnknownNotSupported);
+  TStatus.Register(stUnicodeConversion);
 
 end.
 
