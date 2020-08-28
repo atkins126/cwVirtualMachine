@@ -26,6 +26,7 @@
 *)
 {$endif}
 unit cwvirtualmachine.virtualcpu.chappie;
+{$ifdef fpc}{$mode delphiunicode}{$endif}
 
 interface
 uses
@@ -57,6 +58,7 @@ uses
 ;
 
 {$region ' Custom CPU state record for the chappie line of CPU'}
+
 type
   TVMInstruction = uint16;
   pVMInstruction = ^TVMInstruction;
@@ -65,6 +67,15 @@ type
     Default: TVMState;
   end;
   pChappieState = ^TChappieState;
+
+procedure IncProgramCounter( const State: pVMState; const ctBytes: nativeuint ); inline;
+begin
+  {$hints off}
+  State^.lpInstructionPointer := pointer(
+    nativeuint(State^.lpInstructionPointer) + ctBytes
+  );
+  {$hints on}
+end;
 
 {$endregion}
 
@@ -75,18 +86,24 @@ var
 
 function NopHandler( const State: pVMState ): TStatus;
 begin
+  Result := TStatus.Unknown;
   Writeln('Nop');
+  Result := TStatus.Success;
 end;
 
 function HaltHandler( const State: pVMState ): TStatus;
 begin
+  Result := TStatus.Unknown;
   Writeln('Setting Running to false (HALT)');
   State^.Running := False;
+  Result := TStatus.Success;
 end;
 
 function AlertHandler( const State: pVMState ): TStatus;
 begin
+  Result := TStatus.Unknown;
   Writeln('Alert!!!!!');
+  Result := TStatus.Success;
 end;
 
 {$endregion}
@@ -111,9 +128,7 @@ begin
   Handler := InstructionSet[ InstructionIndex ];
 
   //- inc program counter.
-  pChappieState(fVMState)^.Default.lpInstructionPointer := pointer(
-    nativeuint( pChappieState(fVMState)^.Default.lpInstructionPointer ) + sizeof(TVMInstruction)
-  );
+  IncProgramCounter( fVMState, sizeof(TVMInstruction) );
 
   Result := TStatus.Success;
 end;

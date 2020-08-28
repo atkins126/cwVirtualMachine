@@ -7,6 +7,11 @@ unit pkg_cwvirtualmachine_lazarus_2_0_10;
 {$warn 5023 off : no warning about unused units}
 interface
 
+uses
+  cwVirtualMachine, cwVirtualMachine.Chappie, cwVirtualMachine.Standard, 
+  cwvirtualmachine.virtualcpu.chappie, 
+  cwVirtualMachine.VirtualMachine.Standard, cwVirtualMachine.Internal;
+
 implementation
 
 end.

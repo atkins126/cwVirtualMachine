@@ -26,6 +26,7 @@
 *)
 {$endif}
 unit cwVirtualMachine.Chappie;
+{$ifdef fpc}{$mode delphiunicode}{$endif}
 
 interface
 uses

@@ -51,6 +51,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_IMPLICIT_IMPORT>false</DCC_IMPLICIT_IMPORT>
         <DCC_UnitSearchPath>..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_DcuOutput>..\..\out\lib\$(Platform)\$(Config)</DCC_DcuOutput>
         <GenPackage>true</GenPackage>
@@ -108,7 +109,11 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="api\cwvirtualmachine.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.standard.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmachine.standard.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.internal.pas"/>
+        <DCCReference Include="api\cwvirtualmachine.standard.pas"/>
+        <DCCReference Include="api\cwvirtualmachine.chappie.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
