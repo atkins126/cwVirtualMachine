@@ -32,6 +32,49 @@ uses
   cwVirtualMachine
 ;
 
+type
+
+  /// <summary>
+  ///   A factory record for instancing IVirtualMachine.
+  /// </summary>
+  TVirtualMachine = record
+
+    /// <summary>
+    ///   Factory method for creating instances of IVirtualMachine.
+    /// </summary>
+    /// <param name="CPU">
+    ///   A CPU implementation for the virtual machine.
+    /// </param>
+    class function Create( const CPU: IVirtualCPU ): IVirtualMachine; static;
+  end;
+
+
+  /// <summary>
+  ///   A factory method for creating instances of IVirtualCPU.
+  /// </summary>
+  TVirualCPU = record
+
+    /// <summary>
+    ///   Creates an instance of the 'Chappie' CPU from the ChapmanWorld "Lets
+    ///   make a Virtual Machine" video series.
+    /// </summary>
+    class function CreateChappie: IVirtualCPU; static;
+  end;
+
 implementation
+uses
+  cwVirtualMachine.VirtualMachine.Standard
+, cwVirtualMachine.VirtualCPU.Chappie
+;
+
+class function TVirtualMachine.Create(const CPU: IVirtualCPU): IVirtualMachine;
+begin
+  Result := cwVirtualMachine.VirtualMachine.Standard.TVirtualMachine.Create(CPU);
+end;
+
+class function TVirualCPU.CreateChappie: IVirtualCPU;
+begin
+  Result := cwVirtualMachine.VirtualCPU.Chappie.TChappieCPU.Create;
+end;
 
 end.

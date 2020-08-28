@@ -25,21 +25,43 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-program test_cwVirtualMachine;
-{$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
+unit cwVirtualMachine.Chappie;
 
+interface
 uses
-  cwTest,
-  cwTest.Standard
+  cwVirtualMachine
 ;
 
-var
-  R: nativeuint;
+type
+  /// <summary>
+  ///   Utility enumeration of chappie CPU instructions.
+  /// </summary>
+  TChappieInstructions = (
+    opNop   = $00,
+    opHalt  = $01,
+    opAlert = $02
+  );
 
-begin
-  R := TestSuite.Run( 'test_cwVirtualMachine', [TConsoleReport.Create] );
-  if ParamStr(1)='ide' then begin
-    Readln;
+  /// <summary>
+  ///   A record representing the Chappie CPU as developed as part of the
+  ///  ChapmanWorld "Lets build a virtual machine" video series.
+  /// </summary>
+  TChappieCPU = record
+
+    /// <summary>
+    ///   Creates an instance of the 'Chappie' CPU.
+    /// </summary>
+    class function Create: IVirtualCPU; static;
   end;
-  System.ExitCode := R;
+
+implementation
+uses
+  cwVirtualMachine.VirtualCPU.Chappie
+;
+
+class function TChappieCPU.Create: IVirtualCPU;
+begin
+  Result := cwVirtualMachine.VirtualCPU.Chappie.TChappieCPU.Create;
+end;
+
 end.

@@ -25,21 +25,37 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-program test_cwVirtualMachine;
-{$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
+unit cwVirtualMachine.Standard;
 
+interface
 uses
-  cwTest,
-  cwTest.Standard
+  cwVirtualMachine
 ;
 
-var
-  R: nativeuint;
+type
+  /// <summary>
+  ///   A factory record for instancing IVirtualMachine.
+  /// </summary>
+  TVirtualMachine = record
 
-begin
-  R := TestSuite.Run( 'test_cwVirtualMachine', [TConsoleReport.Create] );
-  if ParamStr(1)='ide' then begin
-    Readln;
+    /// <summary>
+    ///   Factory method for creating instances of IVirtualMachine.
+    /// </summary>
+    /// <param name="CPU">
+    ///   A CPU implementation for the virtual machine.
+    /// </param>
+    class function Create( const CPU: IVirtualCPU ): IVirtualMachine; static;
   end;
-  System.ExitCode := R;
+
+
+implementation
+uses
+  cwVirtualMachine.VirtualMachine.Standard
+;
+
+class function TVirtualMachine.Create(const CPU: IVirtualCPU): IVirtualMachine;
+begin
+  Result := cwVirtualMachine.VirtualMachine.Standard.TVirtualMachine.Create(CPU);
+end;
+
 end.

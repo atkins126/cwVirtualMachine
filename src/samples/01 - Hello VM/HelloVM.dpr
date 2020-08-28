@@ -27,8 +27,30 @@
 {$endif}
 program HelloVM;
 {$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
+uses
+  cwIO
+, cwIO.Standard
+, cwVirtualMachine
+, cwVirtualMachine.Standard
+, cwVirtualMachine.Chappie
+;
 
+var
+  ByteCode: ITypedBuffer<uint16>;
+  VM: IVirtualMachine;
 
 begin
+  //- Create a program to run on our virtual cpu  (opNop, opAlert, opHalt);
+  ByteCode := TTypedBuffer<uint16>.Create( 3, sizeof(uint16) );
+  ByteCode[0] := uint16( TChappieInstructions.opNop   );
+  ByteCode[1] := uint16( TChappieInstructions.opAlert );
+  ByteCode[2] := uint16( TChappieInstructions.opHalt  );
+
+  //- Create an instance of the virtual machine with the 'Chappie' CPU.
+  VM := TVirtualMachine.Create( TChappieCPU.Create );
+  VM.LoadBytecode( ByteCode );
+  VM.Execute;
+
+  Readln;
 end.
 
