@@ -40,7 +40,7 @@ uses
   cwIO
 ;
 
-resourcestring
+const
   stUnableToDetermineUnicodeFormat = '{52AF06E4-C774-41BE-9147-E56F8DBB084C} Unable to determine unicode format.';
 
 type
@@ -1130,5 +1130,11 @@ type
 {$endregion}
 
 implementation
+uses
+  cwStatus
+;
+
+initialization
+  TStatus.Register( stUnableToDetermineUnicodeFormat );
 
 end.

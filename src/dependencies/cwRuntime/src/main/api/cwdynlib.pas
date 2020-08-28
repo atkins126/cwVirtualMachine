@@ -37,7 +37,7 @@ uses
   cwStatus
 ;
 
-resourcestring
+const
   stModuleNotLoaded        = '{C4AEB199-88D8-4DF8-9144-604D4114F5FF} Dynlib: Module not loaded.';
   stFailedToLoadEntryPoint = '{5F7F9A43-9B2B-47E8-B861-B76888ECE6A5} Dynlib: failed to load entry point.';
 
@@ -88,6 +88,10 @@ type
 
 
 implementation
+
+initialization
+  TStatus.Register(stModuleNotLoaded);
+  TStatus.Register(stFailedToLoadEntryPoint);
 
 end.
 

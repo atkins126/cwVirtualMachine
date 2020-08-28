@@ -112,7 +112,7 @@ uses
 , cwStatus.Placeholders
 ;
 
-resourcestring
+const
   {$hints off} stSuccess = '{00000000-0000-0000-0000-000000000000} SUCCESS'; {$hints on}
   {$hints off} stUnknown = '{01010101-0101-0101-0101-010101010101} UNKNOWN'; {$hints on}
 

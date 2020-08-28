@@ -41,6 +41,7 @@ begin
 end;
 
 begin
+  TStatus.Register(stParameterizedMessage);
   Writeln('A parameterized message replaces it''s placeholders with the provided parameter strings.');
   Writeln('In this next message, parameters A and B are set to ''2'' and ''5'' respectively.');
   Writeln;
