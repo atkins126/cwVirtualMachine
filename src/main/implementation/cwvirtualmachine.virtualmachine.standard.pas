@@ -76,7 +76,7 @@ var
 begin
   if not assigned(fCPUState) then exit;
   while (fCPUState^.Running) do begin
-    fCPU.FetchInstruction( Handler ).Raize;
+    Handler := fCPU.FetchInstruction(fCPUState);
     Handler(fCPUState);
   end;
 end;
@@ -86,7 +86,10 @@ var
   Handler: TVMInstructionHandler;
 begin
   if not assigned(fCPUState) then exit;
-  fCPU.FetchInstruction( Handler ).Raize;
+  Handler := fCPU.FetchInstruction(fCPUState);
+  if not assigned(Handler) then begin
+    TStatus(stInvalidInstruction).Raize;
+  end;
   Handler(fCPUState);
 end;
 

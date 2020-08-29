@@ -44,7 +44,7 @@ type
     procedure DisposeState;
   strict private //- IVirtualCPU -//
     function Reset( const ByteCode: IBuffer ): pVMState;
-    function FetchInstruction( out Handler: TVMInstructionHandler ): TStatus;
+    function FetchInstruction( fVMState: pVMState ): TVMInstructionHandler;
   strict private //- IVirtualCPUState -//
   public
     constructor Create;
@@ -84,29 +84,25 @@ end;
 var
   InstructionSet: array[0..2] of TVMInstructionHandler;
 
-function NopHandler( const State: pVMState ): TStatus;
+procedure NopHandler( const State: pVMState );
 begin
-  Result := TStatus.Unknown;
   Writeln('Nop');
-  Result := TStatus.Success;
 end;
 
-function HaltHandler( const State: pVMState ): TStatus;
+procedure HaltHandler( const State: pVMState );
 begin
-  Result := TStatus.Unknown;
   Writeln('Setting Running to false (HALT)');
   State^.Running := False;
-  Result := TStatus.Success;
 end;
 
-function AlertHandler( const State: pVMState ): TStatus;
+procedure AlertHandler( const State: pVMState );
 begin
-  Result := TStatus.Unknown;
   Writeln('Alert!!!!!');
-  Result := TStatus.Success;
 end;
 
 {$endregion}
+
+{$region 'TChappieCPU'}
 
 constructor TChappieCPU.Create;
 begin
@@ -114,23 +110,16 @@ begin
   fVMState := nil;
 end;
 
-function TChappieCPU.FetchInstruction(out Handler: TVMInstructionHandler): TStatus;
+function TChappieCPU.FetchInstruction( fVMState: pVMState ): TVMInstructionHandler;
 var
-  InstructionIndex: TVMInstruction;
+  InstructionIndex: nativeuint;
 begin
-  Result := stVMNoState;
+  Result := nil;
   if not assigned(fVMState) then exit;
   InstructionIndex := pVMInstruction( pChappieState(fVMState)^.Default.lpInstructionPointer )^;
-  if InstructionIndex>=Length(InstructionSet) then begin
-    Result := TStatus(stIndexOutOfBounds).Return( [ InstructionIndex.AsString ] );
-    exit;
-  end;
-  Handler := InstructionSet[ InstructionIndex ];
-
-  //- inc program counter.
   IncProgramCounter( fVMState, sizeof(TVMInstruction) );
-
-  Result := TStatus.Success;
+  if InstructionIndex>=Length(InstructionSet) then exit;
+  Result := InstructionSet[ InstructionIndex ];
 end;
 
 destructor TChappieCPU.Destroy;
@@ -155,6 +144,8 @@ begin
   pChappieState(fVMState)^.Default.lpInstructionPointer := ByteCode.DataPtr;
   Result := fVMState;
 end;
+
+{$endregion}
 
 initialization
   InstructionSet[uint16(TChappieInstructions.opNop)]   := @NopHandler;

@@ -36,8 +36,8 @@ uses
 {$region ' Error states'}
 
 resourcestring
-  stVMNoState  = '{F98FFE86-94DB-4789-A7F5-DEFFF172FA5A} No byte-code has been loaded, or CPU is in error state.';
-  stInvalidCPU = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The provided CPU does not support IVirtualCPUState';
+  stInvalidCPU         = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The provided CPU does not support IVirtualCPUState';
+  stInvalidInstruction = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
 
 {$endregion}
 
@@ -93,8 +93,8 @@ uses
 
 initialization
   {$ifndef fpc}
+  TStatus.Register(stInvalidInstruction);
   TStatus.Register(stInvalidCPU);
-  TStatus.Register(stVMNoState);
   {$endif}
 
 end.

@@ -58,7 +58,7 @@ type
   //- come from. Depending on the CPU implementation it may update the
   //- program counter after fetching instructions. (Stack based VM's update
   //- the program counter on fetch, register based on execution typically.)
-  TVMInstructionHandler = function( const VMState: pVMState ): TStatus;
+  TVMInstructionHandler = procedure( const VMState: pVMState );
 
   //- cwRuntime library internal representation of a virtual CPU, allowing
   //- IVirtualMachine's implementation to work with the CPU state.
@@ -76,7 +76,7 @@ type
     //- Uses the internal state record to read the next instruction from
     //- the byte-code buffer, to be executed by the virtual machine
     //- implementation.
-    function FetchInstruction( out Handler: TVMInstructionHandler ): TStatus;
+    function FetchInstruction( fVMState: pVMState ): TVMInstructionHandler;
   end;
 
 implementation
