@@ -8,9 +8,8 @@ unit pkg_cwvirtualmachine_lazarus_2_0_10;
 interface
 
 uses
-  cwVirtualMachine, cwVirtualMachine.Chappie, cwVirtualMachine.Standard, 
-  cwvirtualmachine.virtualcpu.chappie, 
-  cwVirtualMachine.VirtualMachine.Standard, cwVirtualMachine.Internal;
+  cwVirtualMachine, cwVirtualMachine.Standard, 
+  cwvirtualmachine.virtualcpu.chappie, cwVirtualMachine.VirtualMachine.Standard;
 
 implementation
 

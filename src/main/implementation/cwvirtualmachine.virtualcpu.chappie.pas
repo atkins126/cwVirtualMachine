@@ -30,8 +30,7 @@ unit cwvirtualmachine.virtualcpu.chappie;
 
 interface
 uses
-  cwIO
-, cwStatus
+  cwStatus
 , cwVirtualMachine
 ;
 
@@ -104,12 +103,16 @@ begin
   end;
 
   //- Check for valid op-code
+  {$hints off}
   if pVMInstruction( fState.ProgramCounter )^>Length(InstructionSet) then begin
+  {$hints on}
     TStatus( stInvalidOpCode ).Raize;
   end;
 
   //- Execute instruction.
+  {$hints off}
   InstructionSet[pVMInstruction(fState.ProgramCounter)^](fState);
+  {$hints on}
 
   //- Increment program counter
   fState.ProgramCounter := fState.ProgramCounter + Sizeof(TVMInstruction);
@@ -129,7 +132,9 @@ end;
 
 procedure TChappieCPU.Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
 begin
+  {$hints off}
   fState.BytecodeStart  := nativeuint( lpBytecode );
+  {$hints on}
   fState.BytecodeStop   := fState.BytecodeStart + szByteCode;
   fState.ProgramCounter := fState.BytecodeStart;
   fState.Running        := True;
