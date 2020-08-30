@@ -32,8 +32,17 @@ uses
 , cwIO.Standard
 , cwVirtualMachine
 , cwVirtualMachine.Standard
-, cwVirtualMachine.Chappie
 ;
+
+type
+  /// <summary>
+  ///   Utility enumeration of chappie CPU instruction set.
+  /// </summary>
+  TChappieInstructions = (
+    opNop   = $00,
+    opHalt  = $01,
+    opAlert = $02
+  );
 
 var
   ByteCode: ITypedBuffer<uint16>;
@@ -47,7 +56,7 @@ begin
   ByteCode[2] := uint16( TChappieInstructions.opHalt  );
 
   //- Create an instance of the virtual machine with the 'Chappie' CPU.
-  VM := TVirtualMachine.Create( TChappieCPU.Create );
+  VM := TVirtualMachine.Create( TVirtualCPU.CreateChappie );
   VM.LoadBytecode( ByteCode );
   VM.Execute;
 

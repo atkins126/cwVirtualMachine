@@ -48,15 +48,35 @@ type
     class function Create( const CPU: IVirtualCPU ): IVirtualMachine; static;
   end;
 
+  /// <summary>
+  ///   A factory record for instancing virtual CPU's
+  /// </summary>
+  TVirtualCPU = record
+
+    /// <summary>
+    ///   Creates an instance of the 'Chappie' CPU, as developed as part of the
+    ///   ChapmanWorld "Lets build a virtual machine" video series.
+    /// </summary>
+    class function CreateChappie: IVirtualCPU; static;
+  end;
+
 
 implementation
 uses
   cwVirtualMachine.VirtualMachine.Standard
+, cwVirtualMachine.VirtualCPU.Chappie
 ;
 
 class function TVirtualMachine.Create(const CPU: IVirtualCPU): IVirtualMachine;
 begin
   Result := cwVirtualMachine.VirtualMachine.Standard.TVirtualMachine.Create(CPU);
+end;
+
+{ TVirtualCPU }
+
+class function TVirtualCPU.CreateChappie: IVirtualCPU;
+begin
+  Result := cwVirtualMachine.VirtualCPU.Chappie.TChappieCPU.Create;
 end;
 
 end.

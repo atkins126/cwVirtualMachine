@@ -33,7 +33,6 @@ uses
   cwIO
 , cwStatus
 , cwVirtualMachine
-, cwVirtualMachine.Internal
 ;
 
 type
@@ -62,7 +61,6 @@ type
 implementation
 uses
   cwTypes
-, cwVirtualMachine.Chappie //- okay in implementation section only!
 ;
 
 {$region ' Custom CPU state record for the chappie line of CPU'}
@@ -139,8 +137,8 @@ end;
 
 
 initialization
-  InstructionSet[uint16(TChappieInstructions.opNop)]   := TChappieCPU.NopHandler;
-  InstructionSet[uint16(TChappieInstructions.opHalt)]  := TChappieCPU.HaltHandler;
-  InstructionSet[uint16(TChappieInstructions.opAlert)] := TChappieCPU.AlertHandler;
+  InstructionSet[0] := TChappieCPU.NopHandler;
+  InstructionSet[1] := TChappieCPU.HaltHandler;
+  InstructionSet[2] := TChappieCPU.AlertHandler;
 
 end.

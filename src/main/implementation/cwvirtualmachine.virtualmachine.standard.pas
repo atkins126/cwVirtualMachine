@@ -32,7 +32,6 @@ interface
 uses
   cwIO
 , cwVirtualMachine
-, cwVirtualMachine.Internal
 ;
 
 type
