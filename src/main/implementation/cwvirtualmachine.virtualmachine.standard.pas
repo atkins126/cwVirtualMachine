@@ -38,8 +38,8 @@ uses
 type
   TVirtualMachine = class( TInterfacedObject, IVirtualMachine )
   private
-    fCPUState: pVMState;
-    fCPU: IVirtualCPUState;
+    fCPU: IVirtualCPU;
+    fBytecode: IBuffer;
   strict private //- IVirtualMachine -//
     procedure LoadBytecode( const ByteCode: IBuffer );
     procedure ExecuteStep;
@@ -51,17 +51,13 @@ type
 
 implementation
 uses
-  sysutils // for supports
-, cwStatus
+  cwStatus
 ;
 
 constructor TVirtualMachine.Create(const CPU: IVirtualCPU);
 begin
   inherited Create;
-  if not Supports(CPU,IVirtualCPUState) then begin
-    TStatus(stInvalidCPU).Raize;
-  end;
-  fCPU := CPU as IVirtualCPUState;
+  fCPU := CPU;
 end;
 
 destructor TVirtualMachine.Destroy;
@@ -71,31 +67,21 @@ begin
 end;
 
 procedure TVirtualMachine.Execute;
-var
-  Handler: TVMInstructionHandler;
 begin
-  if not assigned(fCPUState) then exit;
-  while (fCPUState^.Running) do begin
-    Handler := fCPU.FetchInstruction(fCPUState);
-    Handler(fCPUState);
-  end;
+  if not assigned(fCPU) then exit;
+  while fCPU.Clock do;
 end;
 
 procedure TVirtualMachine.ExecuteStep;
-var
-  Handler: TVMInstructionHandler;
 begin
-  if not assigned(fCPUState) then exit;
-  Handler := fCPU.FetchInstruction(fCPUState);
-  if not assigned(Handler) then begin
-    TStatus(stInvalidInstruction).Raize;
-  end;
-  Handler(fCPUState);
+  if not assigned(fCPU) then exit;
+  fCPU.Clock;
 end;
 
 procedure TVirtualMachine.LoadBytecode(const ByteCode: IBuffer);
 begin
-  fCPUState := fCPU.Reset( Bytecode );
+  fBytecode := Bytecode;
+  fCPU.Reset( fBytecode.DataPtr, fBytecode.Size );
 end;
 
 end.

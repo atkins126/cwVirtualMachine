@@ -36,8 +36,8 @@ uses
 {$region ' Error states'}
 
 resourcestring
-  stInvalidCPU         = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The provided CPU does not support IVirtualCPUState';
-  stInvalidInstruction = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
+  stUnexpectedEndOfBytecode = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The cpu reached the end of the byte-code unexpectedly.';
+  stInvalidOpCode           = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
 
 {$endregion}
 
@@ -56,6 +56,19 @@ type
   /// </summary>
   IVirtualCPU = interface
     ['{38F2CC5B-60AC-48CE-8F4F-DDDE20E45C08}']
+
+    ///  <summary>
+    ///    Resets the CPU, restoring initial state. <br/>
+    ///  </summary>
+    procedure Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
+
+    ///  <summary>
+    ///    Sends a 'clock' pulse to the CPU, instructing it to execute a
+    ///    single instruction cycle. <br/>
+    ///    Returns TRUE while there are remaining byte code instructions to
+    ///    run, and FALSE when the byte-code program has ended.
+    ///  </summary>
+    function Clock: boolean;
   end;
 
   /// <summary>
@@ -93,8 +106,8 @@ uses
 
 initialization
   {$ifndef fpc}
-  TStatus.Register(stInvalidInstruction);
-  TStatus.Register(stInvalidCPU);
+  TStatus.Register(stUnexpectedEndOfBytecode);
+  TStatus.Register(stInvalidOpCode);
   {$endif}
 
 end.

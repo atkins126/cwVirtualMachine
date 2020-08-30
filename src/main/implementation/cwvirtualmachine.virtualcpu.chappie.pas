@@ -37,18 +37,26 @@ uses
 ;
 
 type
-  TChappieCPU = class( TInterfacedObject, IVirtualCPU, IVirtualCPUState )
+  TChappieState = record
+    Running: boolean;
+    BytecodeStart: nativeuint;
+    BytecodeStop: nativeuint;
+    ProgramCounter: nativeuint;
+  end;
+
+type
+  TChappieCPU = class( TInterfacedObject, IVirtualCPU )
   private
-    fVMState: pVMState;
-  private
-    procedure DisposeState;
+    fState: TChappieState;
+  private //- Instruction Handlers -//
+    class procedure AlertHandler( var State: TChappieState ); static;
+    class procedure HaltHandler( var State: TChappieState ); static;
+    class procedure NopHandler( var State: TChappieState ); static;
   strict private //- IVirtualCPU -//
-    function Reset( const ByteCode: IBuffer ): pVMState;
-    function FetchInstruction( fVMState: pVMState ): TVMInstructionHandler;
-  strict private //- IVirtualCPUState -//
+    procedure Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
+    function Clock: boolean;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -62,94 +70,77 @@ uses
 type
   TVMInstruction = uint16;
   pVMInstruction = ^TVMInstruction;
-
-  TChappieState = record
-    Default: TVMState;
-  end;
-  pChappieState = ^TChappieState;
-
-procedure IncProgramCounter( const State: pVMState; const ctBytes: nativeuint ); inline;
-begin
-  {$hints off}
-  State^.lpInstructionPointer := pointer(
-    nativeuint(State^.lpInstructionPointer) + ctBytes
-  );
-  {$hints on}
-end;
-
-{$endregion}
-
-{$region ' Chappie CPU instruction set handlers'}
-
+  TVMInstructionHandler = procedure( var State: TChappieState );
 var
   InstructionSet: array[0..2] of TVMInstructionHandler;
 
-procedure NopHandler( const State: pVMState );
+{$endregion}
+
+
+class procedure TChappieCPU.NopHandler( var State: TChappieState );
 begin
   Writeln('Nop');
 end;
 
-procedure HaltHandler( const State: pVMState );
+class procedure TChappieCPU.HaltHandler( var State: TChappieState );
 begin
   Writeln('Setting Running to false (HALT)');
-  State^.Running := False;
+  State.Running := False;
 end;
 
-procedure AlertHandler( const State: pVMState );
+class procedure TChappieCPU.AlertHandler( var State: TChappieState );
 begin
   Writeln('Alert!!!!!');
 end;
 
-{$endregion}
+function TChappieCPU.Clock: boolean;
+begin
 
-{$region 'TChappieCPU'}
+  //- A program is loaded, and has not ended?
+  Result := False;
+  if not fState.Running then exit;
+
+  //- Do not allow overrun of byte-code
+  if fState.ProgramCounter=fState.BytecodeStop then begin
+    TStatus( stUnexpectedEndOfBytecode ).Raize;
+  end;
+
+  //- Check for valid op-code
+  if pVMInstruction( fState.ProgramCounter )^>Length(InstructionSet) then begin
+    TStatus( stInvalidOpCode ).Raize;
+  end;
+
+  //- Execute instruction.
+  InstructionSet[pVMInstruction(fState.ProgramCounter)^](fState);
+
+  //- Increment program counter
+  fState.ProgramCounter := fState.ProgramCounter + Sizeof(TVMInstruction);
+
+  //- Let VM know if the program can continue or has ended
+  Result := fState.Running;
+end;
 
 constructor TChappieCPU.Create;
 begin
   inherited Create;
-  fVMState := nil;
+  fState.Running        := False;
+  fState.BytecodeStart  := 0;
+  fState.BytecodeStop   := 0;
+  fState.ProgramCounter := 0;
 end;
 
-function TChappieCPU.FetchInstruction( fVMState: pVMState ): TVMInstructionHandler;
-var
-  InstructionIndex: nativeuint;
+procedure TChappieCPU.Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
 begin
-  Result := nil;
-  if not assigned(fVMState) then exit;
-  InstructionIndex := pVMInstruction( pChappieState(fVMState)^.Default.lpInstructionPointer )^;
-  IncProgramCounter( fVMState, sizeof(TVMInstruction) );
-  if InstructionIndex>=Length(InstructionSet) then exit;
-  Result := InstructionSet[ InstructionIndex ];
+  fState.BytecodeStart  := nativeuint( lpBytecode );
+  fState.BytecodeStop   := fState.BytecodeStart + szByteCode;
+  fState.ProgramCounter := fState.BytecodeStart;
+  fState.Running        := True;
 end;
 
-destructor TChappieCPU.Destroy;
-begin
-  DisposeState;
-  inherited Destroy;
-end;
-
-procedure TChappieCPU.DisposeState;
-begin
-  if not assigned(fVMState) then exit;
-  Dispose(pChappieState(fVMState));
-  fVMState := nil;
-end;
-
-function TChappieCPU.Reset( const ByteCode: IBuffer ): pVMState;
-begin
-  DisposeState;
-  pChappieState(fVMState) := new(pChappieState);
-  pChappieState(fVMState)^.Default.Bytecode := Bytecode;
-  pChappieState(fVMState)^.Default.Running := True;
-  pChappieState(fVMState)^.Default.lpInstructionPointer := ByteCode.DataPtr;
-  Result := fVMState;
-end;
-
-{$endregion}
 
 initialization
-  InstructionSet[uint16(TChappieInstructions.opNop)]   := @NopHandler;
-  InstructionSet[uint16(TChappieInstructions.opHalt)]  := @HaltHandler;
-  InstructionSet[uint16(TChappieInstructions.opAlert)] := @AlertHandler;
+  InstructionSet[uint16(TChappieInstructions.opNop)]   := TChappieCPU.NopHandler;
+  InstructionSet[uint16(TChappieInstructions.opHalt)]  := TChappieCPU.HaltHandler;
+  InstructionSet[uint16(TChappieInstructions.opAlert)] := TChappieCPU.AlertHandler;
 
 end.
