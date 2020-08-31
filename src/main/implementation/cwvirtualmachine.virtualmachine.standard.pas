@@ -39,8 +39,9 @@ type
   private
     fCPU: IVirtualCPU;
     fBytecode: IBuffer;
+    fStaticData: IBuffer;
   strict private //- IVirtualMachine -//
-    procedure LoadBytecode( const ByteCode: IBuffer );
+    procedure LoadBytecode( const ByteCode: IBuffer; const StaticData: IBuffer );
     procedure ExecuteStep;
     procedure Execute;
   public
@@ -77,10 +78,11 @@ begin
   fCPU.Clock;
 end;
 
-procedure TVirtualMachine.LoadBytecode(const ByteCode: IBuffer);
+procedure TVirtualMachine.LoadBytecode(const ByteCode: IBuffer; const StaticData: IBuffer);
 begin
   fBytecode := Bytecode;
-  fCPU.Reset( fBytecode.DataPtr, fBytecode.Size );
+  fStaticData := StaticData;
+  fCPU.Reset( fByteCode, fStaticData );
 end;
 
 end.

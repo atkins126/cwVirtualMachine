@@ -36,10 +36,10 @@ uses
 
 type
   TChappieState = record
-    Running: boolean;
-    BytecodeStart: nativeuint;
-    BytecodeStop: nativeuint;
-    ProgramCounter: nativeuint;
+    Running         : boolean;
+    BytecodeStart   : nativeuint;
+    BytecodeStop    : nativeuint;
+    ProgramCounter  : nativeuint;
   end;
 
 type

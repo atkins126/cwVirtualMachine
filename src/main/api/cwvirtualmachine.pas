@@ -43,57 +43,113 @@ resourcestring
 
 type
   /// <summary>
-  ///   <para>
-  ///     This interface enables the behavior of IVirtualMachine
-  ///     implementations to be altered by providing different virtual CPU
-  ///     implementations.
-  ///   </para>
-  ///   <para>
-  ///     This interface is a reference to be derived by a CPU
-  ///     implementation, which must also implement the internal
-  ///     IVirtualCPUState interface.
-  ///   </para>
+  ///   This interface enables the behavior of IVirtualMachine implementations
+  ///   to be altered by providing different virtual CPU implementations. <br />
   /// </summary>
+  /// <remarks>
+  ///   You should not need to work with this interface directly, except
+  ///   whenimplementing your own virtual CPU. Access via theIVirtualMachine
+  ///   interface for most use cases. <br />
+  /// </remarks>
   IVirtualCPU = interface
     ['{38F2CC5B-60AC-48CE-8F4F-DDDE20E45C08}']
 
-    ///  <summary>
-    ///    Resets the CPU, restoring initial state. <br/>
-    ///  </summary>
-    procedure Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
+    /// <summary>
+    ///   <para>
+    ///     Resets the CPU, restoring initial state. <br />Provide a buffer
+    ///     containing the byte-code instructions to be executed by the CPU.
+    ///   </para>
+    ///   <para>
+    ///     You may also, optionally provide a buffer to contain static-data
+    ///     which may be used by the byte-code program (if the implementation
+    ///     supports it). <br />
+    ///   </para>
+    /// </summary>
+    /// <param name="Bytecode">
+    ///   A buffer containing the byte-code to be executed by the CPU.
+    /// </param>
+    /// <param name="StaticData">
+    ///   [Optional] A buffer containing static data to be consumed by the
+    ///   byte-code program being executed.
+    /// </param>
+    procedure Reset( const Bytecode: IBuffer ; const StaticData: IBuffer = nil ); overload;
 
-    ///  <summary>
-    ///    Sends a 'clock' pulse to the CPU, instructing it to execute a
-    ///    single instruction cycle. <br/>
-    ///    Returns TRUE while there are remaining byte code instructions to
-    ///    run, and FALSE when the byte-code program has ended.
-    ///  </summary>
+    /// <summary>
+    ///   Sends a 'clock' pulse to the CPU, instructing it to execute a single
+    ///   instruction cycle. <br />
+    /// </summary>
+    /// <returns>
+    ///   Returns TRUE while there are remaining byte code instructions to run,
+    ///   and FALSE when the byte-code program has ended.
+    /// </returns>
+    /// <exception cref="stUnexpectedEndOfBytecode">
+    ///   Raised when the CPU executes to the end of the byte-code buffer
+    ///   without first encountering an instruction to halt execution.
+    /// </exception>
+    /// <exception cref="stInvalidOpCode">
+    ///   Raised when an attempt to decode a byte-code instruction fails.
+    /// </exception>
     function Clock: boolean;
   end;
 
   /// <summary>
   ///   Represents a virtual machine.
   /// </summary>
+  /// <example>
+  ///   <code lang="Delphi">procedure RunBytecode( const ByteCode: IBuffer );
+  /// var
+  ///   VM: IVirtualMachine;
+  /// begin
+  ///   VM := TVirtualMachine.Create( TVirtualCPU.CreateChappie );
+  ///   VM.LoadBytecode( ByteCode );
+  ///   VM.Execute;
+  /// end;</code>
+  /// </example>
   IVirtualMachine = interface
     ['{14B6A7A4-5C8C-4EE8-83CE-40D0F5A37B70}']
 
     /// <summary>
-    ///   Loads a new byte-code program into the virtual machine. This is
-    ///   destructive in that any existing byte-code in the virtual machine
-    ///   will be disposed.
+    ///   Loads a new byte-code program into the virtual machine. <br /><br />
+    ///   Calling LoadByteCode() will cause any currenttly executing byte-code
+    ///   program to be halted, and the new byte-code program loaded in it's
+    ///   place. <br /><br />Optionally, you may provide a buffer containing
+    ///   static data which may be consumed by the byte-code program if the CPU
+    ///   implementation supports static data use. <br />
     /// </summary>
-    procedure LoadBytecode( const ByteCode: IBuffer );
+    /// <param name="ByteCode">
+    ///   A buffer containing the byte-code to be executed by the virtual
+    ///   machine.
+    /// </param>
+    /// <param name="StaticData">
+    ///   [Optional] Buffer containing static data to be consumed by the
+    ///   byte-code program.
+    /// </param>
+    procedure LoadBytecode( const ByteCode: IBuffer; const StaticData: IBuffer );
 
     /// <summary>
     ///   Executes the next instruction in the byte-code and then returns. This
     ///   method is useful for writing a debugger with the ability to break on
     ///   break-points, or sinlge-step through the running program.
     /// </summary>
+    /// <exception cref="stUnexpectedEndOfBytecode">
+    ///   Raised when the CPU executes to the end of the byte-code buffer
+    ///   without first encountering an instruction to halt execution.
+    /// </exception>
+    /// <exception cref="stInvalidOpCode">
+    ///   Raised when an attempt to decode a byte-code instruction fails.
+    /// </exception>
     procedure ExecuteStep;
 
     /// <summary>
     ///   Executes the loaded byte-code program until completion.
     /// </summary>
+    /// <exception cref="stUnexpectedEndOfBytecode">
+    ///   Raised when the CPU executes to the end of the byte-code buffer
+    ///   without first encountering an instruction to halt execution.
+    /// </exception>
+    /// <exception cref="stInvalidOpCode">
+    ///   Raised when an attempt to decode a byte-code instruction fails.
+    /// </exception>
     procedure Execute;
   end;
 
