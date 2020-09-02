@@ -30,7 +30,8 @@ unit cwvirtualmachine.virtualcpu.chappie;
 
 interface
 uses
-  cwStatus
+  cwIO
+, cwStatus
 , cwVirtualMachine
 ;
 
@@ -51,7 +52,7 @@ type
     class procedure HaltHandler( var State: TChappieState ); static;
     class procedure NopHandler( var State: TChappieState ); static;
   strict private //- IVirtualCPU -//
-    procedure Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
+    procedure Reset( const Bytecode: IBuffer; const StaticData: IBuffer = nil );
     function Clock: boolean;
   public
     constructor Create;
@@ -130,12 +131,12 @@ begin
   fState.ProgramCounter := 0;
 end;
 
-procedure TChappieCPU.Reset( const lpBytecode: pointer; const szByteCode: nativeuint );
+procedure TChappieCPU.Reset( const Bytecode: IBuffer; const StaticData: IBuffer = nil );
 begin
   {$hints off}
-  fState.BytecodeStart  := nativeuint( lpBytecode );
+  fState.BytecodeStart  := nativeuint( Bytecode.DataPtr );
   {$hints on}
-  fState.BytecodeStop   := fState.BytecodeStart + szByteCode;
+  fState.BytecodeStop   := fState.BytecodeStart + Bytecode.Size;
   fState.ProgramCounter := fState.BytecodeStart;
   fState.Running        := True;
 end;
