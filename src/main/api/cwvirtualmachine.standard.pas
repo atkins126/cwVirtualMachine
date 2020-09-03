@@ -72,8 +72,6 @@ begin
   Result := cwVirtualMachine.VirtualMachine.Standard.TVirtualMachine.Create(CPU);
 end;
 
-{ TVirtualCPU }
-
 class function TVirtualCPU.CreateChappie: IVirtualCPU;
 begin
   Result := cwVirtualMachine.VirtualCPU.Chappie.TChappieCPU.Create;

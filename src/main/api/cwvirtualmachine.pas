@@ -31,13 +31,36 @@ unit cwVirtualMachine;
 interface
 uses
   cwIO
+, cwStatus
 ;
 
 {$region ' Error states'}
 
 resourcestring
+  stUnknownInstructionName  = '{2235FF5B-B830-4E23-A764-3EB81B8878EE} Instruction not found by name while encoding byte-code.';
   stUnexpectedEndOfBytecode = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The cpu reached the end of the byte-code unexpectedly.';
   stInvalidOpCode           = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
+
+{$endregion}
+
+{$region ' TOperand - A helper record for encoding instructions into byte-code for the vritual CPU'}
+
+type
+  ///  <summary>
+  ///    A TOperand may be implicitly cast from a uint of anywhere from one byte to eight bytes. <br/>
+  ///    This provides a means of supplying the IVirtualCPU.EncodeInstruction() method with any number of
+  ///    operands (parameters) of varying sizes, without the need to use variant types.
+  ///  </summary>
+  TOperand = record
+  private
+    fData: array[0..7] of uint8;
+    fSize: uint8;
+  public
+    class operator Implicit(value: uint8): TOperand;
+    class operator Implicit(value: uint16): TOperand;
+    class operator Implicit(value: uint32): TOperand;
+    class operator Implicit(value: uint64): TOperand;
+  end;
 
 {$endregion}
 
@@ -54,6 +77,21 @@ type
   IVirtualCPU = interface
     ['{38F2CC5B-60AC-48CE-8F4F-DDDE20E45C08}']
 
+    ///  <summary>
+    ///    This method is used to encode instructions for the target virtual CPU when
+    ///    given the instruction name, and an array of operands.
+    ///    This function is intended to be called twice for each encoding. <br/>
+    ///    On the first call the Name and Operands parameters should be populated with
+    ///    the required components of the instruction, i.e. ( 'Load',[5] ) but the
+    ///    lpInstruction pointer set to nil. On a successful encoding, the szInstruction
+    ///    parameter will be set to the size of the encoded instruction. <br/>
+    ///    On the second call, the same parameters are provided, but lpInstruction should
+    ///    point to a buffer with sufficient length to receive the encoded instruction (as
+    ///    retrieved from the szInstruction parameter on the first call). On success, the
+    ///    buffer pointed to by lpInstruction will be populated with the encoded instruction.
+    ///  <summary>
+    function EncodeInstruction( const Name: string; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+
     /// <summary>
     ///   <para>
     ///     Resets the CPU, restoring initial state. <br />Provide a buffer
@@ -65,14 +103,7 @@ type
     ///     supports it). <br />
     ///   </para>
     /// </summary>
-    /// <param name="Bytecode">
-    ///   A buffer containing the byte-code to be executed by the CPU.
-    /// </param>
-    /// <param name="StaticData">
-    ///   [Optional] A buffer containing static data to be consumed by the
-    ///   byte-code program being executed.
-    /// </param>
-    procedure Reset( const Bytecode: IBuffer ; const StaticData: IBuffer = nil ); overload;
+    procedure Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
 
     /// <summary>
     ///   Sends a 'clock' pulse to the CPU, instructing it to execute a single
@@ -92,6 +123,54 @@ type
     function Clock: boolean;
   end;
 
+  ///  <summary>
+  ///    A simple byte-buffer with utility methods for encoding instructions for
+  ///    a virtual CPU.
+  ///  </summary>
+  IBytecode = interface
+    ['{0BC9900E-9BE3-4283-BEC1-C7FEF757AEBF}']
+
+    ///  <summary>
+    ///    Returns the number of bytes allocated within the bytecode buffer. <br/>
+    ///    Getter for SizeBytes property.
+    ///  </summary>
+    function getSizeBytes: nativeuint;
+
+    ///  <summary>
+    ///    Returns a pointer to the memory allocated for the byte-code buffer. <br/>
+    ///    Getter for DataPtr property.
+    ///  </summary>
+    function getDataPtr: pointer;
+
+    ///  <summary>
+    ///    Clears the buffer and releases all allocated memory resources.
+    ///  </summary>
+    procedure Clear;
+
+    ///  <summary>
+    ///    Adds an instruction to the byte-code buffer for the target virtual CPU. <br/>
+    ///    Example for part-1 of "Lets write a virtual machine" series on Youtube... <br/>
+    ///      BytecodeBuffer.AppendInstruction( 'LOAD', [ 05 ] ); <br/>
+    ///    The above line would encode the 'LOAD' instruction to load the value 05 into the
+    ///    proessor accumulator, and then append this instruction to our byte-code buffer. <br/>
+    ///    The operands parameter is optional, allowing for instructions which do not require operands.
+    ///  </summary>
+    function AppendInstruction( const Name: string; const Operands: array of TOperand ): TStatus; overload;
+    /// <exclude/>
+    function AppendInstruction( const Name: string ): TStatus; overload;
+
+
+    ///  <summary>
+    ///    A pointer to the byte-code data.
+    ///  </summary>
+    property DataPtr: pointer read getDataPtr;
+
+    ///  <summary>
+    ///    The size (in bytes) of the data in the byte-code buffer.
+    ///  </summary>
+    property SizeBytes: nativeuint read getSizeBytes;
+  end;
+
   /// <summary>
   ///   Represents a virtual machine.
   /// </summary>
@@ -108,23 +187,16 @@ type
   IVirtualMachine = interface
     ['{14B6A7A4-5C8C-4EE8-83CE-40D0F5A37B70}']
 
-    /// <summary>
-    ///   Loads a new byte-code program into the virtual machine. <br /><br />
-    ///   Calling LoadByteCode() will cause any currenttly executing byte-code
-    ///   program to be halted, and the new byte-code program loaded in it's
-    ///   place. <br /><br />Optionally, you may provide a buffer containing
-    ///   static data which may be consumed by the byte-code program if the CPU
-    ///   implementation supports static data use. <br />
-    /// </summary>
-    /// <param name="ByteCode">
-    ///   A buffer containing the byte-code to be executed by the virtual
-    ///   machine.
-    /// </param>
-    /// <param name="StaticData">
-    ///   [Optional] Buffer containing static data to be consumed by the
-    ///   byte-code program.
-    /// </param>
-    procedure LoadBytecode( const ByteCode: IBuffer; const StaticData: IBuffer );
+    ///  <summary>
+    ///    Returns a reference to the byte-code buffer which will be executed
+    ///    by the virtual machine. <br/>
+    ///    Getter for Bytecode property.
+    ///    <remarks>
+    ///      This property may return nil if the virtual machine is already running,
+    ///      to prevent aleration of the byte-code at runtiume.
+    ///    </remarks>
+    ///  </summary>
+    function getBytecode: IBytecode;
 
     /// <summary>
     ///   Executes the next instruction in the byte-code and then returns. This
@@ -151,14 +223,40 @@ type
     ///   Raised when an attempt to decode a byte-code instruction fails.
     /// </exception>
     procedure Execute;
+
+    ///  <summary>
+    ///    A reference to the byte-code buffer for this virtual machine instance.
+    ///  </summary>
+    property ByteCode: IByteCode read getByteCode;
   end;
 
 implementation
-{$ifndef fpc}
-uses
-  cwStatus
-;
-{$endif}
+
+{ TOperand }
+
+class operator TOperand.Implicit(value: uint8): TOperand;
+begin
+  Result.fSize := sizeof(uint8);
+  Move(Value,Result.fData[0],Result.fSize);
+end;
+
+class operator TOperand.Implicit(value: uint16): TOperand;
+begin
+  Result.fSize := sizeof(uint16);
+  Move(Value,Result.fData[0],Result.fSize);
+end;
+
+class operator TOperand.Implicit(value: uint32): TOperand;
+begin
+  Result.fSize := sizeof(uint32);
+  Move(Value,Result.fData[0],Result.fSize);
+end;
+
+class operator TOperand.Implicit(value: uint64): TOperand;
+begin
+  Result.fSize := sizeof(uint64);
+  Move(Value,Result.fData[0],Result.fSize);
+end;
 
 initialization
   {$ifndef fpc}

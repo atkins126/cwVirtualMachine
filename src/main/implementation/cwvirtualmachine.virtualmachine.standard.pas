@@ -38,10 +38,10 @@ type
   TVirtualMachine = class( TInterfacedObject, IVirtualMachine )
   private
     fCPU: IVirtualCPU;
-    fBytecode: IBuffer;
+    fBytecode: IBytecode;
     fStaticData: IBuffer;
   strict private //- IVirtualMachine -//
-    procedure LoadBytecode( const ByteCode: IBuffer; const StaticData: IBuffer );
+    function getBytecode: IBytecode;
     procedure ExecuteStep;
     procedure Execute;
   public
@@ -52,23 +52,27 @@ type
 implementation
 uses
   cwStatus
+, cwVirtualMachine.Bytecode.Standard
 ;
 
 constructor TVirtualMachine.Create(const CPU: IVirtualCPU);
 begin
   inherited Create;
   fCPU := CPU;
+  fBytecode := TBytecode.Create(fCPU);
 end;
 
 destructor TVirtualMachine.Destroy;
 begin
   fCPU := nil;
+  fBytecode := nil;
   inherited Destroy;
 end;
 
 procedure TVirtualMachine.Execute;
 begin
   if not assigned(fCPU) then exit;
+  fCPU.Reset( fBytecode.DataPtr, fBytecode.SizeBytes, fStaticData );
   while fCPU.Clock do;
 end;
 
@@ -78,11 +82,9 @@ begin
   fCPU.Clock;
 end;
 
-procedure TVirtualMachine.LoadBytecode(const ByteCode: IBuffer; const StaticData: IBuffer);
+function TVirtualMachine.getBytecode: IBytecode;
 begin
-  fBytecode := Bytecode;
-  fStaticData := StaticData;
-  fCPU.Reset( fByteCode, fStaticData );
+  Result := fBytecode;
 end;
 
 end.

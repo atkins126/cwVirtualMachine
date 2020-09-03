@@ -36,6 +36,8 @@ uses
 ;
 
 type
+  {$region ' Custom CPU state record for the chappie line of CPU'}
+
   TChappieState = record
     Running         : boolean;
     BytecodeStart   : nativeuint;
@@ -43,16 +45,15 @@ type
     ProgramCounter  : nativeuint;
   end;
 
+  {$endregion}
+
 type
   TChappieCPU = class( TInterfacedObject, IVirtualCPU )
   private
     fState: TChappieState;
-  private //- Instruction Handlers -//
-    class procedure AlertHandler( var State: TChappieState ); static;
-    class procedure HaltHandler( var State: TChappieState ); static;
-    class procedure NopHandler( var State: TChappieState ); static;
   strict private //- IVirtualCPU -//
-    procedure Reset( const Bytecode: IBuffer; const StaticData: IBuffer = nil );
+    function EncodeInstruction( const Name: string; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+    procedure Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
     function Clock: boolean;
   public
     constructor Create;
@@ -63,33 +64,86 @@ uses
   cwTypes
 ;
 
-{$region ' Custom CPU state record for the chappie line of CPU'}
+{$region ' Instruction-Set types'}
 
 type
-  TVMInstruction = uint16;
-  pVMInstruction = ^TVMInstruction;
+  TVMOpCode = uint16;
+  pVMOpCode = ^TVMOpCode;
   TVMInstructionHandler = procedure( var State: TChappieState );
-var
-  InstructionSet: array[0..2] of TVMInstructionHandler;
+  TVMInstructionEncoder = function( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+  TVMInstructionRecord = record
+    Name: string;
+    Handler: TVMInstructionHandler;
+    Encoder: TVMInstructionEncoder;
+  end;
 
 {$endregion}
 
+{$region 'NOP Instruction'}
 
-class procedure TChappieCPU.NopHandler( var State: TChappieState );
+procedure HandleNop( var State: TChappieState );
 begin
   Writeln('Nop');
 end;
 
-class procedure TChappieCPU.HaltHandler( var State: TChappieState );
+function EncodeNop( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+begin
+  Result := TStatus.Success;
+  szInstruction := sizeof(TVMOpCode);
+  if assigned(lpInstruction) then begin
+    pVMOpCode(lpInstruction)^ := OpCode;
+  end;
+end;
+
+{$endregion}
+
+{$region 'HALT Instruction'}
+
+procedure HandleHalt( var State: TChappieState );
 begin
   Writeln('Setting Running to false (HALT)');
   State.Running := False;
 end;
 
-class procedure TChappieCPU.AlertHandler( var State: TChappieState );
+function  EncodeHalt( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+begin
+  Result := TStatus.Success;
+  szInstruction := sizeof(TVMOpCode);
+  if assigned(lpInstruction) then begin
+    pVMOpCode(lpInstruction)^ := OpCode;
+  end;
+end;
+
+{$endregion}
+
+{$region 'ALERT Instruction'}
+
+procedure HandleAlert( var State: TChappieState );
 begin
   Writeln('Alert!!!!!');
 end;
+
+function  EncodeAlert( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+begin
+  Result := TStatus.Success;
+  szInstruction := sizeof(TVMOpCode);
+  if assigned(lpInstruction) then begin
+    pVMOpCode(lpInstruction)^ := OpCode;
+  end;
+end;
+
+{$endregion}
+
+{$region ' Instruction set constant array'}
+
+const
+  cInstructionSet: array[0..2] of TVMInstructionRecord = (
+    ( Name: 'HALT';   Handler: HandleHalt;  Encoder: EncodeHalt   ),
+    ( Name: 'NOP';    Handler: HandleNop;   Encoder: EncodeNop    ),
+    ( Name: 'ALERT';  Handler: HandleAlert; Encoder: EncodeAlert  )
+  );
+
+{$endregion}
 
 function TChappieCPU.Clock: boolean;
 begin
@@ -105,18 +159,18 @@ begin
 
   //- Check for valid op-code
   {$hints off}
-  if pVMInstruction( fState.ProgramCounter )^>Length(InstructionSet) then begin
+  if pVMOpCode( fState.ProgramCounter )^>Length(cInstructionSet) then begin
   {$hints on}
     TStatus( stInvalidOpCode ).Raize;
   end;
 
   //- Execute instruction.
   {$hints off}
-  InstructionSet[pVMInstruction(fState.ProgramCounter)^](fState);
+  cInstructionSet[pVMOpCode(fState.ProgramCounter)^].Handler(fState);
   {$hints on}
 
   //- Increment program counter
-  fState.ProgramCounter := fState.ProgramCounter + Sizeof(TVMInstruction);
+  fState.ProgramCounter := fState.ProgramCounter + Sizeof(TVMOpCode);
 
   //- Let VM know if the program can continue or has ended
   Result := fState.Running;
@@ -131,20 +185,44 @@ begin
   fState.ProgramCounter := 0;
 end;
 
-procedure TChappieCPU.Reset( const Bytecode: IBuffer; const StaticData: IBuffer = nil );
+function TChappieCPU.EncodeInstruction(const Name: string; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint): TStatus;
+
+  function FindInstructionByName(const utName: string; out Foundidx: TVMOpCode): TStatus;
+  var
+    idx: TVMOpCode;
+  begin
+    Result := TStatus.Unknown;
+    if Length(cInstructionSet)=0 then Result.Raize; //- There should always be an instruction set!
+    Result := TStatus(stUnknownInstructionName);
+    for idx := 0 to pred(Length(cInstructionSet)) do begin
+      if cInstructionSet[idx].Name=utName then begin
+        FoundIdx := idx;
+        Result := TStatus.Success;
+        exit;
+      end;
+    end;
+  end;
+
+var
+  FoundIdx: TVMOpCode;
+begin
+  //- locate the instruction by name in our instruction set.
+  szInstruction := 0;
+  Result := FindInstructionByName(Name.UppercaseTrim, Foundidx);
+  if not Result then Result.Raize;
+  //- Call the instruction encoder
+  cInstructionSet[FoundIdx].Encoder(FoundIdx,Operands,lpInstruction,szInstruction);
+end;
+
+procedure TChappieCPU.Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
 begin
   {$hints off}
-  fState.BytecodeStart  := nativeuint( Bytecode.DataPtr );
+  fState.BytecodeStart  := nativeuint( lpBytecode );
   {$hints on}
-  fState.BytecodeStop   := fState.BytecodeStart + Bytecode.Size;
+  fState.BytecodeStop   := fState.BytecodeStart + szBytecode;
   fState.ProgramCounter := fState.BytecodeStart;
   fState.Running        := True;
 end;
 
-
-initialization
-  InstructionSet[0] := TChappieCPU.NopHandler;
-  InstructionSet[1] := TChappieCPU.HaltHandler;
-  InstructionSet[2] := TChappieCPU.AlertHandler;
 
 end.
