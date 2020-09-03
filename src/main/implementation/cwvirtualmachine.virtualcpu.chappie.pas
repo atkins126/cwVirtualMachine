@@ -153,7 +153,7 @@ begin
   if not fState.Running then exit;
 
   //- Do not allow overrun of byte-code
-  if fState.ProgramCounter=fState.BytecodeStop then begin
+  if fState.ProgramCounter>=fState.BytecodeStop then begin
     TStatus( stUnexpectedEndOfBytecode ).Raize;
   end;
 
