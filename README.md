@@ -2,6 +2,8 @@
 
 * Currently undergoing some major edits on the master branch, including rebuild of the CI.
 * Everything but cwLog should be working again, there may be some new issues in cwThreading due to a rewrite/redesign.
+* Sorry: I tried to retain compatibiltiy with Lazarus 2.0.8 but too many features require FPC 3.2.0 which is the
+         compiler used in Lazarus 2.0.10 - Lazarus 2.0.10 is the minimum requirement.
 
 Compiler agnostic and cross platform collection of utility libraries for Delphi and Freepascal.
 
