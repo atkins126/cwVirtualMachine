@@ -9,7 +9,8 @@ interface
 
 uses
   cwVirtualMachine, cwVirtualMachine.Standard, 
-  cwvirtualmachine.virtualcpu.chappie, cwVirtualMachine.VirtualMachine.Standard;
+  cwvirtualmachine.virtualcpu.chappie, 
+  cwVirtualMachine.VirtualMachine.Standard, cwVirtualMachine.ByteCode.Standard;
 
 implementation
 

@@ -72,7 +72,7 @@ begin
     fBuffer.Size := fBuffer.Size + fGranularity;
   end;
   //- Write the instruction
-  lpTarget := pointer( nativeuint( fBuffer.DataPtr ) + fWritten );
+  {$hints off} lpTarget := pointer( nativeuint( fBuffer.DataPtr ) + fWritten ); {$hints on}
   Result := fVirtualCPU.EncodeInstruction( Name, Operands, lpTarget, InstructionSize );
   if not Result then exit;
   //- Update written and we're done
