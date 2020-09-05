@@ -159,7 +159,7 @@ begin
 
   //- Check for valid op-code
   {$hints off}
-  if pVMOpCode( fState.ProgramCounter )^>Length(cInstructionSet) then begin
+  if pVMOpCode( fState.ProgramCounter )^>=Length(cInstructionSet) then begin
   {$hints on}
     TStatus( stInvalidOpCode ).Raize;
   end;

@@ -36,10 +36,11 @@ uses
 
 {$region ' Error states'}
 
-resourcestring
+const
   stUnknownInstructionName  = '{2235FF5B-B830-4E23-A764-3EB81B8878EE} Instruction not found by name while encoding byte-code.';
   stUnexpectedEndOfBytecode = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The cpu reached the end of the byte-code unexpectedly.';
   stInvalidOpCode           = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
+  stInvalidOperand          = '{67E25CF7-C8E0-4A86-A967-B88CD3AC7E42} Invalid operand encountered while encoding instruction.';
 
 {$endregion}
 
@@ -53,13 +54,16 @@ type
   ///  </summary>
   TOperand = record
   private
-    fData: array[0..7] of uint8;
-    fSize: uint8;
+    fData: uint64;
   public
     class operator Implicit(value: uint8): TOperand;
     class operator Implicit(value: uint16): TOperand;
     class operator Implicit(value: uint32): TOperand;
     class operator Implicit(value: uint64): TOperand;
+    class operator Implicit(value: TOperand): uint8;
+    class operator Implicit(value: TOperand): uint16;
+    class operator Implicit(value: TOperand): uint32;
+    class operator Implicit(value: TOperand): uint64;
   end;
 
 {$endregion}
@@ -232,36 +236,61 @@ type
 
 implementation
 
+const
+  cMaxUInt8  = $FF;
+  cMaxUInt16 = $FFFF;
+  cMaxUInt32 = $FFFFFFFF;
+  cMaxUInt64 = $FFFFFFFFFFFFFFFF;
+
 { TOperand }
 
 class operator TOperand.Implicit(value: uint8): TOperand;
 begin
-  Result.fSize := sizeof(uint8);
-  Move(Value,Result.fData[0],Result.fSize);
+  Result.fData := Value;
 end;
 
 class operator TOperand.Implicit(value: uint16): TOperand;
 begin
-  Result.fSize := sizeof(uint16);
-  Move(Value,Result.fData[0],Result.fSize);
+  Result.fData := Value;
 end;
 
 class operator TOperand.Implicit(value: uint32): TOperand;
 begin
-  Result.fSize := sizeof(uint32);
-  Move(Value,Result.fData[0],Result.fSize);
+  Result.fData := Value;
 end;
 
 class operator TOperand.Implicit(value: uint64): TOperand;
 begin
-  Result.fSize := sizeof(uint64);
-  Move(Value,Result.fData[0],Result.fSize);
+  Result.fData := Value;
+end;
+
+class operator TOperand.Implicit(value: TOperand): uint8;
+begin
+  if Value.fData>cMaxUInt8 then TStatus(stInvalidOperand).Raize;
+  Result := Value.fData;
+end;
+
+class operator TOperand.Implicit(value: TOperand): uint16;
+begin
+  if Value.fData>cMaxUInt16 then TStatus(stInvalidOperand).Raize;
+  Result := Value.fData;
+end;
+
+class operator TOperand.Implicit(value: TOperand): uint32;
+begin
+  if Value.fData>cMaxUInt32 then TStatus(stInvalidOperand).Raize;
+  Result := Value.fData;
+end;
+
+class operator TOperand.Implicit(value: TOperand): uint64;
+begin
+  Result := Value.fData;
 end;
 
 initialization
-  {$ifndef fpc}
   TStatus.Register(stUnexpectedEndOfBytecode);
   TStatus.Register(stInvalidOpCode);
-  {$endif}
+  TStatus.Register(stUnknownInstructionName);
+  TStatus.Register(stInvalidOperand);
 
 end.
