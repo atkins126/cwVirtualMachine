@@ -43,6 +43,7 @@ type
     BytecodeStart   : nativeuint;
     BytecodeStop    : nativeuint;
     ProgramCounter  : nativeuint;
+    Accumulator     : nativeuint;
   end;
 
   {$endregion}
@@ -146,6 +147,8 @@ const
 {$endregion}
 
 function TChappieCPU.Clock: boolean;
+var
+  Handler: TVMInstructionHandler;
 begin
 
   //- A program is loaded, and has not ended?
@@ -164,13 +167,16 @@ begin
     TStatus( stInvalidOpCode ).Raize;
   end;
 
-  //- Execute instruction.
+  //- Fetch Instruction
   {$hints off}
-  cInstructionSet[pVMOpCode(fState.ProgramCounter)^].Handler(fState);
+  Handler := cInstructionSet[pVMOpCode(fState.ProgramCounter)^].Handler;
   {$hints on}
 
   //- Increment program counter
   fState.ProgramCounter := fState.ProgramCounter + Sizeof(TVMOpCode);
+
+  //- Execute Instruction;
+  Handler(fState);
 
   //- Let VM know if the program can continue or has ended
   Result := fState.Running;
