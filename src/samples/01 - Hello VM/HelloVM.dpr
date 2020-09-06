@@ -28,9 +28,7 @@
 program HelloVM;
 {$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
 uses
-  cwIO
-, cwIO.Standard
-, cwVirtualMachine
+  cwVirtualMachine
 , cwVirtualMachine.Standard
 ;
 
@@ -43,6 +41,9 @@ begin
   //- Load the virtual machine with instructions for the CPU to run.
   VM.Bytecode.AppendInstruction( 'NOP' );
   VM.Bytecode.AppendInstruction( 'ALERT' );
+  VM.ByteCode.AppendInstruction( 'LOAD', [ 05 ] );
+  VM.ByteCode.AppendInstruction( 'Add', [ 02 ] );
+  VM.ByteCode.AppendInstruction( 'SAVE' );
   VM.Bytecode.AppendInstruction( 'HALT' );
   //- Make it so.
   VM.Execute;

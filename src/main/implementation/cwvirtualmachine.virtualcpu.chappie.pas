@@ -106,7 +106,7 @@ begin
   State.Running := False;
 end;
 
-function  EncodeHalt( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+function EncodeHalt( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
 begin
   Result := TStatus.Success;
   szInstruction := sizeof(TVMOpCode);
@@ -135,13 +135,95 @@ end;
 
 {$endregion}
 
+{$region 'LOAD Instruction'}
+
+procedure HandleLoad( var State: TChappieState );
+begin
+  State.Accumulator := nativeuint( pointer(State.ProgramCounter)^ );
+  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+end;
+
+function EncodeLoad( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+const
+  cRequiredOperandCount = 1;
+var
+  TargetPtr: pointer;
+begin
+  Result := TStatus.Success;
+  if Length(Operands)<>cRequiredOperandCount then begin
+    TStatus(stInvalidOperand).Raize;
+  end;
+  szInstruction := sizeof(TVMOpCode) + sizeof(NativeUInt);
+  if not assigned(lpInstruction) then exit;
+  TargetPtr := lpInstruction;
+  pVMOpCode(TargetPtr)^ := OpCode;
+  TargetPtr := Nativeuint(TargetPtr.AsNativeUint + sizeof(TVMOpcode)).AsPointer;
+  nativeuint(TargetPtr^) := Operands[0];
+end;
+
+{$endregion}
+
+{$region 'SAVE Instruction'}
+
+procedure HandleSave( var State: TChappieState );
+begin
+  nativeuint( pointer(State.ProgramCounter)^ ) := State.Accumulator;
+  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+end;
+
+function EncodeSave( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+const
+  cRequiredOperandCount = 0;
+begin
+  Result := TStatus.Success;
+  if Length(Operands)<>cRequiredOperandCount then begin
+    TStatus(stInvalidOperand).Raize;
+  end;
+  szInstruction := sizeof(TVMOpCode) + sizeof(NativeUInt);
+  if not assigned(lpInstruction) then exit;
+  pVMOpCode(lpInstruction)^ := OpCode;
+end;
+
+{$endregion}
+
+{$region 'ADD Instruction'}
+
+procedure HandleAdd( var State: TChappieState );
+begin
+  State.Accumulator := State.Accumulator + nativeuint( pointer(State.ProgramCounter)^ );
+  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+end;
+
+function EncodeAdd( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
+const
+  cRequiredOperandCount = 1;
+var
+  TargetPtr: pointer;
+begin
+  Result := TStatus.Success;
+  if Length(Operands)<>cRequiredOperandCount then begin
+    TStatus(stInvalidOperand).Raize;
+  end;
+  szInstruction := sizeof(TVMOpCode) + sizeof(NativeUInt);
+  if not assigned(lpInstruction) then exit;
+  TargetPtr := lpInstruction;
+  pVMOpCode(TargetPtr)^ := OpCode;
+  TargetPtr := Nativeuint(TargetPtr.AsNativeUint + sizeof(TVMOpcode)).AsPointer;
+  nativeuint(TargetPtr^) := Operands[0];
+end;
+
+{$endregion}
+
 {$region ' Instruction set constant array'}
 
 const
-  cInstructionSet: array[0..2] of TVMInstructionRecord = (
+  cInstructionSet: array[0..5] of TVMInstructionRecord = (
     ( Name: 'HALT';   Handler: HandleHalt;  Encoder: EncodeHalt   ),
     ( Name: 'NOP';    Handler: HandleNop;   Encoder: EncodeNop    ),
-    ( Name: 'ALERT';  Handler: HandleAlert; Encoder: EncodeAlert  )
+    ( Name: 'ALERT';  Handler: HandleAlert; Encoder: EncodeAlert  ),
+    ( Name: 'LOAD';   Handler: HandleLoad;  Encoder: EncodeLoad   ),
+    ( Name: 'SAVE';   Handler: HandleSave;  Encoder: EncodeSave   ),
+    ( Name: 'ADD';    Handler: HandleAdd;   Encoder: EncodeAdd    )
   );
 
 {$endregion}
