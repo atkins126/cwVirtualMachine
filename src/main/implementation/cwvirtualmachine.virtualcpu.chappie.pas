@@ -25,7 +25,7 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-unit cwvirtualmachine.virtualcpu.chappie;
+unit cwVirtualMachine.VirtualCPU.Chappie;
 {$ifdef fpc}{$mode delphiunicode}{$endif}
 
 interface
@@ -35,9 +35,11 @@ uses
 , cwVirtualMachine
 ;
 
-type
-  {$region ' Custom CPU state record for the chappie line of CPU'}
+{$region ' CPU State '}
 
+type
+
+  // Represents the state of a chappie CPU.
   TChappieState = record
     Running         : boolean;
     BytecodeStart   : nativeuint;
@@ -45,60 +47,35 @@ type
     ProgramCounter  : nativeuint;
     Accumulator     : nativeuint;
   end;
+  pChappieState = ^TChappieState;
 
-  {$endregion}
+{$endregion}
 
 type
   TChappieCPU = class( TInterfacedObject, IVirtualCPU )
   private
     fState: TChappieState;
   strict private //- IVirtualCPU -//
-    function EncodeInstruction( const Name: string; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
     procedure Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
     function Clock: boolean;
   public
     constructor Create;
   end;
 
+
 implementation
 uses
   cwTypes
+, cwVirtualMachine.Chappie //- MUST remain in implementation section or else cyclic reference.
 ;
 
-{$region ' Instruction-Set types'}
 
-type
-  TVMOpCode = uint16;
-  pVMOpCode = ^TVMOpCode;
-  TVMInstructionHandler = procedure( var State: TChappieState );
-  TVMInstructionEncoder = function( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-  TVMInstructionRecord = record
-    Name: string;
-    Handler: TVMInstructionHandler;
-    Encoder: TVMInstructionEncoder;
-  end;
-
-{$endregion}
-
-{$region 'NOP Instruction'}
+{$region ' Chappie Instruction Handlers'}
 
 procedure HandleNop( var State: TChappieState );
 begin
   Writeln('Nop');
 end;
-
-function EncodeNop( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-begin
-  Result := TStatus.Success;
-  szInstruction := sizeof(TVMOpCode);
-  if assigned(lpInstruction) then begin
-    pVMOpCode(lpInstruction)^ := OpCode;
-  end;
-end;
-
-{$endregion}
-
-{$region 'HALT Instruction'}
 
 procedure HandleHalt( var State: TChappieState );
 begin
@@ -106,36 +83,10 @@ begin
   State.Running := False;
 end;
 
-function EncodeHalt( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-begin
-  Result := TStatus.Success;
-  szInstruction := sizeof(TVMOpCode);
-  if assigned(lpInstruction) then begin
-    pVMOpCode(lpInstruction)^ := OpCode;
-  end;
-end;
-
-{$endregion}
-
-{$region 'ALERT Instruction'}
-
 procedure HandleAlert( var State: TChappieState );
 begin
   Writeln('Alert!!!!!');
 end;
-
-function  EncodeAlert( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-begin
-  Result := TStatus.Success;
-  szInstruction := sizeof(TVMOpCode);
-  if assigned(lpInstruction) then begin
-    pVMOpCode(lpInstruction)^ := OpCode;
-  end;
-end;
-
-{$endregion}
-
-{$region 'LOAD Instruction'}
 
 procedure HandleLoad( var State: TChappieState );
 begin
@@ -143,50 +94,11 @@ begin
   State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
 end;
 
-function EncodeLoad( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-const
-  cRequiredOperandCount = 1;
-var
-  TargetPtr: pointer;
-begin
-  Result := TStatus.Success;
-  if Length(Operands)<>cRequiredOperandCount then begin
-    TStatus(stInvalidOperand).Raize;
-  end;
-  szInstruction := sizeof(TVMOpCode) + sizeof(NativeUInt);
-  if not assigned(lpInstruction) then exit;
-  TargetPtr := lpInstruction;
-  pVMOpCode(TargetPtr)^ := OpCode;
-  TargetPtr := Nativeuint(TargetPtr.AsNativeUint + sizeof(TVMOpcode)).AsPointer;
-  nativeuint(TargetPtr^) := Operands[0];
-end;
-
-{$endregion}
-
-{$region 'SAVE Instruction'}
-
 procedure HandleSave( var State: TChappieState );
 begin
   nativeuint( pointer(State.ProgramCounter)^ ) := State.Accumulator;
   State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
 end;
-
-function EncodeSave( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-const
-  cRequiredOperandCount = 0;
-begin
-  Result := TStatus.Success;
-  if Length(Operands)<>cRequiredOperandCount then begin
-    TStatus(stInvalidOperand).Raize;
-  end;
-  szInstruction := sizeof(TVMOpCode) + sizeof(NativeUInt);
-  if not assigned(lpInstruction) then exit;
-  pVMOpCode(lpInstruction)^ := OpCode;
-end;
-
-{$endregion}
-
-{$region 'ADD Instruction'}
 
 procedure HandleAdd( var State: TChappieState );
 begin
@@ -194,41 +106,32 @@ begin
   State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
 end;
 
-function EncodeAdd( const OpCode: TVMOpCode; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-const
-  cRequiredOperandCount = 1;
-var
-  TargetPtr: pointer;
-begin
-  Result := TStatus.Success;
-  if Length(Operands)<>cRequiredOperandCount then begin
-    TStatus(stInvalidOperand).Raize;
-  end;
-  szInstruction := sizeof(TVMOpCode) + sizeof(NativeUInt);
-  if not assigned(lpInstruction) then exit;
-  TargetPtr := lpInstruction;
-  pVMOpCode(TargetPtr)^ := OpCode;
-  TargetPtr := Nativeuint(TargetPtr.AsNativeUint + sizeof(TVMOpcode)).AsPointer;
-  nativeuint(TargetPtr^) := Operands[0];
-end;
-
 {$endregion}
 
-{$region ' Instruction set constant array'}
+{$region ' Chappie Instruction Set'}
+
+type
+  // A callback function to handle execution of an instruction.
+  TVMInstructionHandler = procedure( var State: TChappieState );
 
 const
-  cInstructionSet: array[0..5] of TVMInstructionRecord = (
-    ( Name: 'HALT';   Handler: HandleHalt;  Encoder: EncodeHalt   ),
-    ( Name: 'NOP';    Handler: HandleNop;   Encoder: EncodeNop    ),
-    ( Name: 'ALERT';  Handler: HandleAlert; Encoder: EncodeAlert  ),
-    ( Name: 'LOAD';   Handler: HandleLoad;  Encoder: EncodeLoad   ),
-    ( Name: 'SAVE';   Handler: HandleSave;  Encoder: EncodeSave   ),
-    ( Name: 'ADD';    Handler: HandleAdd;   Encoder: EncodeAdd    )
+  //- Our instruction set defined as an array of named handlers.
+  cInstructionSet: array[Low(TOpCode)..High(TOpCode)] of TVMInstructionHandler = (
+    HandleHalt,
+    HandleNop,
+    HandleAlert,
+    HandleLoad,
+    HandleSave,
+    HandleAdd
   );
 
 {$endregion}
 
+{$region ' TChappieCPU class implementation'}
+
 function TChappieCPU.Clock: boolean;
+type
+  pOpCode = ^TOpCode;
 var
   Handler: TVMInstructionHandler;
 begin
@@ -238,24 +141,20 @@ begin
   if not fState.Running then exit;
 
   //- Do not allow overrun of byte-code
-  if fState.ProgramCounter>=fState.BytecodeStop then begin
+  if fState.ProgramCounter > fState.BytecodeStop then begin
     TStatus( stUnexpectedEndOfBytecode ).Raize;
   end;
 
   //- Check for valid op-code
-  {$hints off}
-  if pVMOpCode( fState.ProgramCounter )^>=Length(cInstructionSet) then begin
-  {$hints on}
+  if pOpCode( fState.ProgramCounter.AsPointer )^ > High(TOpCode) then begin
     TStatus( stInvalidOpCode ).Raize;
   end;
 
-  //- Fetch Instruction
-  {$hints off}
-  Handler := cInstructionSet[pVMOpCode(fState.ProgramCounter)^].Handler;
-  {$hints on}
+  //- Fetch handler
+  Handler := cInstructionSet[ pOpCode( fState.ProgramCounter.AsPointer )^ ];
 
   //- Increment program counter
-  fState.ProgramCounter := fState.ProgramCounter + Sizeof(TVMOpCode);
+  fState.ProgramCounter := fState.ProgramCounter + Sizeof(TOpCode);
 
   //- Execute Instruction;
   Handler(fState);
@@ -267,39 +166,7 @@ end;
 constructor TChappieCPU.Create;
 begin
   inherited Create;
-  fState.Running        := False;
-  fState.BytecodeStart  := 0;
-  fState.BytecodeStop   := 0;
-  fState.ProgramCounter := 0;
-end;
-
-function TChappieCPU.EncodeInstruction(const Name: string; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint): TStatus;
-
-  function FindInstructionByName(const utName: string; out Foundidx: TVMOpCode): TStatus;
-  var
-    idx: TVMOpCode;
-  begin
-    Result := TStatus.Unknown;
-    if Length(cInstructionSet)=0 then Result.Raize; //- There should always be an instruction set!
-    Result := TStatus(stUnknownInstructionName);
-    for idx := 0 to pred(Length(cInstructionSet)) do begin
-      if cInstructionSet[idx].Name=utName then begin
-        FoundIdx := idx;
-        Result := TStatus.Success;
-        exit;
-      end;
-    end;
-  end;
-
-var
-  FoundIdx: TVMOpCode;
-begin
-  //- locate the instruction by name in our instruction set.
-  szInstruction := 0;
-  Result := FindInstructionByName(Name.UppercaseTrim, Foundidx);
-  if not Result then Result.Raize;
-  //- Call the instruction encoder
-  cInstructionSet[FoundIdx].Encoder(FoundIdx,Operands,lpInstruction,szInstruction);
+  Reset( nil, 0, nil );
 end;
 
 procedure TChappieCPU.Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
@@ -309,8 +176,9 @@ begin
   {$hints on}
   fState.BytecodeStop   := fState.BytecodeStart + szBytecode;
   fState.ProgramCounter := fState.BytecodeStart;
-  fState.Running        := True;
+  fState.Running        := szBytecode>0;
 end;
 
+{$endregion}
 
 end.

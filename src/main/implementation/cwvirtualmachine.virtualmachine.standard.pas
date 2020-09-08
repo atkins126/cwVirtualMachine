@@ -59,7 +59,7 @@ constructor TVirtualMachine.Create(const CPU: IVirtualCPU);
 begin
   inherited Create;
   fCPU := CPU;
-  fBytecode := TBytecode.Create(fCPU);
+  fBytecode := TBytecode.Create;
 end;
 
 destructor TVirtualMachine.Destroy;

@@ -81,21 +81,6 @@ type
   IVirtualCPU = interface
     ['{38F2CC5B-60AC-48CE-8F4F-DDDE20E45C08}']
 
-    ///  <summary>
-    ///    This method is used to encode instructions for the target virtual CPU when
-    ///    given the instruction name, and an array of operands.
-    ///    This function is intended to be called twice for each encoding. <br/>
-    ///    On the first call the Name and Operands parameters should be populated with
-    ///    the required components of the instruction, i.e. ( 'Load',[5] ) but the
-    ///    lpInstruction pointer set to nil. On a successful encoding, the szInstruction
-    ///    parameter will be set to the size of the encoded instruction. <br/>
-    ///    On the second call, the same parameters are provided, but lpInstruction should
-    ///    point to a buffer with sufficient length to receive the encoded instruction (as
-    ///    retrieved from the szInstruction parameter on the first call). On success, the
-    ///    buffer pointed to by lpInstruction will be populated with the encoded instruction.
-    ///  <summary>
-    function EncodeInstruction( const Name: string; const Operands: array of TOperand; const lpInstruction: pointer; out szInstruction: nativeuint ): TStatus;
-
     /// <summary>
     ///   <para>
     ///     Resets the CPU, restoring initial state. <br />Provide a buffer
@@ -152,17 +137,10 @@ type
     procedure Clear;
 
     ///  <summary>
-    ///    Adds an instruction to the byte-code buffer for the target virtual CPU. <br/>
-    ///    Example for part-1 of "Lets write a virtual machine" series on Youtube... <br/>
-    ///      BytecodeBuffer.AppendInstruction( 'LOAD', [ 05 ] ); <br/>
-    ///    The above line would encode the 'LOAD' instruction to load the value 05 into the
-    ///    proessor accumulator, and then append this instruction to our byte-code buffer. <br/>
-    ///    The operands parameter is optional, allowing for instructions which do not require operands.
+    ///    Appends the bytes provided in the bytes array to the
+    ///    byte-code buffer.
     ///  </summary>
-    function AppendInstruction( const Name: string; const Operands: array of TOperand ): TStatus; overload;
-    /// <exclude/>
-    function AppendInstruction( const Name: string ): TStatus; overload;
-
+    procedure Append( const Bytes: array of uint8 );
 
     ///  <summary>
     ///    A pointer to the byte-code data.

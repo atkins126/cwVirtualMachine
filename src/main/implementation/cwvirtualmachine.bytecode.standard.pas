@@ -40,49 +40,42 @@ type
   TBytecode = class( TInterfacedObject, IBytecode )
   private
     fBuffer: IBuffer;
-    fVirtualCPU: IVirtualCPU;
     fGranularity: nativeuint;
     fWritten: nativeuint;
   strict private //- IBytecode -//
     function getSizeBytes: nativeuint;
     function getDataPtr: pointer;
     procedure Clear;
-    function AppendInstruction( const Name: string; const Operands: array of TOperand ): TStatus; overload;
-    function AppendInstruction( const Name: string ): TStatus; overload;
+    procedure Append( const Bytes: array of uint8 );
   public
-    constructor Create( const VirtualCPU: IVirtualCPU; const Granularity: nativeuint = 512 ); reintroduce;
+    constructor Create( const Granularity: nativeuint = 512 ); reintroduce;
     destructor Destroy; override;
   end;
 
 
 implementation
+uses
+  cwTypes
+;
 
-function TBytecode.AppendInstruction(const Name: string; const Operands: array of TOperand): TStatus;
+procedure TBytecode.Append( const Bytes: array of uint8 );
+type
+  pByte = ^uint8;
 var
-  InstructionSize: nativeuint;
-  lpTarget: pointer;
+  lpTarget: nativeuint;
+  ByteCount: nativeuint;
 begin
-  Result := TStatus.Unknown;
-  if not assigned(fVirtualCPU) then exit;
-  //- Determine the size of the instruction that we're encoding.
-  Result := fVirtualCPU.EncodeInstruction( Name, Operands, nil, InstructionSize );
-  if not Result then exit;
+  ByteCount := Length(Bytes);
+  if ByteCount<=0 then exit;
   //- Is there space in the buffer for the new instruction?
-  if (fWritten+InstructionSize)>=fBuffer.Size then begin
+  if (fWritten + ByteCount) >= fBuffer.Size then begin
     fBuffer.Size := fBuffer.Size + fGranularity;
   end;
   //- Write the instruction
-  {$hints off} lpTarget := pointer( nativeuint( fBuffer.DataPtr ) + fWritten ); {$hints on}
-  Result := fVirtualCPU.EncodeInstruction( Name, Operands, lpTarget, InstructionSize );
-  if not Result then exit;
+  lpTarget := fBuffer.DataPtr.AsNativeUInt + fWritten;
+  Move( Bytes[0], pbyte(lpTarget)^, ByteCount );
   //- Update written and we're done
-  fWritten := fWritten + InstructionSize;
-  Result := TStatus.Success;
-end;
-
-function TBytecode.AppendInstruction(const Name: string): TStatus;
-begin
-  Result := AppendInstruction( Name, [] );
+  fWritten := fWritten + ByteCount;
 end;
 
 procedure TBytecode.Clear;
@@ -91,10 +84,9 @@ begin
   fWritten := 0;
 end;
 
-constructor TBytecode.Create(const VirtualCPU: IVirtualCPU; const Granularity: nativeuint);
+constructor TBytecode.Create(const Granularity: nativeuint);
 begin
   inherited Create;
-  fVirtualCPU := VirtualCPU;
   fGranularity := Granularity;
   fWritten := 0;
   fBuffer := TBuffer.Create(0);
