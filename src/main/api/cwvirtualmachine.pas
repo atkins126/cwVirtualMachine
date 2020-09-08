@@ -44,30 +44,6 @@ const
 
 {$endregion}
 
-{$region ' TOperand - A helper record for encoding instructions into byte-code for the vritual CPU'}
-
-type
-  ///  <summary>
-  ///    A TOperand may be implicitly cast from a uint of anywhere from one byte to eight bytes. <br/>
-  ///    This provides a means of supplying the IVirtualCPU.EncodeInstruction() method with any number of
-  ///    operands (parameters) of varying sizes, without the need to use variant types.
-  ///  </summary>
-  TOperand = record
-  private
-    fData: uint64;
-  public
-    class operator Implicit(value: uint8): TOperand;
-    class operator Implicit(value: uint16): TOperand;
-    class operator Implicit(value: uint32): TOperand;
-    class operator Implicit(value: uint64): TOperand;
-    class operator Implicit(value: TOperand): uint8;
-    class operator Implicit(value: TOperand): uint16;
-    class operator Implicit(value: TOperand): uint32;
-    class operator Implicit(value: TOperand): uint64;
-  end;
-
-{$endregion}
-
 type
   /// <summary>
   ///   This interface enables the behavior of IVirtualMachine implementations
@@ -214,56 +190,6 @@ type
 
 implementation
 
-const
-  cMaxUInt8  = $FF;
-  cMaxUInt16 = $FFFF;
-  cMaxUInt32 = $FFFFFFFF;
-  cMaxUInt64 = $FFFFFFFFFFFFFFFF;
-
-{ TOperand }
-
-class operator TOperand.Implicit(value: uint8): TOperand;
-begin
-  Result.fData := Value;
-end;
-
-class operator TOperand.Implicit(value: uint16): TOperand;
-begin
-  Result.fData := Value;
-end;
-
-class operator TOperand.Implicit(value: uint32): TOperand;
-begin
-  Result.fData := Value;
-end;
-
-class operator TOperand.Implicit(value: uint64): TOperand;
-begin
-  Result.fData := Value;
-end;
-
-class operator TOperand.Implicit(value: TOperand): uint8;
-begin
-  if Value.fData>cMaxUInt8 then TStatus(stInvalidOperand).Raize;
-  Result := Value.fData;
-end;
-
-class operator TOperand.Implicit(value: TOperand): uint16;
-begin
-  if Value.fData>cMaxUInt16 then TStatus(stInvalidOperand).Raize;
-  Result := Value.fData;
-end;
-
-class operator TOperand.Implicit(value: TOperand): uint32;
-begin
-  if Value.fData>cMaxUInt32 then TStatus(stInvalidOperand).Raize;
-  Result := Value.fData;
-end;
-
-class operator TOperand.Implicit(value: TOperand): uint64;
-begin
-  Result := Value.fData;
-end;
 
 initialization
   TStatus.Register(stUnexpectedEndOfBytecode);
