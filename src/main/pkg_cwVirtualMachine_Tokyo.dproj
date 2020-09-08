@@ -135,6 +135,7 @@
         <DCCReference Include="implementation\cwvirtualmachine.virtualmachine.standard.pas"/>
         <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
         <DCCReference Include="implementation\cwvirtualmachine.bytecode.standard.pas"/>
+        <DCCReference Include="api\cwvirtualmachine.chappie.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -219,12 +220,6 @@
                 <DeployFile LocalName="..\..\out\lib\bpl\pkg_cwVirtualMachine_Tokyo.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>pkg_cwVirtualMachine_Tokyo.bpl</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\out\lib\bpl\pkg_cwVirtualMachine_Tokyo.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>pkg_cwVirtualMachine_Tokyo.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
