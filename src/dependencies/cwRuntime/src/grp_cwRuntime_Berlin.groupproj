@@ -1,0 +1,168 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{020B74C9-EE69-463A-BCA0-56E46C139A67}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="main\pkg_cwruntime_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\01-EchoServer\EchoServer_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\02_EchoClient\EchoClient_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\01 - Simple Sample\SimpleSample_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\02 - Parameterized\ParameterizedState_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwTest\Sample Tests\cwTest_SampleTests_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\01 - Running Tasks\RunningTasks_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\03 - Long Threads\LongThreads_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Berlin.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="pkg_cwruntime_Berlin">
+        <MSBuild Projects="main\pkg_cwruntime_Berlin.dproj"/>
+    </Target>
+    <Target Name="pkg_cwruntime_Berlin:Clean">
+        <MSBuild Projects="main\pkg_cwruntime_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pkg_cwruntime_Berlin:Make">
+        <MSBuild Projects="main\pkg_cwruntime_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="lib_testLoadLib_Berlin">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Berlin.dproj"/>
+    </Target>
+    <Target Name="lib_testLoadLib_Berlin:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="lib_testLoadLib_Berlin:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_Berlin">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Berlin.dproj"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_Berlin:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_Berlin:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoServer_Berlin">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_Berlin.dproj"/>
+    </Target>
+    <Target Name="EchoServer_Berlin:Clean">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoServer_Berlin:Make">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoClient_Berlin">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_Berlin.dproj"/>
+    </Target>
+    <Target Name="EchoClient_Berlin:Clean">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoClient_Berlin:Make">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SimpleSample_Berlin">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_Berlin.dproj"/>
+    </Target>
+    <Target Name="SimpleSample_Berlin:Clean">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleSample_Berlin:Make">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParameterizedState_Berlin">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_Berlin.dproj"/>
+    </Target>
+    <Target Name="ParameterizedState_Berlin:Clean">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParameterizedState_Berlin:Make">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_Berlin">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_Berlin.dproj"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_Berlin:Clean">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_Berlin:Make">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RunningTasks_Berlin">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_Berlin.dproj"/>
+    </Target>
+    <Target Name="RunningTasks_Berlin:Clean">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RunningTasks_Berlin:Make">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParallelFor_Berlin">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Berlin.dproj"/>
+    </Target>
+    <Target Name="ParallelFor_Berlin:Clean">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParallelFor_Berlin:Make">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LongThreads_Berlin">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_Berlin.dproj"/>
+    </Target>
+    <Target Name="LongThreads_Berlin:Clean">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LongThreads_Berlin:Make">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MessagedThreads_Berlin">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Berlin.dproj"/>
+    </Target>
+    <Target Name="MessagedThreads_Berlin:Clean">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Berlin.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MessagedThreads_Berlin:Make">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Berlin.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="pkg_cwruntime_Berlin;lib_testLoadLib_Berlin;cwDynLib_LoadLibSample_Berlin;EchoServer_Berlin;EchoClient_Berlin;SimpleSample_Berlin;ParameterizedState_Berlin;cwTest_SampleTests_Berlin;RunningTasks_Berlin;ParallelFor_Berlin;LongThreads_Berlin;MessagedThreads_Berlin"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="pkg_cwruntime_Berlin:Clean;lib_testLoadLib_Berlin:Clean;cwDynLib_LoadLibSample_Berlin:Clean;EchoServer_Berlin:Clean;EchoClient_Berlin:Clean;SimpleSample_Berlin:Clean;ParameterizedState_Berlin:Clean;cwTest_SampleTests_Berlin:Clean;RunningTasks_Berlin:Clean;ParallelFor_Berlin:Clean;LongThreads_Berlin:Clean;MessagedThreads_Berlin:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="pkg_cwruntime_Berlin:Make;lib_testLoadLib_Berlin:Make;cwDynLib_LoadLibSample_Berlin:Make;EchoServer_Berlin:Make;EchoClient_Berlin:Make;SimpleSample_Berlin:Make;ParameterizedState_Berlin:Make;cwTest_SampleTests_Berlin:Make;RunningTasks_Berlin:Make;ParallelFor_Berlin:Make;LongThreads_Berlin:Make;MessagedThreads_Berlin:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
