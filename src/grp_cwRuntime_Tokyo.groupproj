@@ -1,0 +1,168 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{B3A3BBED-3AD7-4921-B85B-AAE959833160}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="main\pkg_cwruntime_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\01-EchoServer\EchoServer_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwSockets\02_EchoClient\EchoClient_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\01 - Simple Sample\SimpleSample_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwStatus\02 - Parameterized\ParameterizedState_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwTest\Sample Tests\cwTest_SampleTests_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\01 - Running Tasks\RunningTasks_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\03 - Long Threads\LongThreads_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Tokyo.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="pkg_cwruntime_Tokyo">
+        <MSBuild Projects="main\pkg_cwruntime_Tokyo.dproj"/>
+    </Target>
+    <Target Name="pkg_cwruntime_Tokyo:Clean">
+        <MSBuild Projects="main\pkg_cwruntime_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pkg_cwruntime_Tokyo:Make">
+        <MSBuild Projects="main\pkg_cwruntime_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="lib_testLoadLib_Tokyo">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Tokyo.dproj"/>
+    </Target>
+    <Target Name="lib_testLoadLib_Tokyo:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="lib_testLoadLib_Tokyo:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\lib_testLoadLib_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_Tokyo">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Tokyo.dproj"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_Tokyo:Clean">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwDynLib_LoadLibSample_Tokyo:Make">
+        <MSBuild Projects="samples\cwDynLib\LoadLibSample\cwDynLib_LoadLibSample_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoServer_Tokyo">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_Tokyo.dproj"/>
+    </Target>
+    <Target Name="EchoServer_Tokyo:Clean">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoServer_Tokyo:Make">
+        <MSBuild Projects="samples\cwSockets\01-EchoServer\EchoServer_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="EchoClient_Tokyo">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_Tokyo.dproj"/>
+    </Target>
+    <Target Name="EchoClient_Tokyo:Clean">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="EchoClient_Tokyo:Make">
+        <MSBuild Projects="samples\cwSockets\02_EchoClient\EchoClient_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SimpleSample_Tokyo">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_Tokyo.dproj"/>
+    </Target>
+    <Target Name="SimpleSample_Tokyo:Clean">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleSample_Tokyo:Make">
+        <MSBuild Projects="samples\cwStatus\01 - Simple Sample\SimpleSample_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParameterizedState_Tokyo">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_Tokyo.dproj"/>
+    </Target>
+    <Target Name="ParameterizedState_Tokyo:Clean">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParameterizedState_Tokyo:Make">
+        <MSBuild Projects="samples\cwStatus\02 - Parameterized\ParameterizedState_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_Tokyo">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_Tokyo.dproj"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_Tokyo:Clean">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="cwTest_SampleTests_Tokyo:Make">
+        <MSBuild Projects="samples\cwTest\Sample Tests\cwTest_SampleTests_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RunningTasks_Tokyo">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_Tokyo.dproj"/>
+    </Target>
+    <Target Name="RunningTasks_Tokyo:Clean">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RunningTasks_Tokyo:Make">
+        <MSBuild Projects="samples\cwThreading\01 - Running Tasks\RunningTasks_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ParallelFor_Tokyo">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Tokyo.dproj"/>
+    </Target>
+    <Target Name="ParallelFor_Tokyo:Clean">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ParallelFor_Tokyo:Make">
+        <MSBuild Projects="samples\cwThreading\02 - Parallel For Loop\ParallelFor_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LongThreads_Tokyo">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_Tokyo.dproj"/>
+    </Target>
+    <Target Name="LongThreads_Tokyo:Clean">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LongThreads_Tokyo:Make">
+        <MSBuild Projects="samples\cwThreading\03 - Long Threads\LongThreads_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MessagedThreads_Tokyo">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Tokyo.dproj"/>
+    </Target>
+    <Target Name="MessagedThreads_Tokyo:Clean">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Tokyo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MessagedThreads_Tokyo:Make">
+        <MSBuild Projects="samples\cwThreading\04 - Messaged Threads\MessagedThreads_Tokyo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="pkg_cwruntime_Tokyo;lib_testLoadLib_Tokyo;cwDynLib_LoadLibSample_Tokyo;EchoServer_Tokyo;EchoClient_Tokyo;SimpleSample_Tokyo;ParameterizedState_Tokyo;cwTest_SampleTests_Tokyo;RunningTasks_Tokyo;ParallelFor_Tokyo;LongThreads_Tokyo;MessagedThreads_Tokyo"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="pkg_cwruntime_Tokyo:Clean;lib_testLoadLib_Tokyo:Clean;cwDynLib_LoadLibSample_Tokyo:Clean;EchoServer_Tokyo:Clean;EchoClient_Tokyo:Clean;SimpleSample_Tokyo:Clean;ParameterizedState_Tokyo:Clean;cwTest_SampleTests_Tokyo:Clean;RunningTasks_Tokyo:Clean;ParallelFor_Tokyo:Clean;LongThreads_Tokyo:Clean;MessagedThreads_Tokyo:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="pkg_cwruntime_Tokyo:Make;lib_testLoadLib_Tokyo:Make;cwDynLib_LoadLibSample_Tokyo:Make;EchoServer_Tokyo:Make;EchoClient_Tokyo:Make;SimpleSample_Tokyo:Make;ParameterizedState_Tokyo:Make;cwTest_SampleTests_Tokyo:Make;RunningTasks_Tokyo:Make;ParallelFor_Tokyo:Make;LongThreads_Tokyo:Make;MessagedThreads_Tokyo:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
