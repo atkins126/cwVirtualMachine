@@ -28,10 +28,9 @@
 program HelloVM;
 {$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
 uses
-  cwIO
-, cwIO.Standard
-, cwVirtualMachine
+  cwVirtualMachine
 , cwVirtualMachine.Standard
+, cwVirtualMachine.Chappie
 ;
 
 var
@@ -39,11 +38,13 @@ var
 
 begin
   //- Create an instance of the virtual machine with the 'Chappie' CPU.
-  VM := TVirtualMachine.Create( TVirtualCPU.CreateChappie );
+  VM := TVirtualMachine.Create( TChappieCPU.Create );
   //- Load the virtual machine with instructions for the CPU to run.
-  VM.Bytecode.AppendInstruction( 'NOP' );
-  VM.Bytecode.AppendInstruction( 'ALERT' );
-  VM.Bytecode.AppendInstruction( 'HALT' );
+  VM.Bytecode.Append( TChappieCPU.Encode( opNop, [] ) );
+  VM.Bytecode.Append( TChappieCPU.Encode( opLoad, [ 05 ] ) );
+  VM.Bytecode.Append( TChappieCPU.Encode( opAdd,  [ 02 ] ) );
+  VM.Bytecode.Append( TChappieCPU.Encode( opSave, [ 00 ] ) );
+  VM.Bytecode.Append( TChappieCPU.Encode( opHalt, [] ) );
   //- Make it so.
   VM.Execute;
 
