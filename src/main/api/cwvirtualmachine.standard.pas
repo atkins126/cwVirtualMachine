@@ -34,29 +34,38 @@ uses
 ;
 
 type
-  /// <summary>
-  ///   A factory record for instancing IVirtualMachine.
-  /// </summary>
-  TVirtualMachine = record
+  TVirtualMemory = record
+    class function Create( const InitialSize: nativeuint = 0 ): IVirtualMemory; static;
+  end;
 
-    /// <summary>
-    ///   Factory method for creating instances of IVirtualMachine.
-    /// </summary>
-    /// <param name="CPU">
-    ///   A CPU implementation for the virtual machine.
-    /// </param>
-    class function Create( const CPU: IVirtualCPU ): IVirtualMachine; static;
+  TByteCode = record
+    ///  <summary>
+    ///    Creates an instance of IByteCode for writing byte code to an
+    ///    instance of IVirtualMemory. The instance of IVirtualMemory is
+    ///    passed as a parameter to the constructor. <br/>
+    ///    An optional parameter, Granularity, determines the number of
+    ///    bytes to be allocated at any time that more memory is required
+    ///    in the virtual memory buffer. If omitted (or set zero) the
+    ///    granularity will be set to a default as determined by the
+    ///    bytecode implementation. (typically 512 bytes).
+    ///  </summary>
+    class function Create( const VirtualMemory: IVirtualMemory; const Granularity: nativeuint = 0 ): IBytecode; static;
   end;
 
 implementation
 uses
-  cwVirtualMachine.VirtualMachine.Standard
+  cwVirtualMachine.VirtualMemory.Custom
+, cwVirtualMachine.ByteCode.Custom
 ;
 
-class function TVirtualMachine.Create(const CPU: IVirtualCPU): IVirtualMachine;
+class function TBytecode.Create( const VirtualMemory: IVirtualMemory; const Granularity: nativeuint ): IBytecode;
 begin
-  Result := cwVirtualMachine.VirtualMachine.Standard.TVirtualMachine.Create(CPU);
+  Result := cwVirtualMachine.ByteCode.Custom.TCustomBytecode.Create( VirtualMemory, Granularity );
 end;
 
+class function TVirtualMemory.Create(const InitialSize: nativeuint): IVirtualMemory;
+begin
+  Result := cwVirtualMachine.VirtualMemory.Custom.TCustomVirtualMemory.Create( InitialSize );
+end;
 
 end.

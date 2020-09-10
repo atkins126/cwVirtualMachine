@@ -34,20 +34,33 @@ uses
 ;
 
 var
-  VM: IVirtualMachine;
+  Memory: IVirtualMemory;
+  ByteCode: IChappieBytecode;
+  CPU: IVirtualCPU;
 
 begin
-  //- Create an instance of the virtual machine with the 'Chappie' CPU.
-  VM := TVirtualMachine.Create( TChappieCPU.Create );
-  //- Load the virtual machine with instructions for the CPU to run.
-  VM.Bytecode.Append( TChappieCPU.Encode( opNop, [] ) );
-  VM.Bytecode.Append( TChappieCPU.Encode( opLoad, [ 05 ] ) );
-  VM.Bytecode.Append( TChappieCPU.Encode( opAdd,  [ 02 ] ) );
-  VM.Bytecode.Append( TChappieCPU.Encode( opSave, [ 00 ] ) );
-  VM.Bytecode.Append( TChappieCPU.Encode( opHalt, [] ) );
-  //- Make it so.
-  VM.Execute;
+  //- Create some memory for our virtual machine to work with.
+  Memory := TVirtualMemory.Create;
 
+  //- Create a byte-code window specific to the target virtual CPU.
+  ByteCode := TChappieByteCode.Create( Memory );
+  ByteCode.Cursor := 0;
+
+  //- Write some byte-code into memory.
+  ByteCode.OpNop;
+  ByteCode.OpAlert;
+  ByteCode.OpLoad( 05 );
+  ByteCode.OpAdd( 02 );
+  ByteCode.OpSave;
+  ByteCode.OpHalt;
+
+  //- Create our virtual CPU to do the work.
+  CPU := TChappieCPU.Create( Memory );
+
+  //- Work!
+  while CPU.Clock do;
+
+  //- We're done here.
   Readln;
 end.
 

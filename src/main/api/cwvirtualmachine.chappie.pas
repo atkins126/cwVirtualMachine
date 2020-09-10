@@ -34,40 +34,76 @@ uses
 ;
 
 type
-  TArrayOfByte = array of byte;
-
   ///  <summary>
-  ///    An enumeration of the op-codes available to the chappie CPU.
+  ///    IChappieBytecode expands on the IBytecode interface to
+  ///    provide methods for encoding chappie CPU byte-code
+  ///    instructions.
   ///  </summary>
-  ///  Note: {$Z2} directive to set minimum enum size to 2 bytes.
-  ///        A check will be performed during initialization to ensure that
-  ///        this type does not exceed two bytes, making TOpCode compatible with uint16.
-  {$Z2}
-  TOpcode = (
-    opHalt  = $00,
-    opNop   = $01,
-    opAlert = $02,
-    opLoad  = $03,
-    opSave  = $04,
-    opAdd   = $05
-  );
-  {$Z1}
+  IChappieBytecode = interface( IByteCode )
+    ['{FF2DF098-0D2D-4881-A443-097F056896ED}']
+
+    ///  <summary>
+    ///    The HALT instruction terminates any running program by setting the CPU
+    ///    running state to FALSE. Calls to the CPU clock method will also return
+    ///    false.
+    ///  </summary>
+    procedure opHalt;
+
+    ///  <summary>
+    ///    The NOP instruction does literally nothing but use up an instruction
+    ///    cycle. It exists for demonstration purposes only.
+    ///  </summary>
+    procedure OpNop;
+
+    ///  <summary>
+    ///    The ALERT instruction uses writeln to output a simple message reading
+    ///    'ALERT' to the standard output.
+    ///  </summmary>
+    procedure OpAlert;
+
+    ///  <summary>
+    ///    The LOAD instruction loads an immediate value into
+    ///    the accumulator register of the CPU.
+    ///  </summary>
+    procedure OpLoad( const value: nativeuint );
+
+    ///  <summary>
+    ///    The ADD instruction performs the addition of the
+    ///    immediate value with the value in the accumulator
+    ///    register, and leaves the result in the accumulator
+    ///    register.
+    ///  </summary>
+    procedure OpAdd( const value: nativeuint );
+
+    ///  <summary>
+    ///    The SAVE instruction saves the value currently in
+    ///    the accumulator to the immediate next location in
+    ///    virtual memory. For this reason, it is encoded as
+    ///    the op-code and a zero-padding to provide space
+    ///    for the value written to memory.
+    ///  </summary>
+    procedure OpSave;
+  end;
+
 
   /// <summary>
   ///   A factory record for instancing virtual CPU's
   /// </summary>
   TChappieCPU = record
-
     ///  <summary>
     ///    Creates an instance of the 'Chappie' CPU, as developed as part of the
-    ///    ChapmanWorld "Lets build a virtual machine" video series.
+    ///    ChapmanWorld "Lets build a virtual machine" video series at
+    ///    https://youtube.com/ChapmanWorldOnTube
     ///  </summary>
-    class function Create: IVirtualCPU; static;
+    class function Create( const Memory: IVirtualMemory ): IVirtualCPU; static;
+  end;
 
-    ///  <summary>
-    ///    Encodes an opcode into an array of bytes for addition to an IBytecode buffer.
-    ///  </summary>
-    class function Encode( const OpCode: TOpCode; const Operands: array of nativeuint ): TArrayOfByte; static;
+  ///  <summary>
+  ///    A factory record for instancing byte-code writers for the
+  ///    chappie CPU.
+  ///  </summary>
+  TChappieByteCode = record
+    class function Create( const VirtualMemory: IVirtualMemory; const Granularity: nativeuint = 0 ): IChappieBytecode; static;
   end;
 
 
@@ -75,39 +111,20 @@ implementation
 uses
   sysutils
 , cwVirtualMachine.VirtualCPU.Chappie
+, cwVirtualMachine.Bytecode.Chappie
 ;
 
-class function TChappieCPU.Create: IVirtualCPU;
+class function TChappieByteCode.Create( const VirtualMemory: IVirtualMemory; const Granularity: nativeuint  ): IChappieBytecode;
 begin
-  Result := cwVirtualMachine.VirtualCPU.Chappie.TChappieCPU.Create;
+  Result := cwVirtualMachine.Bytecode.Chappie.TChappieByteCode.Create( VirtualMemory, Granularity );
 end;
 
-class function TChappieCPU.Encode(const OpCode: TOpCode; const Operands: array of nativeuint): TArrayOfByte;
-var
-  OperandCount: nativeuint;
+class function TChappieCPU.Create( const Memory: IVirtualMemory ): IVirtualCPU;
 begin
-  SetLength(Result,0);
-  OperandCount := Length(Operands);
-  if OperandCount>3 then exit;
-  //- Set size of target array
-  SetLength(Result,Sizeof(TOpCode)+(OperandCount*sizeof(nativeuint)));
-  //- Move opcode
-  Move(Opcode,Result[0],sizeof(TOpCode));
-  if OperandCount=0 then exit;
-  //- Move operand 0
-  Move(Operands[0],Result[sizeof(TOpCode)],sizeof(nativeuint));
-  if OperandCount=1 then exit;
-  //- Move operand 1
-  Move(Operands[1],Result[ sizeof(TOpCode) + sizeof(nativeuint) ],sizeof(nativeuint));
-  if OperandCount=2 then exit;
-  //- Move operand 2
-  Move(Operands[2],Result[ sizeof(TOpCode) + (sizeof(nativeuint)*2) ],sizeof(nativeuint));
+  Result := cwVirtualMachine.VirtualCPU.Chappie.TChappieCPU.Create( Memory );
 end;
 
 initialization
-  if sizeof(TOpCode)<>2 then begin
-    raise
-      Exception.Create('TOpCode size must be two bytes');
-  end;
+
 
 end.

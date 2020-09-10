@@ -22,7 +22,7 @@
   DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
-  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 7POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
 unit cwVirtualMachine.VirtualMachine.Standard;
@@ -38,14 +38,14 @@ type
   TVirtualMachine = class( TInterfacedObject, IVirtualMachine )
   private
     fCPU: IVirtualCPU;
-    fBytecode: IBytecode;
-    fStaticData: IBuffer;
+    fBytecode: IByteCode;
   strict private //- IVirtualMachine -//
+    function getCPU: IVirtualCPU;
     function getBytecode: IBytecode;
     procedure ExecuteStep;
     procedure Execute;
   public
-    constructor Create( const CPU: IVirtualCPU ); reintroduce;
+    constructor Create(const CPU: IVirtualCPU); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -72,7 +72,7 @@ end;
 procedure TVirtualMachine.Execute;
 begin
   if not assigned(fCPU) then exit;
-  fCPU.Reset( fBytecode.DataPtr, fBytecode.SizeBytes, fStaticData );
+  fCPU.Reset( fBytecode.DataPtr, fBytecode.SizeBytes );
   while fCPU.Clock do;
 end;
 
@@ -80,6 +80,11 @@ procedure TVirtualMachine.ExecuteStep;
 begin
   if not assigned(fCPU) then exit;
   fCPU.Clock;
+end;
+
+function TVirtualMachine.getCPU: IVirtualCPU;
+begin
+  Result := fCPU;
 end;
 
 function TVirtualMachine.getBytecode: IBytecode;

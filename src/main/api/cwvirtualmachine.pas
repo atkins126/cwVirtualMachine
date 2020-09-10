@@ -41,8 +41,16 @@ const
   stUnexpectedEndOfBytecode = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The cpu reached the end of the byte-code unexpectedly.';
   stInvalidOpCode           = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
   stInvalidOperand          = '{67E25CF7-C8E0-4A86-A967-B88CD3AC7E42} Invalid operand encountered while encoding instruction.';
+  stVirtualMemoryUnassigned = '{EBD14231-EFEE-431F-987B-6D10A18C8B9E} Cannot write to virtual memory as it is unassigned.';
 
 {$endregion}
+
+type
+  /// <summary>
+  ///   Data-type for returning arrays of bytes which is compatible
+  ///   with dynamic array of bytes parameters.
+  /// <summary>
+  TArrayOfByte = array of byte;
 
 type
   /// <summary>
@@ -59,29 +67,23 @@ type
 
     /// <summary>
     ///   <para>
-    ///     Resets the CPU, restoring initial state. <br />Provide a buffer
-    ///     containing the byte-code instructions to be executed by the CPU.
-    ///   </para>
-    ///   <para>
-    ///     You may also, optionally provide a buffer to contain static-data
-    ///     which may be used by the byte-code program (if the implementation
-    ///     supports it). <br />
+    ///     Resets the CPU, restoring initial state. <br />
+    ///     Entrypoint should be set to a position within the
+    ///     virutal memory buffer at which the cpu should begin
+    ///     executing byte-code instructions.
     ///   </para>
     /// </summary>
-    procedure Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
+    procedure Reset( const EntryPoint: nativeuint );
 
     /// <summary>
     ///   Sends a 'clock' pulse to the CPU, instructing it to execute a single
     ///   instruction cycle. <br />
     /// </summary>
     /// <returns>
-    ///   Returns TRUE while there are remaining byte code instructions to run,
-    ///   and FALSE when the byte-code program has ended.
+    ///   Returns TRUE unless the program counter (execution pointer) exceeds
+    ///   the top of the virtual memory, or the CPU provides some HALT/BREAK
+    ///   instruction.
     /// </returns>
-    /// <exception cref="stUnexpectedEndOfBytecode">
-    ///   Raised when the CPU executes to the end of the byte-code buffer
-    ///   without first encountering an instruction to halt execution.
-    /// </exception>
     /// <exception cref="stInvalidOpCode">
     ///   Raised when an attempt to decode a byte-code instruction fails.
     /// </exception>
@@ -89,104 +91,114 @@ type
   end;
 
   ///  <summary>
-  ///    A simple byte-buffer with utility methods for encoding instructions for
-  ///    a virtual CPU.
+  ///    An implementation of IVirtualMemory represents the memory space
+  ///    for use with a virtual CPU.
+  ///    Each implementation of IVirtualMemory will differ depending on
+  ///    the requirements of the virtual CPU implementation. <br/>
   ///  </summary>
-  IBytecode = interface
-    ['{0BC9900E-9BE3-4283-BEC1-C7FEF757AEBF}']
+  IVirtualMemory = interface
+    ['{6066523F-9DAB-419B-8787-0F316F6D8DEE}']
 
     ///  <summary>
-    ///    Returns the number of bytes allocated within the bytecode buffer. <br/>
-    ///    Getter for SizeBytes property.
-    ///  </summary>
-    function getSizeBytes: nativeuint;
-
-    ///  <summary>
-    ///    Returns a pointer to the memory allocated for the byte-code buffer. <br/>
+    ///    Returns a vanilla pointer to the memory buffer. <br/>
     ///    Getter for DataPtr property.
     ///  </summary>
     function getDataPtr: pointer;
 
     ///  <summary>
-    ///    Clears the buffer and releases all allocated memory resources.
+    ///    Returns the size, in bytes, of the virtual memory buffer. <br/>
+    ///    Getter for DataSize property.
     ///  </summary>
-    procedure Clear;
+    function getDataSize: nativeuint;
 
     ///  <summary>
-    ///    Appends the bytes provided in the bytes array to the
-    ///    byte-code buffer.
+    ///    Alter the size of allocated memory. <br/>
+    ///    Caution: This method may be destructive - see DataSize property. <br/>
+    ///    Setter for DataSize property.
     ///  </summary>
-    procedure Append( const Bytes: array of uint8 );
+    procedure setDataSize( const Value: nativeuint );
 
     ///  <summary>
-    ///    A pointer to the byte-code data.
+    ///    A pointer to the virtual memory buffer.
     ///  </summary>
     property DataPtr: pointer read getDataPtr;
 
     ///  <summary>
-    ///    The size (in bytes) of the data in the byte-code buffer.
+    ///    Get or Set the size of the virtual memory buffer in bytes. <br/>
+    ///    When setting, the standard implementation attempts to retain any
+    ///    existing data in the buffer, up-to the new size in bytes. This may
+    ///    vary with non-standard implementations. Check the implementation
+    ///    documentation / comments to see if altering the size of the buffer
+    ///    is destructive.
     ///  </summary>
-    property SizeBytes: nativeuint read getSizeBytes;
+    property DataSize: nativeuint read getDataSize write setDataSize;
   end;
 
-  /// <summary>
-  ///   Represents a virtual machine.
-  /// </summary>
-  /// <example>
-  ///   <code lang="Delphi">procedure RunBytecode( const ByteCode: IBuffer );
-  /// var
-  ///   VM: IVirtualMachine;
-  /// begin
-  ///   VM := TVirtualMachine.Create( TVirtualCPU.CreateChappie );
-  ///   VM.LoadBytecode( ByteCode );
-  ///   VM.Execute;
-  /// end;</code>
-  /// </example>
-  IVirtualMachine = interface
-    ['{14B6A7A4-5C8C-4EE8-83CE-40D0F5A37B70}']
+  ///  <summary>
+  ///    An implementation of IBytecode represnts a window into an IVirtualMemory
+  ///    instance in order to edit byte-code instructions. <br/>
+  ///  </summary>
+  IBytecode = interface
+    ['{0BC9900E-9BE3-4283-BEC1-C7FEF757AEBF}']
 
     ///  <summary>
-    ///    Returns a reference to the byte-code buffer which will be executed
-    ///    by the virtual machine. <br/>
-    ///    Getter for Bytecode property.
-    ///    <remarks>
-    ///      This property may return nil if the virtual machine is already running,
-    ///      to prevent aleration of the byte-code at runtiume.
-    ///    </remarks>
+    ///    Returns a reference to the virtual memory being edited
+    ///    through this byte-code window. <br/>
+    ///    Getter for VirtualMemory property.
     ///  </summary>
-    function getBytecode: IBytecode;
-
-    /// <summary>
-    ///   Executes the next instruction in the byte-code and then returns. This
-    ///   method is useful for writing a debugger with the ability to break on
-    ///   break-points, or sinlge-step through the running program.
-    /// </summary>
-    /// <exception cref="stUnexpectedEndOfBytecode">
-    ///   Raised when the CPU executes to the end of the byte-code buffer
-    ///   without first encountering an instruction to halt execution.
-    /// </exception>
-    /// <exception cref="stInvalidOpCode">
-    ///   Raised when an attempt to decode a byte-code instruction fails.
-    /// </exception>
-    procedure ExecuteStep;
-
-    /// <summary>
-    ///   Executes the loaded byte-code program until completion.
-    /// </summary>
-    /// <exception cref="stUnexpectedEndOfBytecode">
-    ///   Raised when the CPU executes to the end of the byte-code buffer
-    ///   without first encountering an instruction to halt execution.
-    /// </exception>
-    /// <exception cref="stInvalidOpCode">
-    ///   Raised when an attempt to decode a byte-code instruction fails.
-    /// </exception>
-    procedure Execute;
+    function getVirtualMemory: IVirtualMemory;
 
     ///  <summary>
-    ///    A reference to the byte-code buffer for this virtual machine instance.
+    ///    Returns the location of the byte-code window as an offset within
+    ///    virtual memory. <br/>
+    ///    Getter for the Cursor property.
     ///  </summary>
-    property ByteCode: IByteCode read getByteCode;
+    function getCursor: nativeuint;
+
+    ///  <summary>
+    ///    Sets the location of the byte-code window as an offset within
+    ///    virtual memory. <br/>
+    ///    If an attempt is made to position the cursor outside the
+    ///    virutal memory space, the cursor will simply be positioned
+    ///    at the last byte of virtual memory. <br/>
+    ///    Setter for the Cursor property.
+    ///  </summary>
+    procedure setCursor( const value: nativeuint );
+
+    ///  <summary>
+    ///    Writes a number of bytes to virtual memory buffer at the location
+    ///    specified by the cursor property. <br/>
+    ///    If the top of the virtual memory buffer is reached while there
+    ///    are still bytes remaining to be written, writing will simply
+    ///    stop to prevent buffer overrun, and this method will return
+    ///    the number of bytes actually written to the buffer.
+    ///  </summary>
+    function Write( const Bytes: array of uint8; const Offset: nativeuint ): nativeuint;
+
+    ///  <summary>
+    ///    Appends the bytes provided in the bytes array to the
+    ///    byte-code buffer at the location specified by the cursor
+    ///    property, and progresses the cursor beyond the written bytes. <br/>
+    ///    This method will expand the virutal buffer size if required.
+    ///  </summary>
+    procedure Append( const Bytes: array of uint8 );
+
+    ///  <summary>
+    ///    A reference to the virtual memory assigned to this byte-code window. <br/>
+    ///  </summary>
+    property VirtualMemory: IVirtualMemory read getVirtualMemory;
+
+    ///  <summary>
+    ///    Get/Set the cursor offset within the IVirtualMemory buffer. <br/>
+    ///    When setting the cursor beyond the bounds of the virtual memory buffer,
+    ///    the property will simply be set to point at the last byte in the buffer.
+    ///    Care must be taken to check that the cursor was actually set to the
+    ///    intended location if this can not be assured before setting.
+    ///  </summary>
+    property Cursor: nativeuint read getCursor write setCursor;
+
   end;
+
 
 implementation
 
@@ -196,5 +208,6 @@ initialization
   TStatus.Register(stInvalidOpCode);
   TStatus.Register(stUnknownInstructionName);
   TStatus.Register(stInvalidOperand);
+  TStatus.Register(stVirtualMemoryUnassigned);
 
 end.
