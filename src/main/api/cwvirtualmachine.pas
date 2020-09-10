@@ -30,8 +30,7 @@ unit cwVirtualMachine;
 
 interface
 uses
-  cwIO
-, cwStatus
+  cwStatus
 ;
 
 {$region ' Error states'}
@@ -41,7 +40,7 @@ const
   stUnexpectedEndOfBytecode = '{B5BBDE1E-3231-4078-8906-042D75FFF4BC} The cpu reached the end of the byte-code unexpectedly.';
   stInvalidOpCode           = '{6CEA0E42-2235-46E6-984E-CCEF915592F3} Invalid instruction error.';
   stInvalidOperand          = '{67E25CF7-C8E0-4A86-A967-B88CD3AC7E42} Invalid operand encountered while encoding instruction.';
-  stVirtualMemoryUnassigned = '{EBD14231-EFEE-431F-987B-6D10A18C8B9E} Cannot write to virtual memory as it is unassigned.';
+  stVirtualMemoryUnassigned = '{EBD14231-EFEE-431F-987B-6D10A18C8B9E} Cannot read/write to virtual memory as it is unassigned.';
 
 {$endregion}
 
@@ -173,7 +172,7 @@ type
     ///    stop to prevent buffer overrun, and this method will return
     ///    the number of bytes actually written to the buffer.
     ///  </summary>
-    function Write( const Bytes: array of uint8; const Offset: nativeuint ): nativeuint;
+    function Write( const Bytes: array of uint8 ): nativeuint;
 
     ///  <summary>
     ///    Appends the bytes provided in the bytes array to the

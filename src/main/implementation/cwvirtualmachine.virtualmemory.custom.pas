@@ -41,7 +41,7 @@ type
   protected //- IVirtualMemory -//
     function getDataPtr: pointer;
     function getDataSize: nativeuint;
-    procedure setDataSize( const Value: nativeuint );
+    procedure setDataSize( const Value: nativeuint ); virtual;
   public
     constructor Create( const InitialSize: nativeuint = 0 ); reintroduce;
     destructor Destroy; override;

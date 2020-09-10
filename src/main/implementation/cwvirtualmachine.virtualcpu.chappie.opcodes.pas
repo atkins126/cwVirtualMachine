@@ -49,18 +49,8 @@ type
   {$Z1}
 
 implementation
-uses
-  cwStatus
-;
-
-const
-  stChappieOpcodeSize = '{DADCB65E-D5C6-42AB-BE84-8BD176FBCC4A} Opcode size check failed in cwVritualMachine.VirtualCPU.Chappie.Opcodes.pas';
 
 initialization
-  TStatus.Register(stChappieOpcodeSize);
-  if sizeof(TOpCode)<>sizeof(uint32) then begin
-    TStatus(stChappieOpcodeSize).Raize;
-  end;
 
 end.
 

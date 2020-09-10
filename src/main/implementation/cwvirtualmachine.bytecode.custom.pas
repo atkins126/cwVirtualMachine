@@ -30,9 +30,7 @@ unit cwVirtualMachine.ByteCode.Custom;
 
 interface
 uses
-  cwIO
-, cwStatus
-, cwIO.Standard
+  cwStatus
 , cwVirtualMachine
 ;
 
@@ -49,7 +47,7 @@ type
     function getVirtualMemory: IVirtualMemory;
     function getCursor: nativeuint;
     procedure setCursor( const value: nativeuint );
-    function Write( const Bytes: array of uint8; const Offset: nativeuint ): nativeuint;
+    function Write( const Bytes: array of uint8 ): nativeuint;
     procedure Append( const Bytes: array of uint8 );
   public
     constructor Create( const VirtualMemory: IVirtualMemory; const Granularity: nativeuint = cDefaultBytecodeGranularity ); reintroduce;
@@ -89,7 +87,7 @@ begin
   fCursor := Value;
 end;
 
-function TCustomBytecode.Write(const Bytes: array of uint8; const Offset: nativeuint): nativeuint;
+function TCustomBytecode.Write(const Bytes: array of uint8): nativeuint;
 var
   L: nativeuint;
   BytesToWrite: nativeuint;
