@@ -143,7 +143,6 @@ begin
   end;
 
   //- Check for valid op-code
-  Writeln('Opcode: ',uint32(pOpCode( fState.ProgramCounter.AsPointer )^));
   if pOpCode( fState.ProgramCounter.AsPointer )^ > High(TOpCode) then begin
     TStatus( stInvalidOpCode ).Raize;
   end;
