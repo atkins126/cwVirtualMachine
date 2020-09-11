@@ -130,12 +130,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="api\cwvirtualmachine.mos6502.pas"/>
         <DCCReference Include="api\cwvirtualmachine.pas"/>
         <DCCReference Include="api\cwvirtualmachine.standard.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.virtualmachine.standard.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.bytecode.standard.pas"/>
         <DCCReference Include="api\cwvirtualmachine.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmemory.custom.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmemory.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.custom.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.opcodes.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -243,7 +249,16 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -583,16 +598,7 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

@@ -130,12 +130,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="api\cwvirtualmachine.mos6502.pas"/>
         <DCCReference Include="api\cwvirtualmachine.pas"/>
         <DCCReference Include="api\cwvirtualmachine.standard.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.virtualmachine.standard.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.bytecode.standard.pas"/>
         <DCCReference Include="api\cwvirtualmachine.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmemory.custom.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmemory.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.custom.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.opcodes.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -220,6 +226,12 @@
                 <DeployFile LocalName="..\..\out\lib\bpl\pkg_cwVirtualMachine_Tokyo.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>pkg_cwVirtualMachine_Tokyo.bpl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\out\lib\bpl\pkg_cwVirtualMachine_Tokyo.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>pkg_cwVirtualMachine_Tokyo.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

@@ -34,10 +34,16 @@ requires
 
 contains
   cwvirtualmachine in 'api\cwvirtualmachine.pas',
-  cwvirtualmachine.virtualcpu.chappie in 'implementation\cwvirtualmachine.virtualcpu.chappie.pas',
-  cwvirtualmachine.virtualmachine.standard in 'implementation\cwvirtualmachine.virtualmachine.standard.pas',
   cwvirtualmachine.standard in 'api\cwvirtualmachine.standard.pas',
-  cwvirtualmachine.bytecode.standard in 'implementation\cwvirtualmachine.bytecode.standard.pas',
-  cwvirtualmachine.chappie in 'api\cwvirtualmachine.chappie.pas';
+  cwvirtualmachine.chappie in 'api\cwvirtualmachine.chappie.pas',
+  cwvirtualmachine.mos6502 in 'api\cwvirtualmachine.mos6502.pas',
+  cwvirtualmachine.virtualmemory.custom in 'implementation\cwvirtualmachine.virtualmemory.custom.pas',
+  cwvirtualmachine.virtualmemory.mos6502 in 'implementation\cwvirtualmachine.virtualmemory.mos6502.pas',
+  cwvirtualmachine.bytecode.chappie in 'implementation\cwvirtualmachine.bytecode.chappie.pas',
+  cwvirtualmachine.bytecode.custom in 'implementation\cwvirtualmachine.bytecode.custom.pas',
+  cwvirtualmachine.bytecode.mos6502 in 'implementation\cwvirtualmachine.bytecode.mos6502.pas',
+  cwvirtualmachine.virtualcpu.chappie.opcodes in 'implementation\cwvirtualmachine.virtualcpu.chappie.opcodes.pas',
+  cwvirtualmachine.virtualcpu.chappie in 'implementation\cwvirtualmachine.virtualcpu.chappie.pas',
+  cwvirtualmachine.virtualcpu.mos6502 in 'implementation\cwvirtualmachine.virtualcpu.mos6502.pas';
 
 end.
