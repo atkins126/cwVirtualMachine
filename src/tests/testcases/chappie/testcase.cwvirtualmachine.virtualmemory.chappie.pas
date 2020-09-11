@@ -1,6 +1,7 @@
 {$ifdef license}
 (*
   Copyright 2020 ChapmanWorld LLC ( https://chapmanworld.com )
+
   Redistribution and use in source and binary forms, with or without modification,
   are permitted provided that the following conditions are met:
 
@@ -25,29 +26,33 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-program test_cwVirtualMachine;
-{$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
+unit TestCase.cwVirtualMachine.VirtualMemory.Chappie;
+{$ifdef fpc} {$mode delphiunicode} {$endif}
+{$M+}
 
+interface
 uses
   cwTest
-, cwTest.Standard
-, TestCase.cwVirtualMachine.VirtualMemory
-, TestCase.cwVirtualMachine.VirtualMemory.Chappie
-, TestCase.cwVirtualMachine.VirtualMemory.Mos6502
-, TestCase.cwVirtualMachine.ByteCode
-, TestCase.cwVirtualMachine.ByteCode.Chappie
-, TestCase.cwVirtualMachine.ByteCode.Mos6502
-, TestCase.cwVirtualMachine.VirtualCPU.Chappie
-, TestCase.cwVirtualMachine.VirtualCPU.Mos6502
 ;
 
-var
-  R: nativeuint;
-
-begin
-  R := TestSuite.Run( 'test_cwVirtualMachine', [TConsoleReport.Create] );
-  if ParamStr(1)='ide' then begin
-    Readln;
+type
+  TTest_ChappieVirtualMemory = class(TTestCase)
+  published
+    (* Currently no tests because chappie memory is a reference to TCustomVirtialMemory which
+       is tested under testcase.cwvirtualmachine.virtualmemory. Retained as a placeholder for
+       potential chappy specific changes later *)
   end;
-  System.ExitCode := R;
+
+implementation
+uses
+  cwTest.Standard
+;
+
+
+initialization
+  TestSuite.RegisterTestCase(TTest_ChappieVirtualMemory)
+
 end.
+
+
+

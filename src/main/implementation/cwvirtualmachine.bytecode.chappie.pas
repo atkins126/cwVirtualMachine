@@ -39,7 +39,7 @@ uses
 type
   TChappieByteCode = class( TCustomBytecode, IBytecode, IChappieBytecode )
   private
-    function Encode(const OpCode: TOpCode; const Operands: array of nativeuint): TArrayOfByte;
+    function Encode(const OpCode: TOpCode; const Operands: array of uint32): TArrayOfByte;
   strict private //- IChappieBytecode -//
     procedure opHalt;
     procedure OpNop;
@@ -51,11 +51,11 @@ type
 
 implementation
 
-function TChappieByteCode.Encode(const OpCode: TOpCode; const Operands: array of nativeuint): TArrayOfByte;
+function TChappieByteCode.Encode(const OpCode: TOpCode; const Operands: array of uint32): TArrayOfByte;
 var
   OperandCount: nativeuint;
 begin
-  SetLength(Result,0);
+  {$warnings off} SetLength(Result,0); {$warnings on}
   OperandCount := Length(Operands);
   if OperandCount>3 then exit;
   //- Set size of target array
@@ -67,10 +67,10 @@ begin
   Move(Operands[0],Result[sizeof(TOpCode)],sizeof(nativeuint));
   if OperandCount=1 then exit;
   //- Move operand 1
-  Move(Operands[1],Result[ sizeof(TOpCode) + sizeof(nativeuint) ],sizeof(nativeuint));
+  Move(Operands[1],Result[ sizeof(TOpCode) + sizeof(uint32) ],sizeof(uint32));
   if OperandCount=2 then exit;
   //- Move operand 2
-  Move(Operands[2],Result[ sizeof(TOpCode) + (sizeof(nativeuint)*2) ],sizeof(nativeuint));
+  Move(Operands[2],Result[ sizeof(TOpCode) + (sizeof(uint32)*2) ],sizeof(uint32));
 end;
 
 procedure TChappieByteCode.opHalt;

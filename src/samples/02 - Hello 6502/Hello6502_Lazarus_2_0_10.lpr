@@ -25,29 +25,59 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-program test_cwVirtualMachine;
+program Hello6502;
 {$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
-
 uses
-  cwTest
-, cwTest.Standard
-, TestCase.cwVirtualMachine.VirtualMemory
-, TestCase.cwVirtualMachine.VirtualMemory.Chappie
-, TestCase.cwVirtualMachine.VirtualMemory.Mos6502
-, TestCase.cwVirtualMachine.ByteCode
-, TestCase.cwVirtualMachine.ByteCode.Chappie
-, TestCase.cwVirtualMachine.ByteCode.Mos6502
-, TestCase.cwVirtualMachine.VirtualCPU.Chappie
-, TestCase.cwVirtualMachine.VirtualCPU.Mos6502
+  cwTypes
+, cwVirtualMachine
+, cwVirtualMachine.Standard
+, cwVirtualMachine.Mos6502
 ;
 
 var
-  R: nativeuint;
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502Bytecode;
+  CPU: I6502CPU;
+
+procedure WriteRegisters;
+begin
+  Writeln( '   PC  SR AC XR YT SP - ChapmanWorld Rocks!');
+  Writeln( '; '+
+           CPU.PC.AsHex(4)+' '+
+           CPU.SR.AsHex(2)+' '+
+           CPU.A.AsHex(2)+' '+
+           CPU.X.AsHex(2)+' '+
+           CPU.Y.AsHex(2)+' '+
+           CPU.SP.AsHex(2) );
+end;
 
 begin
-  R := TestSuite.Run( 'test_cwVirtualMachine', [TConsoleReport.Create] );
-  if ParamStr(1)='ide' then begin
-    Readln;
+  //- Create some memory for our virtual machine to work with.
+  //- Defaults to the minimum of 64KB
+  Memory := T6502VirtualMemory.Create;
+
+  //- Create an instruction code window into memory, specific to the 6502
+  ByteCode := T6502Bytecode.Create( Memory );
+  ByteCode.Cursor := 0;
+
+  //- Write some instructions.
+  ByteCode.BRK;
+  ByteCode.BRK;
+  ByteCode.BRK;
+
+  //- Create an instance of the 6502 to do the work.
+  CPU := T6502CPU.Create( Memory );
+
+  //- Work!
+  while CPU.Clock do begin
+    if CPU.BreakFlag then begin
+      WriteRegisters;
+      Readln;
+      CPU.BreakFlag := False;
+    end;
   end;
-  System.ExitCode := R;
+
+  //- We're done here.
+  Readln;
 end.
+

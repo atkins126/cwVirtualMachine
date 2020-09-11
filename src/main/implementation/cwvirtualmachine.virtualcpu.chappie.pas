@@ -30,20 +30,18 @@ unit cwVirtualMachine.VirtualCPU.Chappie;
 
 interface
 uses
-  cwIO
-, cwStatus
+  cwStatus
 , cwVirtualMachine
 ;
 
 {$region ' CPU State '}
 
 type
-
   // Represents the state of a chappie CPU.
   TChappieState = record
     Running         : boolean;
     ProgramCounter  : nativeuint;
-    Accumulator     : nativeuint;
+    Accumulator     : uint32;
   end;
   pChappieState = ^TChappieState;
 
@@ -88,20 +86,26 @@ end;
 
 procedure HandleLoad( var State: TChappieState );
 begin
+  {$hints off}
   State.Accumulator := nativeuint( pointer(State.ProgramCounter)^ );
-  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+  {$hints on}
+  State.ProgramCounter := State.ProgramCounter + Sizeof(uint32);
 end;
 
 procedure HandleSave( var State: TChappieState );
 begin
+  {$hints off}
   nativeuint( pointer(State.ProgramCounter)^ ) := State.Accumulator;
-  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+  {$hints on}
+  State.ProgramCounter := State.ProgramCounter + Sizeof(uint32);
 end;
 
 procedure HandleAdd( var State: TChappieState );
 begin
+  {$hints off}
   State.Accumulator := State.Accumulator + nativeuint( pointer(State.ProgramCounter)^ );
-  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+  {$hints on}
+  State.ProgramCounter := State.ProgramCounter + Sizeof(uint32);
 end;
 
 {$endregion}

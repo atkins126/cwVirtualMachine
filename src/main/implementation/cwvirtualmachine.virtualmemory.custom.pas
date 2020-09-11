@@ -39,6 +39,8 @@ type
   private
     fBuffer: IBuffer;
   protected //- IVirtualMemory -//
+    function getByte( const idx: nativeuint ): uint8;
+    procedure setByte( const idx: nativeuint; const value: uint8 );
     function getDataPtr: pointer;
     function getDataSize: nativeuint;
     procedure setDataSize( const Value: nativeuint ); virtual;
@@ -51,6 +53,16 @@ implementation
 uses
   cwIO.Standard
 ;
+
+function TCustomVirtualMemory.getByte(const idx: nativeuint): uint8;
+begin
+  Result := fBuffer.Bytes[idx];
+end;
+
+procedure TCustomVirtualMemory.setByte(const idx: nativeuint; const value: uint8);
+begin
+  fBuffer.Bytes[idx] := value;
+end;
 
 function TCustomVirtualMemory.getDataPtr: pointer;
 begin

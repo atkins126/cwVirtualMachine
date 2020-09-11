@@ -101,7 +101,7 @@ begin
   L := Length(Bytes);
   if L=0 then exit;
   if (fCursor+L)>=fMemory.DataSize then begin
-    BytesToWrite := fMemory.DataSize - L;
+    BytesToWrite := fMemory.DataSize - fCursor;
   end else begin
     BytesToWrite := L;
   end;
@@ -109,7 +109,7 @@ begin
   //- Write the bytes.
   TargetPtr := (fMemory.DataPtr.AsNativeUInt + fCursor).AsPointer;
   Move( Bytes[0], TargetPtr^, BytesToWrite );
-  inc(fCursor,BytesToWrite);
+  setCursor(fCursor+BytesToWrite);
   Result := BytesToWrite;
 end;
 
@@ -135,7 +135,7 @@ begin
   //- Write the bytes.
   TargetPtr := (fMemory.DataPtr.AsNativeUInt + fCursor).AsPointer;
   Move( Bytes[0], TargetPtr^, L );
-  inc(fCursor,L);
+  setCursor(fCursor+L);
 end;
 
 constructor TCustomBytecode.Create( const VirtualMemory: IVirtualMemory; const Granularity: nativeuint = cDefaultBytecodeGranularity );

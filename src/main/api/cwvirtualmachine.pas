@@ -99,6 +99,18 @@ type
     ['{6066523F-9DAB-419B-8787-0F316F6D8DEE}']
 
     ///  <summary>
+    ///    Returns a byte value from within the memory buffer by index/offset. <br/>
+    ///    Getter for Bytes property.
+    ///  </summary>
+    function getByte( const idx: nativeuint ): uint8;
+
+    ///  <summary>
+    ///    Sets a byte value within the memory buffer by index/offset. <br/>
+    ///    Setter for Bytes property.
+    ///  </summary>
+    procedure setByte( const idx: nativeuint; const value: uint8 );
+
+    ///  <summary>
     ///    Returns a vanilla pointer to the memory buffer. <br/>
     ///    Getter for DataPtr property.
     ///  </summary>
@@ -131,6 +143,11 @@ type
     ///    is destructive.
     ///  </summary>
     property DataSize: nativeuint read getDataSize write setDataSize;
+
+    ///  <summary>
+    ///    Read/Write individual bytes within the buffer by index.
+    ///  </summary>
+    property Bytes[ const idx: nativeuint ]: uint8 read getByte write setByte; default;
   end;
 
   ///  <summary>
