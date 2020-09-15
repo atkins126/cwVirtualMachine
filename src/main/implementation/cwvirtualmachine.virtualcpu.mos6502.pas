@@ -109,7 +109,6 @@ uses
 ;
 
 const
-  cMaxByte = $FF;
   cLatchAddress = $0001;
 
 const //- flag masks for processor status register.
@@ -120,6 +119,16 @@ const //- flag masks for processor status register.
   cBreakCommand = $01 shl 4; // bit 4
   cOverflowFlag = $01 shl 6; // bit 6
   cNegativeFlag = $01 shl 7; // bit 7
+
+const
+  cBit7 = $01 shl 7;
+  cBit6 = $01 shl 6;
+  cBit5 = $01 shl 5;
+  cBit4 = $01 shl 4;
+  cBit3 = $01 shl 3;
+  cBit2 = $01 shl 2;
+  cBit1 = $01 shl 1;
+  cBit0 = $01;
 
 {$region ' Addressing modes retruned as real pointer to target'}
 
@@ -144,7 +153,7 @@ begin
   Result := pEffectiveAddress;
 end;
 
-function ptr_abs_x( const State: T6502State ): pointer; //inline;
+function ptr_abs_x( const State: T6502State ): pointer; inline;
 var
   pEffectiveAddress: ^uint16;
 begin
@@ -183,10 +192,10 @@ var
   W: uint16;
 begin
   pByte := RealPointer( State, State.PC );
-  W := ($00 AND pByte^);
-  W := W + State.X;
-  W := W xor $FF00;
-  Result := RealPointer( State, W );
+  W := pByte^;
+  W := W and $FF;
+  W := uint16(RealPointer( State, W + State.X )^);
+  Result := RealPointer( State, W  );
 end;
 
 function ptr_ind_y( const State: T6502State ): pointer; inline;
@@ -195,10 +204,12 @@ var
   W: uint16;
 begin
   pByte := RealPointer( State, State.PC );
-  W := ($00 AND pByte^);
-  W := W + State.Y;
-  Result := RealPointer( State, W );
+  W := pByte^;
+  W := W and $FF;
+  W := uint16(RealPointer( State, W )^);
+  Result := RealPointer( State, W + State.Y );
 end;
+
 
 function ptr_rel( const State: T6502State ): pointer; inline;
 var
@@ -214,7 +225,8 @@ var
   W: uint16;
 begin
   pByte := RealPointer( State, State.PC );
-  W := $00 and pByte^;
+  W := pByte^;
+  W := W and $FF;
   Result := RealPointer( State, W );
 end;
 
@@ -224,9 +236,9 @@ var
   W: uint16;
 begin
   pByte := RealPointer( State, State.PC );
-  W := $00 and pByte^;
+  W := pByte^;
   W := W + State.X;
-  W := W xor $FF00;
+  W := W and $FF;
   Result := RealPointer( State, W );
 end;
 
@@ -236,9 +248,9 @@ var
   W: uint16;
 begin
   pByte := RealPointer( State, State.PC );
-  W := $00 and pByte^;
+  W := pByte^;
   W := W + State.Y;
-  W := W xor $FF00;
+  W := W and $FF;
   Result := RealPointer( State, W );
 end;
 
@@ -296,6 +308,158 @@ begin
   State.PC := State.PC + sizeof(uint8);
 end;
 
+procedure inc_rel( var State: T6502State ); inline;
+begin
+  State.PC := State.PC + sizeof(uint8);
+end;
+
+{$endregion}
+
+{$region ' Arithmetic operations - Addition and Subtraction with Carry/Borrow'}
+
+function negate( const value: uint8 ): uint8; inline;
+begin
+  Result := not value;
+  inc(Result);
+end;
+
+procedure instr_ADC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
+var
+  cf: boolean;
+  lowNibbleR: uint8;
+  highNibbleR: uint8;
+  lowNibbleA: uint8;
+  highNibbleA: uint8;
+  lowNibbleP: uint8;
+  highNibbleP: uint8;
+  product: uint8;
+begin
+  //- Store cf for later and clear.
+  cf := (State.SR and cCarryFlag) = cCarryFlag;
+  State.SR := State.SR and (not cCarryFlag);
+
+  //- Get low and high nibble of each piece of the addition.
+  lowNibbleR := r^ and $0F;
+  highNibbleR := r^ shr 4;
+  lowNibbleA := l^ and $0F;
+  highNibbleA := l^ shr 4;
+
+  //- Perform nibble-wize addition
+  lowNibbleP := lowNibbleA + lowNibbleR;
+  highNibbleP := highNibbleA + highNibbleR;
+
+  //- If low nibble carried, add it to the high nibble.
+  if lowNibbleP>$F then begin
+    highNibbleP := highNibbleP + 1;
+    lowNibbleP := lowNibbleP xor $10;
+  end;
+
+  //- Did high nibble carry?
+  if highNibbleP>$F then begin
+    State.SR := State.SR or cCarryFlag;
+    highNibbleP := highNibbleP xor $10;
+  end;
+
+  //- Reassemble
+  highNibbleP := highNibbleP shl 4;
+  Product := highNibbleP or lowNibbleP;
+
+  //- if cf carried in, increment result.
+  if cf then begin
+    inc(Product);
+    if (Product)=$00 then begin
+      State.SR := State.SR or cCarryFlag;
+    end;
+  end;
+
+  // ADC does not necessarily alter 'A', sometimes just the flags are needed :-)
+  if saveProduct then begin
+    l^ := Product;
+  end;
+end;
+
+procedure instr_SBC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
+var
+  nr: uint8;
+begin
+  nr := negate( r^ );
+  instr_ADC( State, l, @nr, saveProduct );
+end;
+
+{$endregion}
+
+{$region ' Stack operations '}
+
+procedure pushbyte( var State: T6502State; const v: pByte ); inline;
+var
+  pStack: ^uint8;
+begin
+  pStack := RealPointer( State, ($01 and State.SP) );
+  pStack^ := v^;
+  dec(State.SP);
+end;
+
+procedure pushword( var State: T6502State; const v: pWord ); inline;
+var
+  pStack: ^uint16;
+begin
+  pStack := RealPointer( State, ($01 and State.SP) );
+  pStack^ := v^;
+  dec(State.SP,2);
+end;
+
+procedure popbyte( var State: T6502State; const v: pByte ); inline;
+var
+  pStack: ^uint8;
+begin
+  inc(State.SP);
+  pStack := RealPointer( State, ($01 and State.SP) );
+  v^ := pStack^;
+end;
+
+procedure popword( var State: T6502State; const v: pWord ); inline;
+var
+  pStack: ^uint16;
+begin
+  inc(State.SP);
+  pStack := RealPointer( State, ($01 and State.SP) );
+  v^ := pStack^;
+end;
+
+{$endregion}
+
+{$region ' Roll operations '}
+
+procedure rol( var State: T6502State; const v: pbyte ); inline;
+var
+  cf: boolean;
+begin
+  cf := (State.SR and cCarryFlag) = cCarryFlag;
+  State.SR := State.SR and (not cCarryFlag);
+  if (v^ and cBit7) = cBit7 then begin
+    State.SR := State.SR or 1;
+  end;
+  v^ := v^ shl 1;
+  if cf then begin
+    v^ := v^ or 1;
+  end;
+end;
+
+procedure ror( var State: T6502State; const v: pbyte ); inline;
+var
+  cf: boolean;
+begin
+  cf := (State.SR and cCarryFlag) = cCarryFlag;
+  State.SR := State.SR and (not cCarryFlag);
+  if (v^ and cBit0) = cBit0 then begin
+    State.SR := State.SR or 1;
+  end;
+  v^ := v^ shr 1;
+  if cf then begin
+    v^ := v^ or cBit7;
+  end;
+end;
+
 {$endregion}
 
 {$region ' 6502 Instruction Handlers'}
@@ -303,118 +467,125 @@ end;
   //- 151 variations.
 
   {$region 'ADC'}
-  procedure instr_ADC( var State: T6502State; const r: pByte );  inline;
-  var
-    cf: boolean;
-  begin
-    cf := (State.SR AND cCarryFlag) = cCarryFlag;
-    if ((cMaxByte-r^)>State.A) then begin
-      State.A := cMaxByte - (State.A + r^);
-      State.SR := State.SR OR cCarryFlag;
-    end else begin
-      State.A := (State.A + r^);
-      State.SR := State.SR XOR cCarryFlag;
-    end;
-    if (cf) and (State.A<cMaxByte) then begin
-      State.A := State.A + 1
-    end;
-  end;
-
   procedure HandleADC_abs_x( var State: T6502State );
   begin
-    instr_ADC( State, ptr_abs_x(State) );
+    instr_ADC( State, @State.A, ptr_abs_x(State) );
     inc_abs_x(State);
   end;
 
   procedure HandleADC_abs_y( var State: T6502State );
   begin
-    instr_ADC( State, ptr_abs_y(State) );
+    instr_ADC( State, @State.A, ptr_abs_y(State) );
     inc_abs_y(State);
   end;
 
   procedure HandleADC_abs( var State: T6502State );
   begin
-    instr_ADC( State, ptr_abs(State) );
+    instr_ADC( State, @State.A, ptr_abs(State) );
     inc_abs(State);
   end;
 
   procedure HandleADC_imm( var State: T6502State );
   begin
-    instr_ADC( State, ptr_imm(State) );
+    instr_ADC( State, @State.A, ptr_imm(State) );
     inc_imm(State);
   end;
 
   procedure HandleADC_ind_y( var State: T6502State );
   begin
-    instr_ADC( State, ptr_ind_y(State) );
+    instr_ADC( State, @State.A, ptr_ind_y(State) );
     inc_ind_y(State);
   end;
 
   procedure HandleADC_x_ind( var State: T6502State );
   begin
-    instr_ADC( State, ptr_x_ind(State) );
+    instr_ADC( State, @State.A, ptr_x_ind(State) );
     inc_x_ind(State);
   end;
 
   procedure HandleADC_zpg_x( var State: T6502State );
   begin
-    instr_ADC( State, ptr_zpg_x(State) );
+    instr_ADC( State, @State.A, ptr_zpg_x(State) );
     inc_zpg_x(State);
   end;
 
   procedure HandleADC_zpg( var State: T6502State );
   begin
-    instr_ADC( State, ptr_zpg(State) );
+    instr_ADC( State, @State.A, ptr_zpg(State) );
     inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'AND'}
   procedure HandleAND_abs_x( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_abs_x(State)^);
+    b := ptr_abs_x(State);
+    State.A := State.A and b^;
     inc_abs_x(State);
   end;
 
   procedure HandleAND_abs_y( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_abs_y(State)^);
+    b := ptr_abs_y(State);
+    State.A := State.A and b^;
     inc_abs_y(State);
   end;
 
   procedure HandleAND_abs( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_abs(State)^);
+    b := ptr_abs(State);
+    State.A := State.A and b^;
     inc_abs(State);
   end;
 
   procedure HandleAND_imm( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_imm(State)^);
+    b := ptr_imm(State);
+    State.A := State.A and b^;
     inc_imm(State);
   end;
 
   procedure HandleAND_ind_y( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_ind_y(State)^);
+    b := ptr_ind_y(State);
+    State.A := State.A and b^;
     inc_ind_y(State);
   end;
 
   procedure HandleAND_x_ind( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_x_ind(State)^);
+    b := ptr_x_ind(State);
+    State.A := State.A and b^;
     inc_x_ind(State);
   end;
 
   procedure HandleAND_zpg_x( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_zpg_x(State)^);
+    b := ptr_zpg_x(State);
+    State.A := State.A and b^;
     inc_zpg_x(State);
   end;
 
   procedure HandleAND_zpg( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.A := State.A and uint8(ptr_zpg(State)^);
+    b := ptr_zpg(State);
+    State.A := State.A and b^;
     inc_zpg(State);
   end;
   {$endregion}
@@ -422,81 +593,170 @@ end;
   {$region 'ASL'}
   procedure HandleASL_a( var State: T6502State );
   begin
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := State.SR or ((State.A and cBit7) shr 7);
     State.A := State.A shl 1;
   end;
 
   procedure HandleASL_abs_x( var State: T6502State );
+  var
+    b: pByte;
   begin
-    uint8(ptr_abs_x(State)^) := uint8(ptr_abs_x(State)^) shl 1;
+    b := ptr_abs_x(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := ((b^ and cBit7) shr 7);
+    b^ := b^ shl 1;
+    inc_abs_x(State);
   end;
 
   procedure HandleASL_abs( var State: T6502State );
+  var
+    b: pByte;
   begin
-    uint8(ptr_abs(State)^) := uint8(ptr_abs(State)^) shl 1;
+    b := ptr_abs(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := ((b^ and cBit7) shr 7);
+    b^ := b^ shl 1;
+    inc_abs(State);
   end;
 
   procedure HandleASL_zpg_x( var State: T6502State );
+  var
+    b: pByte;
   begin
-    uint8(ptr_zpg_x(State)^) := uint8(ptr_zpg_x(State)^) shl 1;
+    b := ptr_zpg_x(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := ((b^ and cBit7) shr 7);
+    b^ := b^ shl 1;
+    inc_zpg_x(State);
   end;
 
   procedure HandleASL_zpg( var State: T6502State );
+  var
+    b: pByte;
   begin
-    uint8(ptr_zpg(State)^) := uint8(ptr_zpg(State)^) shl 1;
+    b := ptr_zpg_x(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := ((b^ and cBit7) shr 7);
+    b^ := b^ shl 1;
+    inc_zpg_x(State);
   end;
   {$endregion}
 
   {$region 'BCC'}
   procedure HandleBCC_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cCarryFlag)<>cCarryFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'BCS'}
   procedure HandleBCS_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cCarryFlag)=cCarryFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'BEQ'}
   procedure HandleBEQ_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cZeroFlag)=cZeroFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'BIT'}
   procedure HandleBIT_abs( var State: T6502State );
+  var
+    pOperand: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint16);
+    // BIT  Test Bits in Memory with Accumulator
+    // bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+    // the zeroflag is set to the result of operand AND accumulator.
+    pOperand := ptr_abs(State);
+    inc_abs(State);
+    if (pOperand^ AND State.A)=0 then begin
+      State.SR := State.SR and (not cZeroFlag);
+    end else begin
+      State.SR := State.SR or cZeroFlag;
+    end;
+    State.SR := State.SR and $3F;
+    State.SR := State.SR or (pOperand^ and $C0);
   end;
 
   procedure HandleBIT_zpg( var State: T6502State );
+  var
+    pOperand: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    // BIT  Test Bits in Memory with Accumulator
+    // bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+    // the zeroflag is set to the result of operand AND accumulator.
+    pOperand := ptr_zpg(State);
+    inc_zpg(State);
+    if (pOperand^ AND State.A)=0 then begin
+      State.SR := State.SR and (not cZeroFlag);
+    end else begin
+      State.SR := State.SR or cZeroFlag;
+    end;
+    State.SR := State.SR and $3F;
+    State.SR := State.SR or (pOperand^ and $C0);
   end;
+
   {$endregion}
 
   {$region 'BMI'}
   procedure HandleBMI_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cNegativeFlag)=cNegativeFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'BNE'}
   procedure HandleBNE_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cZeroFlag)<>cZeroFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'BPL'}
   procedure HandleBPL_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cNegativeFlag)<>cNegativeFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
@@ -509,340 +769,409 @@ end;
 
   {$region 'BVC'}
   procedure HandleBVC_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cOverflowFlag)<>cOverflowFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'BVS'}
   procedure HandleBVS_rel( var State: T6502State );
+  var
+    p: ^int8;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    p := ptr_rel(State);
+    inc_rel(State);
+    if (State.SR and cOverflowFlag)=cOverflowFlag then begin
+      State.PC := State.PC + p^;
+    end;
   end;
   {$endregion}
 
   {$region 'CLC'}
   procedure HandleCLC( var State: T6502State );
   begin
+    State.SR := State.SR and (not cCarryFlag);
   end;
   {$endregion}
 
   {$region 'CLD'}
   procedure HandleCLD( var State: T6502State );
   begin
+    State.SR := State.SR and (not cDecimalMode);
   end;
   {$endregion}
 
   {$region 'CLI'}
   procedure HandleCLI( var State: T6502State );
   begin
+    State.SR := State.SR and (not cIRQDisable);
   end;
   {$endregion}
 
   {$region 'CLV'}
   procedure HandleCLV( var State: T6502State );
   begin
+    State.SR := State.SR and (not cOverflowFlag);
   end;
   {$endregion}
 
   {$region 'CMP'}
   procedure HandleCMP_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.A, ptr_abs_x(State), FALSE );
+    inc_abs_x(State);
   end;
 
   procedure HandleCMP_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.A, ptr_abs_y(State), FALSE );
+    inc_abs_y(State);
   end;
 
   procedure HandleCMP_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.A, ptr_abs(State), FALSE );
+    inc_abs(State);
   end;
 
   procedure HandleCMP_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_imm(State), FALSE );
+    inc_imm(State);
   end;
 
   procedure HandleCMP_ind_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_ind_y(State), FALSE );
+    inc_ind_y(State);
   end;
 
   procedure HandleCMP_x_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_x_ind(State), FALSE );
+    inc_x_ind(State);
   end;
 
   procedure HandleCMP_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_zpg_x(State), FALSE );
+    inc_zpg_x(State);
   end;
 
   procedure HandleCMP_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_zpg(State), FALSE );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'CPX'}
   procedure HandleCPX_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.X, ptr_abs(State), FALSE );
+    inc_abs(State);
   end;
 
   procedure HandleCPX_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.X, ptr_imm(State), FALSE );
+    inc_imm(State);
   end;
 
   procedure HandleCPX_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.X, ptr_zpg(State), FALSE );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'CPY'}
   procedure HandleCPY_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.Y, ptr_abs(State), FALSE );
+    inc_abs(State);
   end;
 
   procedure HandleCPY_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.Y, ptr_imm(State), FALSE );
+    inc_imm(State);
   end;
 
   procedure HandleCPY_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.Y, ptr_zpg(State), FALSE );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'DEC'}
-  procedure HandleDEC_abs_X( var State: T6502State );
+  procedure HandleDEC_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    dec( uint8(ptr_abs_x(State)^) );
+    inc_abs_x(State);
   end;
 
   procedure HandleDEC_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    dec( uint8(ptr_abs(State)^) );
+    inc_abs(State);
   end;
 
   procedure HandleDEC_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    dec( uint8(ptr_zpg_x(State)^) );
+    inc_zpg_x(State);
   end;
 
   procedure HandleDEC_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    dec( uint8(ptr_zpg(State)^) );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'DEX'}
   procedure HandleDEX( var State: T6502State );
   begin
+    dec(State.X);
   end;
   {$endregion}
 
   {$region 'DEY'}
   procedure HandleDEY( var State: T6502State );
   begin
+    dec(State.Y);
   end;
   {$endregion}
 
   {$region 'EOR'}
   procedure HandleEOR_abs_X( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := State.A xor uint8( ptr_abs_x(State)^ );
+    inc_abs_x(State);
   end;
 
   procedure HandleEOR_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := State.A xor uint8( ptr_abs_y(State)^ );
+    inc_abs_y(State);
   end;
 
   procedure HandleEOR_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := State.A xor uint8( ptr_abs(State)^ );
+    inc_abs(State);
   end;
 
   procedure HandleEOR_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A xor uint8( ptr_imm(State)^ );
+    inc_imm(State);
   end;
 
   procedure HandleEOR_ind_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A xor uint8( ptr_ind_y(State)^ );
+    inc_ind_y(State);
   end;
 
   procedure HandleEOR_x_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A xor uint8( ptr_ind(State)^ );
+    inc_ind(State);
   end;
 
   procedure HandleEOR_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A xor uint8( ptr_zpg_x(State)^ );
+    inc_zpg_x(State);
   end;
 
   procedure HandleEOR_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A xor uint8( ptr_zpg_x(State)^ );
+    inc_zpg_x(State);
   end;
   {$endregion}
 
   {$region 'INC'}
   procedure HandleINC_abs_X( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    inc( uint8(ptr_abs_x(State)^) );
+    inc_abs_x(State);
   end;
 
   procedure HandleINC_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    inc( uint8(ptr_abs(State)^) );
+    inc_abs(State);
   end;
 
   procedure HandleINC_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    inc( uint8(ptr_zpg_x(State)^) );
+    inc_zpg_x(State);
   end;
 
   procedure HandleINC_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    inc( uint8(ptr_zpg(State)^) );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'INX'}
   procedure HandleINX( var State: T6502State );
   begin
+    inc( State.X );
   end;
   {$endregion}
 
   {$region 'INY'}
   procedure HandleINY( var State: T6502State );
   begin
+    inc( State.Y );
   end;
   {$endregion}
 
   {$region 'JMP'}
   procedure HandleJMP_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.PC := uint16(ptr_abs(State)^);
   end;
 
   procedure HandleJMP_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.PC := uint16(ptr_ind(State)^);
   end;
   {$endregion}
 
   {$region 'JSR'}
   procedure HandleJSR_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    pushword(State, @State.PC);
+    State.PC := uint16(ptr_abs(State)^);
   end;
   {$endregion}
 
   {$region 'LDA'}
   procedure HandleLDA_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := uint8(ptr_abs_x(State)^);
+    inc_abs_x(State);
   end;
 
   procedure HandleLDA_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := uint8(ptr_abs_y(State)^);
+    inc_abs_y(State);
   end;
 
   procedure HandleLDA_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := uint8(ptr_abs(State)^);
+    inc_abs(State);
   end;
 
   procedure HandleLDA_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := uint8(ptr_imm(State)^);
+    inc_imm(State);
   end;
 
   procedure HandleLDA_ind_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := uint8(ptr_ind_y(State)^);
+    inc_ind_y(State);
   end;
 
   procedure HandleLDA_x_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := uint8(ptr_x_ind(State)^);
+    inc_x_ind(State);
   end;
 
-  procedure HandleLDA_zpg_X( var State: T6502State );
+  procedure HandleLDA_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := uint8(ptr_zpg_x(State)^);
+    inc_zpg_x(State);
   end;
 
   procedure HandleLDA_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := uint8(ptr_zpg(State)^);
+    inc_zpg_x(State);
   end;
   {$endregion}
 
   {$region 'LDX'}
   procedure HandleLDX_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.X := uint8(ptr_zpg(State)^);
+    inc_zpg(State);
   end;
 
   procedure HandleLDX_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.X := uint8(ptr_abs_y(State)^);
+    inc_abs_y(State);
   end;
 
   procedure HandleLDX_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.X := uint8(ptr_abs(State)^);
+    inc_abs(State);
   end;
 
   procedure HandleLDX_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.X := uint8(ptr_imm(State)^);
+    inc_imm(State);
   end;
 
   procedure HandleLDX_zpg_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.X := uint8(ptr_zpg_y(State)^);
+    inc_zpg_y(State);
   end;
   {$endregion}
 
   {$region 'LDY'}
   procedure HandleLDY_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.Y := uint8(ptr_abs_x(State)^);
+    inc_abs_x(State);
   end;
 
   procedure HandleLDY_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.Y := uint8(ptr_abs(State)^);
+    inc_abs(State);
   end;
 
   procedure HandleLDY_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.Y := uint8(ptr_imm(State)^);
+    inc_imm(State);
   end;
 
   procedure HandleLDY_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.Y := uint8(ptr_zpg_x(State)^);
+    inc_zpg_x(State);
   end;
 
   procedure HandleLDY_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.Y := uint8(ptr_zpg(State)^);
+    inc_zpg(State);
   end;
   {$endregion}
 
@@ -881,297 +1210,352 @@ end;
   {$region 'ORA'}
   procedure HandleORA_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := State.A or uint8( ptr_abs_x(State)^ );
+    inc_abs_x(State);
   end;
 
   procedure HandleORA_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := State.A or uint8( ptr_abs_y(State)^ );
+    inc_abs_y(State);
   end;
 
   procedure HandleORA_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    State.A := State.A or uint8( ptr_abs(State)^ );
+    inc_abs(State);
   end;
 
   procedure HandleORA_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A or uint8( ptr_imm(State)^ );
+    inc_imm(State);
   end;
 
   procedure HandleORA_ind_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A or uint8( ptr_ind_y(State)^ );
+    inc_ind_y(State);
   end;
 
   procedure HandleORA_x_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A or uint8( ptr_x_ind(State)^ );
+    inc_x_ind(State);
   end;
 
   procedure HandleORA_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A or uint8( ptr_zpg_x(State)^ );
+    inc_zpg_y(State);
   end;
 
   procedure HandleORA_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    State.A := State.A or uint8( ptr_zpg(State)^ );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'PHA'}
   procedure HandlePHA( var State: T6502State );
   begin
+    pushbyte(State, @State.A);
   end;
   {$endregion}
 
   {$region 'PHP'}
   procedure HandlePHP( var State: T6502State );
   begin
+    pushbyte(State, @State.SR);
   end;
   {$endregion}
 
   {$region 'PLA'}
   procedure HandlePLA( var State: T6502State );
   begin
+    popbyte(State, @State.A);
   end;
   {$endregion}
 
   {$region 'PLP'}
   procedure HandlePLP( var State: T6502State );
   begin
+    popbyte(State, @State.SR);
   end;
   {$endregion}
 
   {$region 'ROL'}
   procedure HandleROL_A( var State: T6502State );
   begin
+    rol(State, @State.A);
   end;
 
   procedure HandleROL_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    rol( State, ptr_abs_x(State) );
+    inc_abs_x(State);
   end;
 
   procedure HandleROL_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    rol( State, ptr_abs(State) );
+    inc_abs(State);
   end;
 
   procedure HandleROL_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    rol( State, ptr_zpg_x(State) );
+    inc_zpg_x(State);
   end;
 
   procedure HandleROL_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    rol( State, ptr_zpg(State) );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'ROR'}
   procedure HandleROR_a( var State: T6502State );
   begin
+    ror( State, @State.A );
   end;
 
   procedure HandleROR_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    ror( State, ptr_abs_x(State) );
+    inc_abs_x(State);
   end;
 
   procedure HandleROR_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    ror( State, ptr_abs(State) );
+    inc_abs(State);
   end;
 
   procedure HandleROR_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    ror( State, ptr_zpg_x(State) );
+    inc_zpg_x(State);
   end;
 
   procedure HandleROR_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    ror( State, ptr_zpg(State) );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'RTI'}
   procedure HandleRTI( var State: T6502State );
   begin
+    popbyte( State, @State.SR );
+    popword( State, @State.PC );
   end;
   {$endregion}
 
   {$region 'RTS'}
   procedure HandleRTS( var State: T6502State );
   begin
+    popword( State, @State.PC );
   end;
   {$endregion}
 
   {$region 'SBC'}
   procedure HandleSBC_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.A, ptr_abs_x(State) );
+    inc_abs_x(State);
   end;
 
   procedure HandleSBC_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.A, ptr_abs(State) );
+    inc_abs(State);
   end;
 
   procedure HandleSBC_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    instr_SBC( State, @State.A, ptr_abs(State) );
+    inc_abs(State);
   end;
 
   procedure HandleSBC_imm( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_imm(State) );
+    inc_imm(State);
   end;
 
   procedure HandleSBC_ind_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_ind_y(State) );
+    inc_ind_y(State);
   end;
 
   procedure HandleSBC_x_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_x_ind(State) );
+    inc_x_ind(State);
   end;
 
   procedure HandleSBC_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_zpg_x(State) );
+    inc_zpg_x(State);
   end;
 
   procedure HandleSBC_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    instr_SBC( State, @State.A, ptr_zpg(State) );
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'SEC'}
   procedure HandleSEC( var State: T6502State );
   begin
+    State.SR := State.SR and cCarryFlag;
   end;
   {$endregion}
 
   {$region 'SED'}
   procedure HandleSED( var State: T6502State );
   begin
+    State.SR := State.SR and cDecimalMode;
   end;
   {$endregion}
 
   {$region 'SEI'}
   procedure HandleSEI( var State: T6502State );
   begin
+    State.SR := State.SR and cIRQDisable
   end;
   {$endregion}
 
   {$region 'STA'}
   procedure HandleSTA_abs_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    uint8(ptr_abs_x(State)^) := State.A;
+    inc_abs_x(State);
   end;
 
   procedure HandleSTA_abs_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    uint8(ptr_abs_y(State)^) := State.A;
+    inc_abs_y(State);
   end;
 
   procedure HandleSTA_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    uint8(ptr_abs(State)^) := State.A;
+    inc_abs(State);
   end;
 
   procedure HandleSTA_ind_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_ind_y(State)^) := State.A;
+    inc_ind_y(State);
   end;
 
   procedure HandleSTA_x_ind( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_x_ind(State)^) := State.A;
+    inc_x_ind(State);
   end;
 
   procedure HandleSTA_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_zpg_x(State)^) := State.A;
+    inc_zpg_x(State);
   end;
 
   procedure HandleSTA_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_zpg(State)^) := State.A;
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'STX'}
   procedure HandleSTX_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    uint8(ptr_abs(State)^) := State.X;
+    inc_abs(State);
   end;
 
   procedure HandleSTX_zpg_y( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_zpg_y(State)^) := State.X;
+    inc_zpg_y(State);
   end;
 
   procedure HandleSTX_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_zpg(State)^) := State.X;
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'STY'}
   procedure HandleSTY_abs( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint16);
+    uint8(ptr_abs(State)^) := State.Y;
+    inc_abs(State);
   end;
 
   procedure HandleSTY_zpg_x( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_zpg_x(State)^) := State.Y;
+    inc_zpg_x(State);
   end;
 
   procedure HandleSTY_zpg( var State: T6502State );
   begin
-    State.PC := State.PC + sizeof(uint8);
+    uint8(ptr_zpg(State)^) := State.Y;
+    inc_zpg(State);
   end;
   {$endregion}
 
   {$region 'TAX'}
   procedure HandleTAX( var State: T6502State );
   begin
+    State.X := State.A;
   end;
   {$endregion}
 
   {$region 'TAY'}
   procedure HandleTAY( var State: T6502State );
   begin
+    State.Y := State.A;
   end;
   {$endregion}
 
   {$region 'TSX'}
   procedure HandleTSX( var State: T6502State );
   begin
+    State.X := State.SP;
   end;
   {$endregion}
 
   {$region 'TXA'}
   procedure HandleTXA( var State: T6502State );
   begin
+    State.A := State.X;
   end;
   {$endregion}
 
   {$region 'TXS'}
   procedure HandleTXS( var State: T6502State );
   begin
+    State.SP := State.X;
   end;
   {$endregion}
 
   {$region 'TYA'}
   procedure HandleTYA( var State: T6502State );
   begin
+    State.A := State.Y;
   end;
   {$endregion}
 
@@ -1335,9 +1719,9 @@ end;
 procedure T6502CPU.setCarryFlag(const value: boolean);
 begin
   if Value then begin
-    fState.SP := fState.SP or cCarryFlag;
+    fState.SR := fState.SR or cCarryFlag;
   end else begin
-    fState.SP := fState.SP xor cCarryFlag;
+    fState.SR := fState.SR and (not cCarryFlag);
   end;
 end;
 
@@ -1349,9 +1733,9 @@ end;
 procedure T6502CPU.setZeroFlag(const value: boolean);
 begin
   if value then begin
-    fState.SP := fState.SP or cZeroFlag;
+    fState.SR := fState.SR or cZeroFlag;
   end else begin
-    fState.SP := fState.SP xor cZeroFlag;
+    fState.SR := fState.SR and (not cZeroFlag);
   end;
 end;
 
@@ -1363,9 +1747,9 @@ end;
 procedure T6502CPU.setIRQDisableFlag(const value: boolean);
 begin
   if value then begin
-    fState.SP := fState.SP or cIRQDisable;
+    fState.SR := fState.SR or cIRQDisable;
   end else begin
-    fState.SP := fState.SP xor cIRQDisable;
+    fState.SR := fState.SR and (not cIRQDisable);
   end;
 end;
 
@@ -1377,9 +1761,9 @@ end;
 procedure T6502CPU.setDecimalModeFlag(const value: boolean);
 begin
   if value then begin
-    fState.SP := fState.SP or cDecimalMode;
+    fState.SR := fState.SR or cDecimalMode;
   end else begin
-    fState.SP := fState.SP xor cDecimalMode;
+    fState.SR := fState.SR and (not cDecimalMode);
   end;
 end;
 
@@ -1391,9 +1775,9 @@ end;
 procedure T6502CPU.setBreakFlag(const value: boolean);
 begin
   if value then begin
-    fState.SP := fState.SP or cBreakCommand;
+    fState.SR := fState.SR or cBreakCommand;
   end else begin
-    fState.SP := fState.SP xor cBreakCommand;
+    fState.SR := fState.SR and (not cBreakCommand);
   end;
 end;
 
@@ -1405,9 +1789,9 @@ end;
 procedure T6502CPU.setOverflowFlag(const value: boolean);
 begin
   if value then begin
-    fState.SP := fState.SP or cOverflowFlag;
+    fState.SR := fState.SR or cOverflowFlag;
   end else begin
-    fState.SP := fState.SP xor cOverflowFlag;
+    fState.SR := fState.SR and (not cOverflowFlag);
   end;
 end;
 
@@ -1419,9 +1803,9 @@ end;
 procedure T6502CPU.setNegativeFlag(const value: boolean);
 begin
   if value then begin
-    fState.SP := fState.SP or cNegativeFlag;
+    fState.SR := fState.SR or cNegativeFlag;
   end else begin
-    fState.SP := fState.SP xor cNegativeFlag;
+    fState.SR := fState.SR and (not cNegativeFlag);
   end;
 end;
 
@@ -1477,7 +1861,7 @@ begin
   fState.A  := 0;
   fState.X  := 0;
   fState.Y  := 0;
-  fState.SP := 0;
+  fState.SP := $FF;
   fState.SR := 0;
   fState.PC := 0;
   if EntryPoint>=fState.Memory.DataSize then exit;

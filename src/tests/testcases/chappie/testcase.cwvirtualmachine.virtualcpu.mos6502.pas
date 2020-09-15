@@ -42,23 +42,41 @@ type
     procedure Clock;
 
     {$region ' ADC '}
-    procedure ADC_abs_x_WithCarry;
-    procedure ADC_abs_y_WithCarry;
-    procedure ADC_abs_WithCarry;
-    procedure ADC_imm_WithCarry;
-    procedure ADC_ind_y_WithCarry;
-    procedure ADC_x_ind_WithCarry;
-    procedure ADC_zpg_x_WithCarry;
-    procedure ADC_zpg_WithCarry;
+    procedure ADC_abs_x_NoCarry;
+    procedure ADC_abs_y_NoCarry;
+    procedure ADC_abs_NoCarry;
+    procedure ADC_imm_NoCarry;
+    procedure ADC_ind_y_NoCarry;
+    procedure ADC_x_ind_NoCarry;
+    procedure ADC_zpg_x_NoCarry;
+    procedure ADC_zpg_NoCarry;
 
-    procedure ADC_abs_x_WithoutCarry;
-    procedure ADC_abs_y_WithoutCarry;
-    procedure ADC_abs_WithoutCarry;
-    procedure ADC_imm_WithoutCarry;
-    procedure ADC_ind_y_WithoutCarry;
-    procedure ADC_x_ind_WithoutCarry;
-    procedure ADC_zpg_x_WithoutCarry;
-    procedure ADC_zpg_WithoutCarry;
+    procedure ADC_abs_x_CarryIn;
+    procedure ADC_abs_y_CarryIn;
+    procedure ADC_abs_CarryIn;
+    procedure ADC_imm_CarryIn;
+    procedure ADC_ind_y_CarryIn;
+    procedure ADC_x_ind_CarryIn;
+    procedure ADC_zpg_x_CarryIn;
+    procedure ADC_zpg_CarryIn;
+
+    procedure ADC_abs_x_CarryOut;
+    procedure ADC_abs_y_CarryOut;
+    procedure ADC_abs_CarryOut;
+    procedure ADC_imm_CarryOut;
+    procedure ADC_ind_y_CarryOut;
+    procedure ADC_x_ind_CarryOut;
+    procedure ADC_zpg_x_CarryOut;
+    procedure ADC_zpg_CarryOut;
+
+    procedure ADC_abs_x_CarryInAndOut;
+    procedure ADC_abs_y_CarryInAndOut;
+    procedure ADC_abs_CarryInAndOut;
+    procedure ADC_imm_CarryInAndOut;
+    procedure ADC_ind_y_CarryInAndOut;
+    procedure ADC_x_ind_CarryInAndOut;
+    procedure ADC_zpg_x_CarryInAndOut;
+    procedure ADC_zpg_CarryInAndOut;
     {$endregion}
     {$region ' AND '}
     procedure AND_abs_x;
@@ -318,7 +336,6 @@ implementation
 uses
   cwTest.Standard
 , cwVirtualMachine
-, cwVirtualMachine.Standard
 , cwVirtualMachine.Mos6502
 ;
 
@@ -334,7 +351,57 @@ end;
 
 {$region ' ADC '}
 
-procedure TTest_Mos6502CPU.ADC_abs_x_WithCarry;
+procedure TTest_Mos6502CPU.ADC_abs_x_NoCarry;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $CC );
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CE, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_y_NoCarry;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $CC );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CE, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_NoCarry;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -348,9 +415,7 @@ begin
   CPU.CarryFlag := FALSE;
   Memory[$0A00] := $02;
   ByteCode.LDA_imm( $CC );
-  ByteCode.LDX_imm( $01 );
-  ByteCode.CLC;
-  ByteCode.ADC_abs_x( $09FF );
+  ByteCode.ADC_abs( $0A00 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -360,197 +425,7 @@ begin
   TTest.Expect( $CE, CPU.A )
 end;
 
-procedure TTest_Mos6502CPU.ADC_abs_y_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_abs_y( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_abs_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_abs( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_imm_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_imm( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_ind_y_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_ind_y( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_x_ind_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_x_ind( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_zpg_x_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_zpg_x( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_zpg_WithCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_zpg( $02 );
-  // Asert:
-  TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_abs_x_WithoutCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_abs_x( $02 );
-  // Asert:
-  TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_abs_y_WithoutCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_abs_y( $02 );
-  // Asert:
-  TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_abs_WithoutCarry;
-var
-  Memory: I6502VirtualMemory;
-  ByteCode: I6502ByteCode;
-  CPU: I6502CPU;
-begin
-  // Arrange:
-  Memory := T6502VirtualMemory.Create;
-  CPU := T6502CPU.Create( Memory );
-  ByteCode := T6502ByteCode.Create( Memory );
-  // Act:
-  CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_abs( $02 );
-  // Asert:
-  TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
-end;
-
-procedure TTest_Mos6502CPU.ADC_imm_WithoutCarry;
+procedure TTest_Mos6502CPU.ADC_imm_NoCarry;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -564,12 +439,16 @@ begin
   CPU.CarryFlag := FALSE;
   ByteCode.LDA_imm( $CC );
   ByteCode.ADC_imm( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
   TTest.Expect( $CE, CPU.A )
 end;
 
-procedure TTest_Mos6502CPU.ADC_ind_y_WithoutCarry;
+procedure TTest_Mos6502CPU.ADC_ind_y_NoCarry;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -581,14 +460,22 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_ind_y( $02 );
+  Memory[$0A01] := $CC;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( $CD, CPU.A )
 end;
 
-procedure TTest_Mos6502CPU.ADC_x_ind_WithoutCarry;
+procedure TTest_Mos6502CPU.ADC_x_ind_NoCarry;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -600,14 +487,22 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_x_ind( $02 );
+  Memory[$0A00] := $CC;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( $CD, CPU.A )
 end;
 
-procedure TTest_Mos6502CPU.ADC_zpg_x_WithoutCarry;
+procedure TTest_Mos6502CPU.ADC_zpg_x_NoCarry;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -619,14 +514,20 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
+  Memory[$00BB] := $CC;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $01 );
   ByteCode.ADC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( $CD, CPU.A )
 end;
 
-procedure TTest_Mos6502CPU.ADC_zpg_WithoutCarry;
+procedure TTest_Mos6502CPU.ADC_zpg_NoCarry;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -638,54 +539,803 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
+  Memory[$00BB] := $CC;
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_zpg_x( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CD, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_x_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A01] := $02;
   ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_zpg( $02 );
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CF, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_y_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $CC );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CF, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A00] := $02;
+  ByteCode.LDA_imm( $CC );
+  ByteCode.ADC_abs( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CF, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_imm_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  ByteCode.LDA_imm( $CC );
+  ByteCode.ADC_imm( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CF, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_ind_y_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A01] := $CC;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
   TTest.Expect( $CE, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_x_ind_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A00] := $CC;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CE, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_x_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$00BB] := $CC;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CE, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_CarryIn;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$00BB] := $CC;
+  ByteCode.LDA_imm( $01 );
+  ByteCode.ADC_zpg_x( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.CarryFlag );
+  TTest.Expect( $CE, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_x_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_y_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A00] := $02;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.ADC_abs( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_imm_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.ADC_imm( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_ind_y_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A01] := $FE;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_x_ind_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$0A00] := $FE;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_x_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$00BB] := $FE;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_CarryOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[$00BB] := $FE;
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_zpg_x( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $00, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_x_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_y_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A01] := $02;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A00] := $02;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.ADC_abs( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_imm_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  ByteCode.LDA_imm( $FE );
+  ByteCode.ADC_imm( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_ind_y_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A01] := $FE;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_x_ind_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$0A00] := $FE;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_x_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$00BB] := $FE;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_CarryInAndOut;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := TRUE;
+  Memory[$00BB] := $FE;
+  ByteCode.LDA_imm( $02 );
+  ByteCode.ADC_zpg_x( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $01, CPU.A )
 end;
 
 {$endregion}
 
 {$region ' AND '}
 procedure TTest_Mos6502CPU.AND_abs_x;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$0A01] := $AA;       // right
+  ByteCode.LDA_imm( $AA );    // left
+  ByteCode.LDX_imm( $01 );
+  ByteCode.AND_abs_x( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_abs_y;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$0A01] := $AA;       // right
+  ByteCode.LDA_imm( $AA );    // left
+  ByteCode.LDY_imm( $01 );
+  ByteCode.AND_abs_y( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_abs;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$0A00] := $AA;       // right
+  ByteCode.LDA_imm( $AA );    // left
+  ByteCode.AND_abs( $0A00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_imm;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  ByteCode.LDA_imm( $AA );    // left
+  ByteCode.AND_imm( $AA );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_ind_y;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$0A01] := $AA;      // right
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( $AA );   // left
+  ByteCode.AND_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_x_ind;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$0A00] := $AA;      // right
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( $AA );
+  ByteCode.AND_x_ind( $00 );  // left
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_zpg_x;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$00BB] := $AA; // right
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $AA ); // left
+  ByteCode.AND_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.AND_zpg;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  Memory[$00BB] := $AA; // right
+  ByteCode.LDA_imm( $AA ); // left
+  ByteCode.AND_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( $AA, CPU.A )
 end;
 
 {$endregion}
@@ -693,30 +1343,92 @@ end;
 {$region ' ASL '}
 
 procedure TTest_Mos6502CPU.ASL;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  ByteCode.LDA_imm( $AA ); // value
+  ByteCode.ASL;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $54, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ASL_abs;
+const
+  cByteUnderTest = $0A00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[cByteUnderTest] := $AA;
+  ByteCode.ASL_abs( cByteUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $54, Memory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.ASL_abs_x;
+const
+  cByteUnderTest = $0A00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
-
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[succ(cByteUnderTest)] := $AA;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ASL_abs_x( cByteUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $54, Memory[succ(cByteUnderTest)] )
 end;
 
 procedure TTest_Mos6502CPU.ASL_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ASL_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
-
 
 {$endregion}
 
@@ -724,7 +1436,9 @@ end;
 
 procedure TTest_Mos6502CPU.BCC_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -733,7 +1447,9 @@ end;
 
 procedure TTest_Mos6502CPU.BCS_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -742,7 +1458,9 @@ end;
 
 procedure TTest_Mos6502CPU.BEQ_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -751,14 +1469,17 @@ end;
 
 procedure TTest_Mos6502CPU.BIT_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.BIT_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
-
 
 {$endregion}
 
@@ -766,7 +1487,9 @@ end;
 
 procedure TTest_Mos6502CPU.BMI_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -775,7 +1498,9 @@ end;
 
 procedure TTest_Mos6502CPU.BNE_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -784,7 +1509,9 @@ end;
 
 procedure TTest_Mos6502CPU.BPL_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -793,7 +1520,9 @@ end;
 
 procedure TTest_Mos6502CPU.BRK;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -802,7 +1531,9 @@ end;
 
 procedure TTest_Mos6502CPU.BVC_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -811,7 +1542,9 @@ end;
 
 procedure TTest_Mos6502CPU.BVS_rel;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -820,7 +1553,9 @@ end;
 
 procedure TTest_Mos6502CPU.CLC;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -829,7 +1564,9 @@ end;
 
 procedure TTest_Mos6502CPU.CLD;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -838,7 +1575,9 @@ end;
 
 procedure TTest_Mos6502CPU.CLI;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -847,7 +1586,9 @@ end;
 
 procedure TTest_Mos6502CPU.CLV;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -856,42 +1597,58 @@ end;
 
 procedure TTest_Mos6502CPU.CMP_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_ind_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_x_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CMP_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -900,17 +1657,23 @@ end;
 
 procedure TTest_Mos6502CPU.CPX_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CPX_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CPX_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -919,19 +1682,24 @@ end;
 
 procedure TTest_Mos6502CPU.CPY_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CPY_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.CPY_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
-
 
 {$endregion}
 
@@ -939,22 +1707,30 @@ end;
 
 procedure TTest_Mos6502CPU.DEC_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.DEC_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.DEC_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.DEC_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -963,7 +1739,9 @@ end;
 
 procedure TTest_Mos6502CPU.DEX;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -972,7 +1750,9 @@ end;
 
 procedure TTest_Mos6502CPU.DEY;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -981,42 +1761,58 @@ end;
 
 procedure TTest_Mos6502CPU.EOR_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_ind_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_X_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1025,22 +1821,30 @@ end;
 
 procedure TTest_Mos6502CPU.INC_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.INC_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.INC_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.INC_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1049,7 +1853,9 @@ end;
 
 procedure TTest_Mos6502CPU.INX;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1058,7 +1864,9 @@ end;
 
 procedure TTest_Mos6502CPU.INY;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1067,12 +1875,16 @@ end;
 
 procedure TTest_Mos6502CPU.JMP_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.JMP_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1081,7 +1893,9 @@ end;
 
 procedure TTest_Mos6502CPU.JSR_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1090,42 +1904,58 @@ end;
 
 procedure TTest_Mos6502CPU.LDA_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_ind_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_x_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDA_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1134,27 +1964,37 @@ end;
 
 procedure TTest_Mos6502CPU.LDX_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDX_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDX_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDX_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDX_zpg_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1163,27 +2003,37 @@ end;
 
 procedure TTest_Mos6502CPU.LDY_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDY_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDY_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDY_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LDY_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1192,27 +2042,37 @@ end;
 
 procedure TTest_Mos6502CPU.LSR;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LSR_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LSR_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LSR_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.LSR_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1221,7 +2081,9 @@ end;
 
 procedure TTest_Mos6502CPU.NOP;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1230,42 +2092,58 @@ end;
 
 procedure TTest_Mos6502CPU.ORA_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_ind_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_x_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1274,7 +2152,9 @@ end;
 
 procedure TTest_Mos6502CPU.PHA;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1283,7 +2163,9 @@ end;
 
 procedure TTest_Mos6502CPU.PHP;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1292,7 +2174,9 @@ end;
 
 procedure TTest_Mos6502CPU.PLA;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 
@@ -1302,7 +2186,9 @@ end;
 
 procedure TTest_Mos6502CPU.PLP;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1311,27 +2197,37 @@ end;
 
 procedure TTest_Mos6502CPU.ROL;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1340,27 +2236,37 @@ end;
 
 procedure TTest_Mos6502CPU.ROR;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1369,7 +2275,9 @@ end;
 
 procedure TTest_Mos6502CPU.RTI;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 
@@ -1379,7 +2287,9 @@ end;
 
 procedure TTest_Mos6502CPU.RTS;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 
@@ -1389,42 +2299,58 @@ end;
 
 procedure TTest_Mos6502CPU.SBC_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_imm;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_ind_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_x_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.SBC_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1433,7 +2359,9 @@ end;
 
 procedure TTest_Mos6502CPU.SEC;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1442,7 +2370,9 @@ end;
 
 procedure TTest_Mos6502CPU.SED;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1451,7 +2381,9 @@ end;
 
 procedure TTest_Mos6502CPU.SEI;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1460,37 +2392,51 @@ end;
 
 procedure TTest_Mos6502CPU.STA_abs_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STA_abs_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STA_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STA_ind_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STA_x_ind;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STA_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STA_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 
@@ -1500,19 +2446,24 @@ end;
 
 procedure TTest_Mos6502CPU.STX_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STX_zpg_y;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STX_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
-
 
 {$endregion}
 
@@ -1520,17 +2471,23 @@ end;
 
 procedure TTest_Mos6502CPU.STY_abs;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STY_zpg_x;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 procedure TTest_Mos6502CPU.STY_zpg;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1539,7 +2496,9 @@ end;
 
 procedure TTest_Mos6502CPU.TAX;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1548,7 +2507,9 @@ end;
 
 procedure TTest_Mos6502CPU.TAY;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1557,7 +2518,9 @@ end;
 
 procedure TTest_Mos6502CPU.TSX;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1566,7 +2529,9 @@ end;
 
 procedure TTest_Mos6502CPU.TXA;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 
@@ -1576,7 +2541,9 @@ end;
 
 procedure TTest_Mos6502CPU.TXS;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
@@ -1585,11 +2552,12 @@ end;
 
 procedure TTest_Mos6502CPU.TYA;
 begin
-
+  // Arrange:
+  // Act:
+  // Assert:
 end;
 
 {$endregion}
-
 
 initialization
   TestSuite.RegisterTestCase(TTest_Mos6502CPU)
