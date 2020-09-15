@@ -1417,17 +1417,55 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ASL_zpg_x;
+const
+  cByteUnderTest = $00BB;
+  cByteOffset = $02;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[cByteUnderTest] := $AA;
+  ByteCode.LDX_imm( cByteUnderTest-cByteOffset );
+  ByteCode.ASL_zpg_x( cByteOffset );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $54, Memory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.ASL_zpg;
+const
+  cByteUnderTest = $BB;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[cByteUnderTest] := $AA;
+  ByteCode.ASL_zpg( cByteUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( $54, Memory[cByteUnderTest] )
 end;
 
 {$endregion}
@@ -1439,6 +1477,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1450,6 +1489,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1461,6 +1501,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1472,6 +1513,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.BIT_zpg;
@@ -1479,6 +1521,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1490,6 +1533,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1501,6 +1545,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1512,6 +1557,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1523,6 +1569,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1534,6 +1581,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1545,6 +1593,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1556,6 +1605,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1567,6 +1617,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1578,6 +1629,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1589,6 +1641,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1600,6 +1653,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_abs_y;
@@ -1607,6 +1661,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_abs;
@@ -1614,6 +1669,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_imm;
@@ -1621,6 +1677,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_ind_y;
@@ -1628,6 +1685,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_x_ind;
@@ -1635,6 +1693,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_zpg_x;
@@ -1642,6 +1701,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_zpg;
@@ -1649,6 +1709,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1660,6 +1721,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPX_imm;
@@ -1667,6 +1729,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPX_zpg;
@@ -1674,6 +1737,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1685,6 +1749,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPY_imm;
@@ -1692,6 +1757,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPY_zpg;
@@ -1699,6 +1765,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1710,6 +1777,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.DEC_abs;
@@ -1717,6 +1785,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.DEC_zpg_x;
@@ -1724,6 +1793,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.DEC_zpg;
@@ -1731,6 +1801,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1742,6 +1813,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1753,6 +1825,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1764,6 +1837,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs_y;
@@ -1771,6 +1845,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs;
@@ -1778,6 +1853,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_imm;
@@ -1785,6 +1861,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_ind_y;
@@ -1792,6 +1869,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_X_ind;
@@ -1799,6 +1877,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg_x;
@@ -1806,6 +1885,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg;
@@ -1813,6 +1893,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1824,6 +1905,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.INC_abs;
@@ -1831,6 +1913,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.INC_zpg_x;
@@ -1838,6 +1921,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.INC_zpg;
@@ -1845,6 +1929,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1856,6 +1941,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1867,6 +1953,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1878,6 +1965,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.JMP_ind;
@@ -1885,6 +1973,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1896,6 +1985,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1903,59 +1993,202 @@ end;
 {$region ' LDA '}
 
 procedure TTest_Mos6502CPU.LDA_abs_x;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LDA_abs_x( pred(cMemoryLocation) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LDA_abs_y;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_abs_y( pred(cMemoryLocation) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LDA_abs;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDA_abs( cMemoryLocation );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LDA_imm;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 procedure TTest_Mos6502CPU.LDA_ind_y;
+const
+  cLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cLocationUnderTest] := cTestValue;
+  Memory[$00BB] := $FF;
+  Memory[$00BC] := $09;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LDA_x_ind;
+const
+  cLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cLocationUnderTest] := cTestValue;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BA );
+  ByteCode.LDA_x_ind( $01 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LDA_zpg_x;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cLocationUnderTest] := $CC;
+  ByteCode.LDX_imm( pred(pred(cLocationUnderTest)) );
+  ByteCode.LDA_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LDA_zpg;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cLocationUnderTest] := $CC;
+  ByteCode.LDA_zpg_x( cLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.A )
 end;
 
 {$endregion}
@@ -1963,38 +2196,123 @@ end;
 {$region ' LDX '}
 
 procedure TTest_Mos6502CPU.LDX_zpg;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cLocationUnderTest] := $CC;
+  ByteCode.LDX_zpg( cLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.X )
 end;
 
 procedure TTest_Mos6502CPU.LDX_abs_y;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDX_abs_y( pred(cMemoryLocation) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.X )
 end;
 
 procedure TTest_Mos6502CPU.LDX_abs;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDX_abs( cMemoryLocation );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.X );
 end;
 
 procedure TTest_Mos6502CPU.LDX_imm;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  ByteCode.LDX_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.X );
 end;
 
 procedure TTest_Mos6502CPU.LDX_zpg_y;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cLocationUnderTest] := $CC;
+  ByteCode.LDY_imm( pred(pred(cLocationUnderTest)) );
+  ByteCode.LDX_zpg_y( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.X )
 end;
 
 {$endregion}
@@ -2006,6 +2324,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LDY_abs;
@@ -2013,6 +2332,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LDY_imm;
@@ -2020,6 +2340,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LDY_zpg_x;
@@ -2027,6 +2348,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LDY_zpg;
@@ -2034,6 +2356,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2045,6 +2368,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LSR_abs_x;
@@ -2052,6 +2376,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LSR_abs;
@@ -2059,6 +2384,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LSR_zpg_x;
@@ -2066,6 +2392,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.LSR_zpg;
@@ -2073,6 +2400,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2095,6 +2423,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs_y;
@@ -2102,6 +2431,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs;
@@ -2109,6 +2439,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_imm;
@@ -2116,6 +2447,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_ind_y;
@@ -2123,6 +2455,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_x_ind;
@@ -2130,6 +2463,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg_x;
@@ -2137,6 +2471,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg;
@@ -2144,6 +2479,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2155,6 +2491,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2166,6 +2503,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2177,6 +2515,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2189,6 +2528,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2200,6 +2540,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs_x;
@@ -2207,6 +2548,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs;
@@ -2214,6 +2556,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg_x;
@@ -2221,6 +2564,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg;
@@ -2228,6 +2572,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2239,6 +2584,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs_x;
@@ -2246,6 +2592,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs;
@@ -2253,6 +2600,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg_x;
@@ -2260,6 +2608,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg;
@@ -2267,6 +2616,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2278,6 +2628,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2290,6 +2641,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2302,6 +2654,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_abs_x;
@@ -2309,6 +2662,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_abs;
@@ -2316,6 +2670,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_imm;
@@ -2323,6 +2678,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_ind_y;
@@ -2330,6 +2686,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_x_ind;
@@ -2337,6 +2694,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_zpg_x;
@@ -2344,6 +2702,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_zpg;
@@ -2351,6 +2710,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2362,6 +2722,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2373,6 +2734,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2384,6 +2746,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2395,6 +2758,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STA_abs_y;
@@ -2402,6 +2766,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STA_abs;
@@ -2409,6 +2774,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STA_ind_y;
@@ -2416,6 +2782,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STA_x_ind;
@@ -2423,6 +2790,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STA_zpg_x;
@@ -2430,6 +2798,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STA_zpg;
@@ -2437,6 +2806,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2449,6 +2819,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STX_zpg_y;
@@ -2456,6 +2827,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STX_zpg;
@@ -2463,6 +2835,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2474,6 +2847,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STY_zpg_x;
@@ -2481,6 +2855,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.STY_zpg;
@@ -2488,6 +2863,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2499,6 +2875,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2510,6 +2887,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2521,6 +2899,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2532,6 +2911,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2544,6 +2924,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2555,6 +2936,7 @@ begin
   // Arrange:
   // Act:
   // Assert:
+  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
