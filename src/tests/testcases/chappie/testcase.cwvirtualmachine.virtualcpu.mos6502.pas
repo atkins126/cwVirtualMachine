@@ -96,35 +96,40 @@ type
     procedure ASL_zpg;
     {$endregion}
     {$region ' BCC '}
-    procedure BCC_rel;
+    procedure BCC_rel_TRUE;
+    procedure BCC_rel_FALSE;
     {$endregion}
     {$region ' BCS '}
-    procedure BCS_rel;
+    procedure BCS_rel_TRUE;
+    procedure BCS_rel_FALSE;
     {$endregion}
     {$region ' BEQ '}
-    procedure BEQ_rel;
+    procedure BEQ_rel_TRUE;
+    procedure BEQ_rel_FALSE;
     {$endregion}
     {$region ' BIT '}
     procedure BIT_abs;
     procedure BIT_zpg;
     {$endregion}
     {$region ' BMI '}
-    procedure BMI_rel;
+    procedure BMI_rel_TRUE;
+    procedure BMI_rel_FALSE;
     {$endregion}
     {$region ' BNE '}
-    procedure BNE_rel;
+    procedure BNE_rel_TRUE;
+    procedure BNE_rel_FALSE;
     {$endregion}
     {$region ' BPL '}
-    procedure BPL_rel;
-    {$endregion}
-    {$region ' BRK '}
-    procedure BRK;
+    procedure BPL_rel_TRUE;
+    procedure BPL_rel_FALSE;
     {$endregion}
     {$region ' BVC '}
-    procedure BVC_rel;
+    procedure BVC_rel_TRUE;
+    procedure BVC_rel_FALSE;
     {$endregion}
     {$region ' BVS '}
-    procedure BVS_rel;
+    procedure BVS_rel_TRUE;
+    procedure BVS_rel_FALSE;
     {$endregion}
     {$region ' CLC '}
     procedure CLC;
@@ -229,9 +234,6 @@ type
     procedure LSR_abs;
     procedure LSR_zpg_x;
     procedure LSR_zpg;
-    {$endregion}
-    {$region ' NOP '}
-    procedure NOP;
     {$endregion}
     {$region ' ORA '}
     procedure ORA_abs_x;
@@ -352,6 +354,8 @@ end;
 {$region ' ADC '}
 
 procedure TTest_Mos6502CPU.ADC_abs_x_NoCarry;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -363,10 +367,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $CC );
   ByteCode.LDX_imm( $01 );
-  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -377,6 +381,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_NoCarry;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -388,10 +394,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $CC );
   ByteCode.LDY_imm( $01 );
-  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -402,6 +408,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_NoCarry;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -413,9 +421,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A00] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_abs( $0A00 );
+  ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -449,6 +457,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_NoCarry;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -460,7 +470,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A01] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
@@ -476,6 +486,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_NoCarry;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -487,7 +499,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A00] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
@@ -503,6 +515,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_NoCarry;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -514,7 +528,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$00BB] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   ByteCode.LDX_imm( $B9 );
   ByteCode.LDA_imm( $01 );
   ByteCode.ADC_zpg_x( $02 );
@@ -528,6 +542,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_NoCarry;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -539,7 +555,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$00BB] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   ByteCode.LDA_imm( $01 );
   ByteCode.ADC_zpg_x( $BB );
   ByteCode.BRK;
@@ -552,6 +568,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_x_CarryIn;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -563,10 +581,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $CC );
   ByteCode.LDX_imm( $01 );
-  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -577,6 +595,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_CarryIn;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -588,10 +608,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $CC );
   ByteCode.LDY_imm( $01 );
-  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -602,6 +622,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_CarryIn;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -613,9 +635,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A00] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_abs( $0A00 );
+  ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -649,6 +671,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_CarryIn;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -660,7 +684,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A01] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
@@ -676,6 +700,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_CarryIn;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -687,7 +713,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A00] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
@@ -703,6 +729,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_CarryIn;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -714,7 +742,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$00BB] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   ByteCode.LDX_imm( $B9 );
   ByteCode.LDA_imm( $01 );
   ByteCode.ADC_zpg_x( $02 );
@@ -728,6 +756,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_CarryIn;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -739,9 +769,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$00BB] := $CC;
+  Memory[cMemoryLocationUnderTest] := $CC;
   ByteCode.LDA_imm( $01 );
-  ByteCode.ADC_zpg_x( $BB );
+  ByteCode.ADC_zpg_x( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -752,6 +782,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_x_CarryOut;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -763,10 +795,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $FE );
   ByteCode.LDX_imm( $01 );
-  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -777,6 +809,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_CarryOut;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -788,10 +822,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $FE );
   ByteCode.LDY_imm( $01 );
-  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -802,6 +836,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_CarryOut;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -813,9 +849,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A00] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_abs( $0A00 );
+  ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -849,6 +885,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_CarryOut;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -860,7 +898,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A01] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
@@ -876,6 +914,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_CarryOut;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -887,7 +927,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$0A00] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
@@ -903,6 +943,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_CarryOut;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -914,7 +956,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$00BB] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   ByteCode.LDX_imm( $B9 );
   ByteCode.LDA_imm( $02 );
   ByteCode.ADC_zpg_x( $02 );
@@ -928,6 +970,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_CarryOut;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -939,7 +983,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[$00BB] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   ByteCode.LDA_imm( $02 );
   ByteCode.ADC_zpg_x( $BB );
   ByteCode.BRK;
@@ -952,6 +996,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_x_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -963,10 +1009,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $FE );
   ByteCode.LDX_imm( $01 );
-  ByteCode.ADC_abs_x( $0A00 );
+  ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -977,6 +1023,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -988,10 +1036,10 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A01] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $FE );
   ByteCode.LDY_imm( $01 );
-  ByteCode.ADC_abs_y( $0A00 );
+  ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -1002,6 +1050,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1013,9 +1063,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A00] := $02;
+  Memory[cMemoryLocationUnderTest] := $02;
   ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_abs( $0A00 );
+  ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -1049,6 +1099,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $0A01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1060,7 +1112,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A01] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
@@ -1076,6 +1128,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $0A00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1087,7 +1141,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$0A00] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
@@ -1103,6 +1157,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1114,7 +1170,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$00BB] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   ByteCode.LDX_imm( $B9 );
   ByteCode.LDA_imm( $02 );
   ByteCode.ADC_zpg_x( $02 );
@@ -1128,6 +1184,8 @@ begin
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_CarryInAndOut;
+const
+  cMemoryLocationUnderTest = $00BB;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1139,9 +1197,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[$00BB] := $FE;
+  Memory[cMemoryLocationUnderTest] := $FE;
   ByteCode.LDA_imm( $02 );
-  ByteCode.ADC_zpg_x( $BB );
+  ByteCode.ADC_zpg_x( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
@@ -1472,36 +1530,162 @@ end;
 
 {$region ' BCC '}
 
-procedure TTest_Mos6502CPU.BCC_rel;
+procedure TTest_Mos6502CPU.BCC_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.CarryFlag := FALSE;
+  ByteCode.BCC_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BCC_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.CarryFlag := TRUE;
+  ByteCode.BCC_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
 
 {$region ' BCS '}
 
-procedure TTest_Mos6502CPU.BCS_rel;
+procedure TTest_Mos6502CPU.BCS_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.CarryFlag := TRUE;
+  ByteCode.BCS_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BCS_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.CarryFlag := FALSE;
+  ByteCode.BCS_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
 
 {$region ' BEQ '}
 
-procedure TTest_Mos6502CPU.BEQ_rel;
+procedure TTest_Mos6502CPU.BEQ_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.ZeroFlag := TRUE;
+  ByteCode.BEQ_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BEQ_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.ZeroFlag := FALSE;
+  ByteCode.BEQ_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
@@ -1513,7 +1697,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.BIT_zpg;
@@ -1521,79 +1704,276 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
 
 {$region ' BMI '}
 
-procedure TTest_Mos6502CPU.BMI_rel;
+procedure TTest_Mos6502CPU.BMI_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.NegativeFlag := TRUE;
+  ByteCode.BMI_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BMI_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.NegativeFlag := FALSE;
+  ByteCode.BMI_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
 
 {$region ' BNE '}
 
-procedure TTest_Mos6502CPU.BNE_rel;
+procedure TTest_Mos6502CPU.BNE_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.ZeroFlag := FALSE;
+  ByteCode.BNE_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BNE_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.ZeroFlag := TRUE;
+  ByteCode.BNE_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
 
 {$region ' BPL '}
 
-procedure TTest_Mos6502CPU.BPL_rel;
+procedure TTest_Mos6502CPU.BPL_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.NegativeFlag := FALSE;
+  ByteCode.BPL_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
-{$endregion}
-
-{$region ' BRK '}
-
-procedure TTest_Mos6502CPU.BRK;
+procedure TTest_Mos6502CPU.BPL_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := $00;
+  CPU.NegativeFlag := TRUE;
+  ByteCode.BPL_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
 
 {$region ' BVC '}
 
-procedure TTest_Mos6502CPU.BVC_rel;
+procedure TTest_Mos6502CPU.BVC_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.OverflowFlag := FALSE;
+  ByteCode.BVC_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BVC_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.OverflowFlag := TRUE;
+  ByteCode.BVC_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
 
 {$region ' BVS '}
 
-procedure TTest_Mos6502CPU.BVS_rel;
+procedure TTest_Mos6502CPU.BVS_rel_TRUE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  CPU.OverflowFlag := TRUE;
+  ByteCode.BVS_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.BVS_rel_FALSE;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.A := $00;
+  CPU.OverflowFlag := FALSE;
+  ByteCode.BVS_rel( $02 );     //- Jump over LDA_imm($00);
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Assert:
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}
@@ -1601,11 +1981,24 @@ end;
 {$region ' CLC '}
 
 procedure TTest_Mos6502CPU.CLC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := TRUE;
+  ByteCode.CLC;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( FALSE, CPU.CarryFlag );
 end;
 
 {$endregion}
@@ -1613,11 +2006,24 @@ end;
 {$region ' CLD '}
 
 procedure TTest_Mos6502CPU.CLD;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.DecimalModeFlag := TRUE;
+  ByteCode.CLD;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( FALSE, CPU.DecimalModeFlag );
 end;
 
 {$endregion}
@@ -1625,24 +2031,52 @@ end;
 {$region ' CLI '}
 
 procedure TTest_Mos6502CPU.CLI;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.IRQDisableFlag := TRUE;
+  ByteCode.CLI;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( FALSE, CPU.IRQDisableFlag );
 end;
+
 
 {$endregion}
 
 {$region ' CLV '}
 
 procedure TTest_Mos6502CPU.CLV;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.OverflowFlag := TRUE;
+  ByteCode.CLV;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( FALSE, CPU.OverflowFlag );
 end;
+
 
 {$endregion}
 
@@ -1653,7 +2087,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_abs_y;
@@ -1661,7 +2094,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_abs;
@@ -1669,7 +2101,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_imm;
@@ -1677,7 +2108,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_ind_y;
@@ -1685,7 +2115,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_x_ind;
@@ -1693,7 +2122,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_zpg_x;
@@ -1701,7 +2129,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CMP_zpg;
@@ -1709,7 +2136,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1721,7 +2147,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPX_imm;
@@ -1729,7 +2154,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPX_zpg;
@@ -1737,7 +2161,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1749,7 +2172,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPY_imm;
@@ -1757,7 +2179,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.CPY_zpg;
@@ -1765,7 +2186,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1773,35 +2193,102 @@ end;
 {$region ' DEC '}
 
 procedure TTest_Mos6502CPU.DEC_abs_x;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.DEC_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( pred(cTestValue), Memory[cMemoryLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.DEC_abs;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.DEC_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( pred(cTestValue), Memory[cMemoryLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.DEC_zpg_x;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.DEC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( pred(cTestValue), Memory[cMemoryLocationUnderTest] );
 end;
 
 procedure TTest_Mos6502CPU.DEC_zpg;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.DEC_zpg( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( pred(cTestValue), Memory[cMemoryLocationUnderTest] );
 end;
 
 {$endregion}
@@ -1809,11 +2296,26 @@ end;
 {$region ' DEX '}
 
 procedure TTest_Mos6502CPU.DEX;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.X := cTestValue;
+  ByteCode.DEX;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( pred(cTestValue), CPU.X );
 end;
 
 {$endregion}
@@ -1821,11 +2323,26 @@ end;
 {$region ' DEY '}
 
 procedure TTest_Mos6502CPU.DEY;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.Y := cTestValue;
+  ByteCode.DEY;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( pred(cTestValue), CPU.Y );
 end;
 
 {$endregion}
@@ -1837,7 +2354,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs_y;
@@ -1845,7 +2361,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs;
@@ -1853,7 +2368,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_imm;
@@ -1861,7 +2375,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_ind_y;
@@ -1869,7 +2382,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_X_ind;
@@ -1877,7 +2389,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg_x;
@@ -1885,7 +2396,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg;
@@ -1893,7 +2403,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1901,35 +2410,102 @@ end;
 {$region ' INC '}
 
 procedure TTest_Mos6502CPU.INC_abs_x;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.INC_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( succ(cTestValue), Memory[cMemoryLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.INC_abs;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.INC_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( succ(cTestValue), Memory[cMemoryLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.INC_zpg_x;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( $01 );
+  ByteCode.INC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( succ(cTestValue), Memory[cMemoryLocationUnderTest] );
 end;
 
 procedure TTest_Mos6502CPU.INC_zpg;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocationUnderTest] := cTestValue;
+  ByteCode.INC_zpg( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( succ(cTestValue), Memory[cMemoryLocationUnderTest] );
 end;
 
 {$endregion}
@@ -1937,11 +2513,26 @@ end;
 {$region ' INX '}
 
 procedure TTest_Mos6502CPU.INX;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.X := cTestValue;
+  ByteCode.INX;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( succ(cTestValue), CPU.X );
 end;
 
 {$endregion}
@@ -1949,11 +2540,26 @@ end;
 {$region ' INY '}
 
 procedure TTest_Mos6502CPU.INY;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.Y := cTestValue;
+  ByteCode.INY;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( succ(cTestValue), CPU.Y );
 end;
 
 {$endregion}
@@ -1965,7 +2571,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.JMP_ind;
@@ -1973,7 +2578,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -1985,7 +2589,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2320,43 +2923,123 @@ end;
 {$region ' LDY '}
 
 procedure TTest_Mos6502CPU.LDY_abs_x;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LDY_abs_x( pred(cMemoryLocation) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.Y )
 end;
 
 procedure TTest_Mos6502CPU.LDY_abs;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cMemoryLocation] := cTestValue;
+  ByteCode.LDY_abs( cMemoryLocation );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.Y );
 end;
 
 procedure TTest_Mos6502CPU.LDY_imm;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  ByteCode.LDY_imm( cTestValue );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.Y );
 end;
 
 procedure TTest_Mos6502CPU.LDY_zpg_x;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cLocationUnderTest] := $CC;
+  ByteCode.LDX_imm( pred(pred(cLocationUnderTest)) );
+  ByteCode.LDY_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.Y )
 end;
 
 procedure TTest_Mos6502CPU.LDY_zpg;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  Memory[cLocationUnderTest] := $CC;
+  ByteCode.LDY_zpg( cLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, CPU.Y )
 end;
 
 {$endregion}
@@ -2364,54 +3047,135 @@ end;
 {$region ' LSR '}
 
 procedure TTest_Mos6502CPU.LSR;
+const
+  cTestValue = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  ByteCode.LDA_imm( cTestValue );
+  ByteCode.LSR;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( cTestValue shr 1, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.LSR_abs_x;
+const
+  cByteUnderTest = $0A00;
+  cTestValue = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[succ(cByteUnderTest)] := cTestValue;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LSR_abs_x( cByteUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( cTestValue shr 1, Memory[succ(cByteUnderTest)] )
 end;
 
 procedure TTest_Mos6502CPU.LSR_abs;
+const
+  cByteUnderTest = $0A00;
+  cTestValue = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[cByteUnderTest] := cTestValue;
+  ByteCode.LSR_abs( cByteUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( cTestValue shr 1, Memory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.LSR_zpg_x;
+const
+  cByteUnderTest = $00BB;
+  cByteOffset = $02;
+  cTestValue = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[cByteUnderTest] := cTestValue;
+  ByteCode.LDX_imm( cByteUnderTest-cByteOffset );
+  ByteCode.LSR_zpg_x( cByteOffset );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( cTestValue shr 1, Memory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.LSR_zpg;
+const
+  cByteUnderTest = $BB;
+  cTestValue = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  Memory[cByteUnderTest] := cTestValue;
+  ByteCode.LSR_zpg( cByteUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
-end;
-
-{$endregion}
-
-{$region ' NOP '}
-
-procedure TTest_Mos6502CPU.NOP;
-begin
-  // Arrange:
-  // Act:
-  // Assert:
+  TTest.Expect( TRUE, CPU.CarryFlag );
+  TTest.Expect( cTestValue shr 1, Memory[cByteUnderTest] )
 end;
 
 {$endregion}
@@ -2423,7 +3187,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs_y;
@@ -2431,7 +3194,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs;
@@ -2439,7 +3201,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_imm;
@@ -2447,7 +3208,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_ind_y;
@@ -2455,7 +3215,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_x_ind;
@@ -2463,7 +3222,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg_x;
@@ -2471,7 +3229,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg;
@@ -2479,7 +3236,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2491,7 +3247,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2503,7 +3258,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2515,7 +3269,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2528,7 +3281,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2540,7 +3292,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs_x;
@@ -2548,7 +3299,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs;
@@ -2556,7 +3306,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg_x;
@@ -2564,7 +3313,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg;
@@ -2572,7 +3320,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2584,7 +3331,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs_x;
@@ -2592,7 +3338,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs;
@@ -2600,7 +3345,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg_x;
@@ -2608,7 +3352,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg;
@@ -2616,7 +3359,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2628,7 +3370,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2641,7 +3382,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 
@@ -2654,7 +3394,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_abs_x;
@@ -2662,7 +3401,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_abs;
@@ -2670,7 +3408,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_imm;
@@ -2678,7 +3415,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_ind_y;
@@ -2686,7 +3422,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_x_ind;
@@ -2694,7 +3429,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_zpg_x;
@@ -2702,7 +3436,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 procedure TTest_Mos6502CPU.SBC_zpg;
@@ -2710,7 +3443,6 @@ begin
   // Arrange:
   // Act:
   // Assert:
-  TTest.Fail('Not yet implemented.');
 end;
 
 {$endregion}
@@ -2718,11 +3450,24 @@ end;
 {$region ' SEC '}
 
 procedure TTest_Mos6502CPU.SEC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.CarryFlag := FALSE;
+  ByteCode.SEC;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.CarryFlag );
 end;
 
 {$endregion}
@@ -2730,11 +3475,24 @@ end;
 {$region ' SED '}
 
 procedure TTest_Mos6502CPU.SED;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.DecimalModeFlag := FALSE;
+  ByteCode.SED;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.DecimalModeFlag );
 end;
 
 {$endregion}
@@ -2742,11 +3500,24 @@ end;
 {$region ' SEI '}
 
 procedure TTest_Mos6502CPU.SEI;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.IRQDisableFlag := FALSE;
+  ByteCode.SEI;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( TRUE, CPU.IRQDisableFlag );
 end;
 
 {$endregion}
@@ -2754,88 +3525,257 @@ end;
 {$region ' STA '}
 
 procedure TTest_Mos6502CPU.STA_abs_x;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := cTestValue;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.STA_abs_x( pred(cMemoryLocation) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cMemoryLocation] )
 end;
 
 procedure TTest_Mos6502CPU.STA_abs_y;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := cTestValue;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.STA_abs_y( pred(cMemoryLocation) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cMemoryLocation] )
 end;
 
 procedure TTest_Mos6502CPU.STA_abs;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := cTestValue;
+  ByteCode.STA_abs( cMemoryLocation );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cMemoryLocation] )
 end;
 
 procedure TTest_Mos6502CPU.STA_ind_y;
+const
+  cLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := cTestValue;
+  Memory[$00BB] := $FF;
+  Memory[$00BC] := $09;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.STA_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.STA_x_ind;
+const
+  cLocationUnderTest = $0A00;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := cTestValue;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BA );
+  ByteCode.STA_x_ind( $01 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.STA_zpg_x;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := $CC;
+  ByteCode.LDX_imm( pred(pred(cLocationUnderTest)) );
+  ByteCode.STA_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.STA_zpg;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.A := $CC;
+  ByteCode.STA_zpg_x( cLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
-
 
 {$endregion}
 
 {$region ' STX '}
 
 procedure TTest_Mos6502CPU.STX_abs;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.X := cTestValue;
+  ByteCode.STX_abs( cMemoryLocation );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cMemoryLocation] );
 end;
 
 procedure TTest_Mos6502CPU.STX_zpg_y;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.X := $CC;
+  ByteCode.LDY_imm( pred(pred(cLocationUnderTest)) );
+  ByteCode.STX_zpg_y( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] );
 end;
 
 procedure TTest_Mos6502CPU.STX_zpg;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.X := $CC;
+  ByteCode.STX_zpg( cLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
 
 {$endregion}
@@ -2843,27 +3783,76 @@ end;
 {$region ' STY '}
 
 procedure TTest_Mos6502CPU.STY_abs;
+const
+  cMemoryLocation = $BE;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.Y := cTestValue;
+  ByteCode.STY_abs( cMemoryLocation );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cMemoryLocation] );
 end;
 
 procedure TTest_Mos6502CPU.STY_zpg_x;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.Y := $CC;
+  ByteCode.LDX_imm( pred(pred(cLocationUnderTest)) );
+  ByteCode.STY_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.STY_zpg;
+const
+  cLocationUnderTest = $00BB;
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
-  TTest.Fail('Not yet implemented.');
+  CPU.Y := $CC;
+  ByteCode.STY_zpg( cLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, Memory[cLocationUnderTest] )
 end;
 
 {$endregion}
@@ -2871,11 +3860,26 @@ end;
 {$region ' TAX '}
 
 procedure TTest_Mos6502CPU.TAX;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  ByteCode.TAX;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.X );
 end;
 
 {$endregion}
@@ -2883,11 +3887,26 @@ end;
 {$region ' TAY '}
 
 procedure TTest_Mos6502CPU.TAY;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.A := cTestValue;
+  ByteCode.TAY;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.Y );
 end;
 
 {$endregion}
@@ -2895,11 +3914,26 @@ end;
 {$region ' TSX '}
 
 procedure TTest_Mos6502CPU.TSX;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.SP := cTestValue;
+  ByteCode.TSX;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.X );
 end;
 
 {$endregion}
@@ -2907,11 +3941,26 @@ end;
 {$region ' TXA '}
 
 procedure TTest_Mos6502CPU.TXA;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.X := cTestValue;
+  ByteCode.TXA;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 
@@ -2920,11 +3969,26 @@ end;
 {$region ' TXS '}
 
 procedure TTest_Mos6502CPU.TXS;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.X := cTestValue;
+  ByteCode.TXS;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.SP );
 end;
 
 {$endregion}
@@ -2932,11 +3996,26 @@ end;
 {$region ' TYA '}
 
 procedure TTest_Mos6502CPU.TYA;
+const
+  cTestValue = $CC;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
+  CPU.Y := cTestValue;
+  ByteCode.TYA;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
   // Assert:
-  TTest.Fail('Not yet implemented.');
+  TTest.Expect( cTestValue, CPU.A );
 end;
 
 {$endregion}

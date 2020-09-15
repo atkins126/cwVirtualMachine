@@ -210,13 +210,12 @@ begin
   Result := RealPointer( State, W + State.Y );
 end;
 
-
 function ptr_rel( const State: T6502State ): pointer; inline;
 var
   pByte: ^int8;
 begin
   pByte := RealPointer( State, State.PC );
-  Result := RealPointer( State, State.PC + pByte^ );
+  Result := pByte;
 end;
 
 function ptr_zpg( const State: T6502State ): pointer; inline;
@@ -1178,26 +1177,53 @@ end;
   {$region 'LSR'}
   procedure HandleLSR_a( var State: T6502State );
   begin
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := State.SR or (State.A and cBit0);
+    State.A := State.A shr 1;
   end;
 
-  procedure HandleLSR_abs_X( var State: T6502State );
-  begin
-    State.PC := State.PC + sizeof(uint16);
-  end;
+  procedure HandleLSR_abs_x( var State: T6502State );
+  var
+     b: pByte;
+   begin
+     b := ptr_abs_x(State);
+     State.SR := State.SR and (not cCarryFlag);
+     State.SR := (b^ and cBit0);
+     b^ := b^ shr 1;
+     inc_abs_x(State);
+   end;
 
   procedure HandleLSR_abs( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.PC := State.PC + sizeof(uint16);
+    b := ptr_abs(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := (b^ and cBit0);
+    b^ := b^ shr 1;
+    inc_abs(State);
   end;
 
   procedure HandleLSR_zpg_x( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    b := ptr_zpg_x(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := (b^ and cBit0);
+    b^ := b^ shr 1;
+    inc_zpg_x(State);
   end;
 
   procedure HandleLSR_zpg( var State: T6502State );
+  var
+    b: pByte;
   begin
-    State.PC := State.PC + sizeof(uint8);
+    b := ptr_zpg(State);
+    State.SR := State.SR and (not cCarryFlag);
+    State.SR := (b^ and cBit0);
+    b^ := b^ shr 1;
+    inc_zpg(State);
   end;
   {$endregion}
 
@@ -1415,21 +1441,21 @@ end;
   {$region 'SEC'}
   procedure HandleSEC( var State: T6502State );
   begin
-    State.SR := State.SR and cCarryFlag;
+    State.SR := State.SR or cCarryFlag;
   end;
   {$endregion}
 
   {$region 'SED'}
   procedure HandleSED( var State: T6502State );
   begin
-    State.SR := State.SR and cDecimalMode;
+    State.SR := State.SR or cDecimalMode;
   end;
   {$endregion}
 
   {$region 'SEI'}
   procedure HandleSEI( var State: T6502State );
   begin
-    State.SR := State.SR and cIRQDisable
+    State.SR := State.SR or cIRQDisable
   end;
   {$endregion}
 
