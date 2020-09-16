@@ -42,6 +42,24 @@ type
     procedure Clock;
 
     {$region ' ADC '}
+    procedure ADC_abs_x_NoOverflow;
+    procedure ADC_abs_y_NoOverflow;
+    procedure ADC_abs_NoOverflow;
+    procedure ADC_imm_NoOverflow;
+    procedure ADC_ind_y_NoOverflow;
+    procedure ADC_x_ind_NoOverflow;
+    procedure ADC_zpg_x_NoOverflow;
+    procedure ADC_zpg_NoOverflow;
+
+    procedure ADC_abs_x_Overflow;
+    procedure ADC_abs_y_Overflow;
+    procedure ADC_abs_Overflow;
+    procedure ADC_imm_Overflow;
+    procedure ADC_ind_y_Overflow;
+    procedure ADC_x_ind_Overflow;
+    procedure ADC_zpg_x_Overflow;
+    procedure ADC_zpg_Overflow;
+
     procedure ADC_abs_x_NoCarry;
     procedure ADC_abs_y_NoCarry;
     procedure ADC_abs_NoCarry;
@@ -181,7 +199,7 @@ type
     procedure EOR_abs;
     procedure EOR_imm;
     procedure EOR_ind_y;
-    procedure EOR_X_ind;
+    procedure EOR_x_ind;
     procedure EOR_zpg_x;
     procedure EOR_zpg;
     {$endregion}
@@ -278,14 +296,25 @@ type
     procedure RTS;
     {$endregion}
     {$region ' SBC '}
-    procedure SBC_abs_y;
-    procedure SBC_abs_x;
-    procedure SBC_abs;
-    procedure SBC_imm;
-    procedure SBC_ind_y;
-    procedure SBC_x_ind;
-    procedure SBC_zpg_x;
-    procedure SBC_zpg;
+    procedure SBC_abs_y_NoOverflow;
+    procedure SBC_abs_x_NoOverflow;
+    procedure SBC_abs_NoOverflow;
+    procedure SBC_imm_NoOverflow;
+    procedure SBC_ind_y_NoOverflow;
+    procedure SBC_x_ind_NoOverflow;
+    procedure SBC_zpg_x_NoOverflow;
+    procedure SBC_zpg_NoOverflow;
+
+    procedure SBC_abs_y_Overflow;
+    procedure SBC_abs_x_Overflow;
+    procedure SBC_abs_Overflow;
+    procedure SBC_imm_Overflow;
+    procedure SBC_ind_y_Overflow;
+    procedure SBC_x_ind_Overflow;
+    procedure SBC_zpg_x_Overflow;
+    procedure SBC_zpg_Overflow;
+    {$endregion}
+    {$region ' SEC '}
     procedure SEC;
     {$endregion}
     {$region ' SED '}
@@ -353,9 +382,490 @@ end;
 
 {$region ' ADC '}
 
+procedure TTest_Mos6502CPU.ADC_abs_x_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_y_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_imm_NoOverflow;
+const
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_imm( cRight );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_ind_y_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_x_ind_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_x_NoOverflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_NoOverflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_x_Overflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.LDX_imm( $01 );
+  ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_y_Overflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_abs_Overflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_imm_Overflow;
+const
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_imm( cRight );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_ind_y_Overflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_x_ind_Overflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_x_Overflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
+procedure TTest_Mos6502CPU.ADC_zpg_Overflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+  CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cResult, CPU.A )
+end;
+
 procedure TTest_Mos6502CPU.ADC_abs_x_NoCarry;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -367,8 +877,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $CC );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDX_imm( $01 );
   ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -377,12 +887,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_NoCarry;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -394,8 +907,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $CC );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDY_imm( $01 );
   ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -404,12 +917,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_NoCarry;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -421,8 +937,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $CC );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -430,10 +946,14 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_imm_NoCarry;
+const
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -445,20 +965,23 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_imm( cRight );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_NoCarry;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -470,11 +993,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $CC;
+  Memory[cMemoryLocationUnderTest] := cRight;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
-  ByteCode.LDA_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_ind_y( $BB );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -482,12 +1005,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CD, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_NoCarry;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $CC;
+  cRight = $02;
+  cResult: uint8 = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -499,11 +1025,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $CC;
+  Memory[cMemoryLocationUnderTest] := cRight;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
-  ByteCode.LDA_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_x_ind( $00 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -511,12 +1037,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CD, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_NoCarry;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -528,9 +1057,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $CC;
+  Memory[cMemoryLocationUnderTest] := cRight;
   ByteCode.LDX_imm( $B9 );
-  ByteCode.LDA_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_zpg_x( $02 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -538,12 +1067,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CD, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_NoCarry;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -555,21 +1087,24 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $CC;
-  ByteCode.LDA_imm( $01 );
-  ByteCode.ADC_zpg_x( $BB );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg( $BB );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CD, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_x_CarryIn;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -581,8 +1116,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $CC );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDX_imm( $01 );
   ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -591,12 +1126,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CF, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_CarryIn;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -608,8 +1146,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $CC );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDY_imm( $01 );
   ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -618,12 +1156,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CF, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_CarryIn;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -635,8 +1176,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $CC );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -644,10 +1185,14 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CF, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_imm_CarryIn;
+const
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -659,20 +1204,23 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  ByteCode.LDA_imm( $CC );
-  ByteCode.ADC_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_imm( cRight );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CF, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_CarryIn;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -684,11 +1232,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $CC;
+  Memory[cMemoryLocationUnderTest] := cLeft;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
-  ByteCode.LDA_imm( $01 );
+  ByteCode.LDA_imm( cRight );
   ByteCode.ADC_ind_y( $BB );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -696,12 +1244,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_CarryIn;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -713,11 +1264,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $CC;
+  Memory[cMemoryLocationUnderTest] := cLeft;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
-  ByteCode.LDA_imm( $01 );
+  ByteCode.LDA_imm( cRight );
   ByteCode.ADC_x_ind( $00 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -725,12 +1276,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_CarryIn;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -742,9 +1296,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $CC;
+  Memory[cMemoryLocationUnderTest] := cRight;
   ByteCode.LDX_imm( $B9 );
-  ByteCode.LDA_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_zpg_x( $02 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -752,12 +1306,15 @@ begin
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_CarryIn;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $CC;
+  cRight = $02;
+  cResult = cLeft + cRight + 1;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -769,21 +1326,24 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $CC;
-  ByteCode.LDA_imm( $01 );
-  ByteCode.ADC_zpg_x( cMemoryLocationUnderTest );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( FALSE, CPU.CarryFlag );
-  TTest.Expect( $CE, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_x_CarryOut;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -795,8 +1355,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $FE );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDX_imm( $01 );
   ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -805,12 +1365,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_CarryOut;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -822,8 +1385,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $FE );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDY_imm( $01 );
   ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -832,12 +1395,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_CarryOut;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -849,8 +1415,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $FE );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -858,10 +1424,14 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_imm_CarryOut;
+const
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -873,20 +1443,23 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_imm( $02 );
+  ByteCode.LDA_imm( cRight );
+  ByteCode.ADC_imm( cLeft );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_CarryOut;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -898,11 +1471,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $FE;
+  Memory[cMemoryLocationUnderTest] := cRight;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
-  ByteCode.LDA_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_ind_y( $BB );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -910,12 +1483,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_CarryOut;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -927,11 +1503,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $FE;
+  Memory[cMemoryLocationUnderTest] := cRight;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
-  ByteCode.LDA_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_x_ind( $00 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -939,12 +1515,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_CarryOut;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -956,9 +1535,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $FE;
+  Memory[cMemoryLocationUnderTest] := cRight;
   ByteCode.LDX_imm( $B9 );
-  ByteCode.LDA_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_zpg_x( $02 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -966,12 +1545,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_CarryOut;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $00;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -983,21 +1565,24 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := FALSE;
-  Memory[cMemoryLocationUnderTest] := $FE;
-  ByteCode.LDA_imm( $02 );
-  ByteCode.ADC_zpg_x( $BB );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg( $BB );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $00, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_x_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1009,8 +1594,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $FE );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDX_imm( $01 );
   ByteCode.ADC_abs_x( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -1019,12 +1604,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_y_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1036,8 +1624,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $FE );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.LDY_imm( $01 );
   ByteCode.ADC_abs_y( pred(cMemoryLocationUnderTest) );
   ByteCode.BRK;
@@ -1046,12 +1634,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_abs_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1063,8 +1654,8 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $02;
-  ByteCode.LDA_imm( $FE );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_abs( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -1072,10 +1663,14 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_imm_CarryInAndOut;
+const
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1087,20 +1682,23 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  ByteCode.LDA_imm( $FE );
-  ByteCode.ADC_imm( $02 );
+  ByteCode.LDA_imm( cRight );
+  ByteCode.ADC_imm( cLeft );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_ind_y_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $0A01;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1112,11 +1710,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $FE;
+  Memory[cMemoryLocationUnderTest] := cRight;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDY_imm( $01 );
-  ByteCode.LDA_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_ind_y( $BB );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -1124,12 +1722,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_x_ind_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $0A00;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1141,11 +1742,11 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $FE;
+  Memory[cMemoryLocationUnderTest] := cRight;
   Memory[$00BB] := $00;
   Memory[$00BC] := $0A;
   ByteCode.LDX_imm( $BB );
-  ByteCode.LDA_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_x_ind( $00 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -1153,12 +1754,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_x_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1170,9 +1774,9 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $FE;
+  Memory[cMemoryLocationUnderTest] := cRight;
   ByteCode.LDX_imm( $B9 );
-  ByteCode.LDA_imm( $02 );
+  ByteCode.LDA_imm( cLeft );
   ByteCode.ADC_zpg_x( $02 );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
@@ -1180,12 +1784,15 @@ begin
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cREsult, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ADC_zpg_CarryInAndOut;
 const
   cMemoryLocationUnderTest = $00BB;
+  cLeft = $FE;
+  cRight = $02;
+  cResult = $01;
 var
   Memory: I6502VirtualMemory;
   ByteCode: I6502ByteCode;
@@ -1197,16 +1804,16 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.CarryFlag := TRUE;
-  Memory[cMemoryLocationUnderTest] := $FE;
-  ByteCode.LDA_imm( $02 );
-  ByteCode.ADC_zpg_x( cMemoryLocationUnderTest );
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.ADC_zpg( cMemoryLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;
   end;
   // Asert:
   TTest.Expect( TRUE, CPU.CarryFlag );
-  TTest.Expect( $01, CPU.A )
+  TTest.Expect( cResult, CPU.A )
 end;
 
 {$endregion}
@@ -2350,59 +2957,226 @@ end;
 {$region ' EOR '}
 
 procedure TTest_Mos6502CPU.EOR_abs_x;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs_y;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_abs_y( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.EOR_abs;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.EOR_imm;
+const
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_imm( cInverter );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.EOR_ind_y;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
-procedure TTest_Mos6502CPU.EOR_X_ind;
+procedure TTest_Mos6502CPU.EOR_x_ind;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg_x;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestREs, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.EOR_zpg;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $AA;
+  cTestRes = $55;
+  cInverter = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.EOR_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 {$endregion}
@@ -3183,59 +3957,226 @@ end;
 {$region ' ORA '}
 
 procedure TTest_Mos6502CPU.ORA_abs_x;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs_y;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_abs_y( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_abs;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_imm;
+const
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_imm( cInverter );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_ind_y;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_x_ind;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg_x;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestREs, CPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ORA_zpg;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $AA;
+  cTestRes = $FF;
+  cInverter = $55;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cMemoryLocationUnderTest] := cInverter;
+  ByteCode.LDA_imm( cTestAcc );
+  ByteCode.ORA_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestRes, CPU.A )
 end;
 
 {$endregion}
@@ -3243,10 +4184,29 @@ end;
 {$region ' PHA '}
 
 procedure TTest_Mos6502CPU.PHA;
+const
+  cTestVal = $AA;
+  cStackAddr = $01FF;
+  cStackPtr = $FE;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  ByteCode.LDA_imm( cTestVal );
+  ByteCode.PHA;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestVal, Memory[cStackAddr] );
+  TTest.Expect( cStackPtr, CPU.SP );
 end;
 
 {$endregion}
@@ -3254,10 +4214,29 @@ end;
 {$region ' PHP '}
 
 procedure TTest_Mos6502CPU.PHP;
+const
+  cTestVal = $AA;
+  cStackAddr = $01FF;
+  cStackPtr = $FE;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.SR := cTestVal;
+  ByteCode.PHP;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestVal, Memory[cStackAddr] );
+  TTest.Expect( cStackPtr, CPU.SP );
 end;
 
 {$endregion}
@@ -3265,22 +4244,62 @@ end;
 {$region ' PLA '}
 
 procedure TTest_Mos6502CPU.PLA;
+const
+  cTestVal = $AA;
+  cStackAddr = $01FF;
+  cStackPtr = $FF;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cStackAddr] := cTestVal;
+  CPU.SP := pred(cStackPtr);
+  ByteCode.PLA;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestVal, CPU.A );
+  TTest.Expect( cStackPtr, CPU.SP );
 end;
-
 
 {$endregion}
 
 {$region ' PLP '}
 
 procedure TTest_Mos6502CPU.PLP;
+const
+  cTestVal = $AA;
+  cStackAddr = $01FF;
+  cStackPtr = $FE;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  Memory[cStackAddr] := cTestVal;
+  CPU.SP := cStackPtr;
+  ByteCode.PLP;
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  // - NOTE: SP will get the break flag set after PLP, so here we or ($01 shl 4) to add the break command to test val.
+  TTest.Expect( cTestVal or ($01 shl 4), CPU.SR );
+  TTest.Expect( succ(cStackPtr), CPU.SP );
 end;
 
 {$endregion}
@@ -3372,7 +4391,6 @@ begin
   // Assert:
 end;
 
-
 {$endregion}
 
 {$region ' RTS '}
@@ -3384,65 +4402,486 @@ begin
   // Assert:
 end;
 
-
 {$endregion}
 
 {$region ' SBC '}
 
-procedure TTest_Mos6502CPU.SBC_abs_y;
+procedure TTest_Mos6502CPU.SBC_abs_y_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_abs_y( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_abs_x;
+procedure TTest_Mos6502CPU.SBC_abs_x_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_abs;
+procedure TTest_Mos6502CPU.SBC_abs_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_imm;
+procedure TTest_Mos6502CPU.SBC_imm_NoOverflow;
+const
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_imm( cRight );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_ind_y;
+procedure TTest_Mos6502CPU.SBC_ind_y_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.SBC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_x_ind;
+procedure TTest_Mos6502CPU.SBC_x_ind_NoOverflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_zpg_x;
+procedure TTest_Mos6502CPU.SBC_zpg_x_NoOverflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
 end;
 
-procedure TTest_Mos6502CPU.SBC_zpg;
+procedure TTest_Mos6502CPU.SBC_zpg_NoOverflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $7F;
+  cRight = $6F;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
 begin
   // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
   // Act:
-  // Assert:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, CPU.OverflowFlag );
+  TTest.Expect( cRes, CPU.A );
+end;
+
+procedure TTest_Mos6502CPU.SBC_abs_y_Overflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes: int8 = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDY_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_abs_y( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_abs_x_Overflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDX_imm( $01 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_abs_x( pred(cMemoryLocationUnderTest) );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_abs_Overflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_abs( cMemoryLocationUnderTest );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_imm_Overflow;
+const
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_imm( cRight );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_ind_y_Overflow;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.LDY_imm( $01 );
+  ByteCode.SBC_ind_y( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_x_ind_Overflow;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  Memory[$00BB] := $00;
+  Memory[$00BC] := $0A;
+  ByteCode.LDX_imm( $BB );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_x_ind( $00 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_zpg_x_Overflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDX_imm( $B9 );
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_zpg_x( $02 );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
+end;
+
+procedure TTest_Mos6502CPU.SBC_zpg_Overflow;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cLeft = $7F;
+  cRight = $FF;
+  cRes = cLeft-cRight;
+var
+  Memory: I6502VirtualMemory;
+  ByteCode: I6502ByteCode;
+  CPU: I6502CPU;
+begin
+  // Arrange:
+  Memory := T6502VirtualMemory.Create;
+  CPU := T6502CPU.Create( Memory );
+  ByteCode := T6502ByteCode.Create( Memory );
+  // Act:
+  CPU.OverflowFlag := FALSE;
+  Memory[cMemoryLocationUnderTest] := cRight;
+  ByteCode.LDA_imm( cLeft );
+  ByteCode.SBC_zpg( $BB );
+  ByteCode.BRK;
+  while not CPU.BreakFlag do begin
+    CPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, CPU.OverflowFlag );
+  TTest.Expect( cRes, int8(CPU.A) );
 end;
 
 {$endregion}
@@ -3692,7 +5131,7 @@ begin
   ByteCode := T6502ByteCode.Create( Memory );
   // Act:
   CPU.A := $CC;
-  ByteCode.STA_zpg_x( cLocationUnderTest );
+  ByteCode.STA_zpg( cLocationUnderTest );
   ByteCode.BRK;
   while not CPU.BreakFlag do begin
     CPU.Clock;

@@ -121,6 +121,9 @@ const //- flag masks for processor status register.
   cNegativeFlag = $01 shl 7; // bit 7
 
 const
+  cStackBase = $0100;
+
+const
   cBit7 = $01 shl 7;
   cBit6 = $01 shl 6;
   cBit5 = $01 shl 5;
@@ -322,7 +325,7 @@ begin
   inc(Result);
 end;
 
-procedure instr_ADC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
+procedure instr_ALU_ADC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
 var
   cf: boolean;
   lowNibbleR: uint8;
@@ -375,14 +378,56 @@ begin
   if saveProduct then begin
     l^ := Product;
   end;
+
+end;
+
+procedure instr_ADC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
+const
+  cSignBit = cBit7;
+var
+  OverflowCheck: uint8;
+begin
+  //- We construct a bit-pattern in which the lower
+  //- three bits are the sign-bit of left, right and result
+  //- respectively. Start with left & right...
+  OverflowCheck := ((r^ and cSignBit) shr 6);
+  OverflowCheck := OverflowCheck or ((l^ and cSignBit) shr 5);
+  State.SR := State.SR and (not cOverflowFlag);
+  //- Perform adc
+  instr_ALU_ADC( State, l, r, saveProduct );
+  //- Add the sign bit of our result to the bit pattern described above.
+  OverflowCheck := OverflowCheck or ((l^ and cSignBit) shr 7);
+  // Only two cases cause overflow for signed addition.  %001 ($01) or 110 ($06)
+  if (OverflowCheck=$04) or (OverflowCheck=$06) then begin
+    State.SR := State.SR or cOverflowFlag;
+  end;
 end;
 
 procedure instr_SBC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
+const
+  cSignBit = cBit7;
 var
+  OverflowCheck: uint8;
   nr: uint8;
 begin
+  //- negate the right term
   nr := negate( r^ );
-  instr_ADC( State, l, @nr, saveProduct );
+  //- We construct a bit-pattern in which the lower
+  //- three bits are the sign-bit of left, right and result
+  //- respectively. Start with left & right...
+  OverflowCheck := 0;
+  OverflowCheck := OverflowCheck or ((r^ and cSignBit) shr 6);
+  OverflowCheck := OverflowCheck or ((l^ and cSignBit) shr 5);
+  State.SR := State.SR and (not cOverflowFlag);
+  //- Peform adc
+  instr_ALU_ADC( State, l, @nr, saveProduct );
+  //- Add the sign bit of our result to the bit pattern described above.
+  OverflowCheck := OverflowCheck or ((l^ and cSignBit) shr 7);
+  // Only two cases cause overflow for signed subtraction.
+  // %011 ($03) or 100 ($04)
+  if (OverflowCheck=$03) or (OverflowCheck=$04) then begin
+    State.SR := State.SR or cOverflowFlag;
+  end;
 end;
 
 {$endregion}
@@ -393,7 +438,7 @@ procedure pushbyte( var State: T6502State; const v: pByte ); inline;
 var
   pStack: ^uint8;
 begin
-  pStack := RealPointer( State, ($01 and State.SP) );
+  pStack := RealPointer( State, (cStackBase or State.SP) );
   pStack^ := v^;
   dec(State.SP);
 end;
@@ -402,7 +447,7 @@ procedure pushword( var State: T6502State; const v: pWord ); inline;
 var
   pStack: ^uint16;
 begin
-  pStack := RealPointer( State, ($01 and State.SP) );
+  pStack := RealPointer( State, (cStackBase or State.SP) );
   pStack^ := v^;
   dec(State.SP,2);
 end;
@@ -412,7 +457,7 @@ var
   pStack: ^uint8;
 begin
   inc(State.SP);
-  pStack := RealPointer( State, ($01 and State.SP) );
+  pStack := RealPointer( State, (cStackBase or State.SP) );
   v^ := pStack^;
 end;
 
@@ -420,8 +465,8 @@ procedure popword( var State: T6502State; const v: pWord ); inline;
 var
   pStack: ^uint16;
 begin
-  inc(State.SP);
-  pStack := RealPointer( State, ($01 and State.SP) );
+  inc(State.SP,2);
+  pStack := RealPointer( State, (cStackBase or State.SP) );
   v^ := pStack^;
 end;
 
@@ -983,8 +1028,8 @@ end;
 
   procedure HandleEOR_x_ind( var State: T6502State );
   begin
-    State.A := State.A xor uint8( ptr_ind(State)^ );
-    inc_ind(State);
+    State.A := State.A xor uint8( ptr_x_ind(State)^ );
+    inc_x_ind(State);
   end;
 
   procedure HandleEOR_zpg_x( var State: T6502State );
@@ -1397,8 +1442,8 @@ end;
 
   procedure HandleSBC_abs_y( var State: T6502State );
   begin
-    instr_SBC( State, @State.A, ptr_abs(State) );
-    inc_abs(State);
+    instr_SBC( State, @State.A, ptr_abs_y(State) );
+    inc_abs_y(State);
   end;
 
   procedure HandleSBC_abs( var State: T6502State );
