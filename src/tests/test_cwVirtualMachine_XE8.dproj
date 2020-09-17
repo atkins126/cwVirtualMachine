@@ -53,7 +53,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>test_cwVirtualMachine_XE8</SanitizedProjectName>
         <Manifest_File>None</Manifest_File>
-        <DCC_UnitSearchPath>..\main\api;..\main\implementation;..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\main\api;..\main\implementation;..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation;.\testcases\standard;.\testcases\chappie;.\testcases\6502;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_BplOutput>..\..\out\lib\bpl</DCC_BplOutput>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_DcuOutput>..\..\out\lib\$(Platform)\$(Config)</DCC_DcuOutput>
@@ -96,7 +96,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>None</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -179,8 +178,8 @@
                     <Source Name="MainSource">test_cwVirtualMachine.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k190.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp190.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="1">
@@ -512,13 +511,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="OSX32">True</Platform>

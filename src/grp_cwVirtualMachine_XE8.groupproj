@@ -9,6 +9,9 @@
         <Projects Include="samples\01 - Hello VM\HelloVM_XE8.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="samples\02 - Hello 6502\Hello6502_XE8.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="tests\test_cwVirtualMachine_XE8.dproj">
             <Dependencies/>
         </Projects>
@@ -38,6 +41,15 @@
     <Target Name="HelloVM_XE8:Make">
         <MSBuild Projects="samples\01 - Hello VM\HelloVM_XE8.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Hello6502_XE8">
+        <MSBuild Projects="samples\02 - Hello 6502\Hello6502_XE8.dproj"/>
+    </Target>
+    <Target Name="Hello6502_XE8:Clean">
+        <MSBuild Projects="samples\02 - Hello 6502\Hello6502_XE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Hello6502_XE8:Make">
+        <MSBuild Projects="samples\02 - Hello 6502\Hello6502_XE8.dproj" Targets="Make"/>
+    </Target>
     <Target Name="test_cwVirtualMachine_XE8">
         <MSBuild Projects="tests\test_cwVirtualMachine_XE8.dproj"/>
     </Target>
@@ -48,13 +60,13 @@
         <MSBuild Projects="tests\test_cwVirtualMachine_XE8.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="pkg_cwVirtualMachine_XE8;HelloVM_XE8;test_cwVirtualMachine_XE8"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_XE8;HelloVM_XE8;Hello6502_XE8;test_cwVirtualMachine_XE8"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="pkg_cwVirtualMachine_XE8:Clean;HelloVM_XE8:Clean;test_cwVirtualMachine_XE8:Clean"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_XE8:Clean;HelloVM_XE8:Clean;Hello6502_XE8:Clean;test_cwVirtualMachine_XE8:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="pkg_cwVirtualMachine_XE8:Make;HelloVM_XE8:Make;test_cwVirtualMachine_XE8:Make"/>
+        <CallTarget Targets="pkg_cwVirtualMachine_XE8:Make;HelloVM_XE8:Make;Hello6502_XE8:Make;test_cwVirtualMachine_XE8:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

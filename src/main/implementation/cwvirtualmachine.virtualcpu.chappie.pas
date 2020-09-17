@@ -30,22 +30,18 @@ unit cwVirtualMachine.VirtualCPU.Chappie;
 
 interface
 uses
-  cwIO
-, cwStatus
+  cwStatus
 , cwVirtualMachine
 ;
 
 {$region ' CPU State '}
 
 type
-
   // Represents the state of a chappie CPU.
   TChappieState = record
     Running         : boolean;
-    BytecodeStart   : nativeuint;
-    BytecodeStop    : nativeuint;
     ProgramCounter  : nativeuint;
-    Accumulator     : nativeuint;
+    Accumulator     : uint32;
   end;
   pChappieState = ^TChappieState;
 
@@ -54,21 +50,21 @@ type
 type
   TChappieCPU = class( TInterfacedObject, IVirtualCPU )
   private
+    fMemory: IVirtualMemory;
     fState: TChappieState;
   strict private //- IVirtualCPU -//
-    procedure Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
+    procedure Reset( const EntryPoint: nativeuint );
     function Clock: boolean;
   public
-    constructor Create;
+    constructor Create( const Memory: IVirtualMemory ); reintroduce;
   end;
 
 
 implementation
 uses
   cwTypes
-, cwVirtualMachine.Chappie //- MUST remain in implementation section or else cyclic reference.
+, cwVirtualMachine.VirtualCPU.Chappie.OpCodes
 ;
-
 
 {$region ' Chappie Instruction Handlers'}
 
@@ -90,20 +86,26 @@ end;
 
 procedure HandleLoad( var State: TChappieState );
 begin
+  {$hints off}
   State.Accumulator := nativeuint( pointer(State.ProgramCounter)^ );
-  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+  {$hints on}
+  State.ProgramCounter := State.ProgramCounter + Sizeof(uint32);
 end;
 
 procedure HandleSave( var State: TChappieState );
 begin
+  {$hints off}
   nativeuint( pointer(State.ProgramCounter)^ ) := State.Accumulator;
-  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+  {$hints on}
+  State.ProgramCounter := State.ProgramCounter + Sizeof(uint32);
 end;
 
 procedure HandleAdd( var State: TChappieState );
 begin
+  {$hints off}
   State.Accumulator := State.Accumulator + nativeuint( pointer(State.ProgramCounter)^ );
-  State.ProgramCounter := State.ProgramCounter + Sizeof(nativeuint);
+  {$hints on}
+  State.ProgramCounter := State.ProgramCounter + Sizeof(uint32);
 end;
 
 {$endregion}
@@ -135,13 +137,12 @@ type
 var
   Handler: TVMInstructionHandler;
 begin
-
   //- A program is loaded, and has not ended?
   Result := False;
   if not fState.Running then exit;
 
   //- Do not allow overrun of byte-code
-  if fState.ProgramCounter > fState.BytecodeStop then begin
+  if fState.ProgramCounter >= ( fMemory.DataPtr.AsNativeUInt + fMemory.DataSize ) then begin
     TStatus( stUnexpectedEndOfBytecode ).Raize;
   end;
 
@@ -163,20 +164,22 @@ begin
   Result := fState.Running;
 end;
 
-constructor TChappieCPU.Create;
+constructor TChappieCPU.Create( const Memory: IVirtualMemory );
 begin
   inherited Create;
-  Reset( nil, 0, nil );
+  fMemory := Memory;
+  Reset( 0 );
 end;
 
-procedure TChappieCPU.Reset( const lpBytecode: pointer; const szBytecode: nativeuint; const StaticData: IBuffer = nil );
+procedure TChappieCPU.Reset(const EntryPoint: nativeuint);
 begin
-  {$hints off}
-  fState.BytecodeStart  := nativeuint( lpBytecode );
-  {$hints on}
-  fState.BytecodeStop   := fState.BytecodeStart + szBytecode;
-  fState.ProgramCounter := fState.BytecodeStart;
-  fState.Running        := szBytecode>0;
+  if not assigned(fMemory) then begin
+    fState.ProgramCounter := 0;
+    fState.Running        := False;
+    exit;
+  end;
+  fState.ProgramCounter := fMemory.DataPtr.AsNativeUint + Entrypoint;
+  fState.Running        := EntryPoint<fMemory.DataSize;
 end;
 
 {$endregion}

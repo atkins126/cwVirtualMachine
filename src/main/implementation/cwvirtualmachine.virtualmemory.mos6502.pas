@@ -25,87 +25,78 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-unit cwVirtualMachine.ByteCode.Standard;
+unit cwVirtualMachine.VirtualMemory.Mos6502;
 {$ifdef fpc}{$mode delphiunicode}{$endif}
 
 interface
 uses
-  cwIO
-, cwStatus
-, cwIO.Standard
-, cwVirtualMachine
+  cwVirtualMachine
+, cwVirtualMachine.Mos6502
+, cwVirtualMachine.VirtualMemory.Custom
 ;
 
+const
+  c1KB = 256;
+  c64KB = $10000;
+
 type
-  TBytecode = class( TInterfacedObject, IBytecode )
+  T6502VirtualMemory = class( TCustomVirtualMemory, IVirtualMemory, I6502VirtualMemory )
   private
-    fBuffer: IBuffer;
-    fGranularity: nativeuint;
-    fWritten: nativeuint;
-  strict private //- IBytecode -//
-    function getSizeBytes: nativeuint;
-    function getDataPtr: pointer;
-    procedure Clear;
-    procedure Append( const Bytes: array of uint8 );
+    fMemoryMap: array[0..$FF] of nativeuint;
+  private
+    procedure PrearrangeBanks;
+  strict private //- I6502VirtualMemory --//
+    function getBank( const idx: uint8 ): nativeuint;
+    procedure setBank( const idx: uint8; const value: nativeuint );
+  protected
+    procedure setDataSize( const Value: nativeuint ); override;
   public
-    constructor Create( const Granularity: nativeuint = 512 ); reintroduce;
-    destructor Destroy; override;
+    constructor Create( const InitialSize: nativeuint = c64KB ); reintroduce;
   end;
 
 
 implementation
-uses
-  cwTypes
-;
 
-procedure TBytecode.Append( const Bytes: array of uint8 );
-type
-  pByte = ^uint8;
+procedure T6502VirtualMemory.PrearrangeBanks;
 var
-  lpTarget: nativeuint;
-  ByteCount: nativeuint;
+  TargetOffset: nativeuint;
+  idx: uint8;
 begin
-  ByteCount := Length(Bytes);
-  if ByteCount<=0 then exit;
-  //- Is there space in the buffer for the new instruction?
-  if (fWritten + ByteCount) >= fBuffer.Size then begin
-    fBuffer.Size := fBuffer.Size + fGranularity;
+  TargetOffset := 0;
+  for idx := 0 to $FF do begin
+    fMemoryMap[idx] := TargetOffset;
+    inc(TargetOffset,c1KB);
   end;
-  //- Write the instruction
-  lpTarget := fBuffer.DataPtr.AsNativeUInt + fWritten;
-  Move( Bytes[0], pbyte(lpTarget)^, ByteCount );
-  //- Update written and we're done
-  fWritten := fWritten + ByteCount;
 end;
 
-procedure TBytecode.Clear;
+function T6502VirtualMemory.getBank(const idx: uint8): nativeuint;
 begin
-  fBuffer.Size := 0;
-  fWritten := 0;
+  Result := fMemoryMap[idx];
 end;
 
-constructor TBytecode.Create(const Granularity: nativeuint);
+procedure T6502VirtualMemory.setBank(const idx: uint8; const value: nativeuint);
 begin
-  inherited Create;
-  fGranularity := Granularity;
-  fWritten := 0;
-  fBuffer := TBuffer.Create(0);
+  if (Value+$FF)>getDataSize() then exit;
+  fMemoryMap[idx] := Value;
 end;
 
-destructor TBytecode.Destroy;
+procedure T6502VirtualMemory.setDataSize(const Value: nativeuint);
 begin
-  fBuffer := nil;
-  inherited Destroy;
+  if Value<c64KB then exit;
+  inherited setDataSize(Value);
 end;
 
-function TBytecode.getDataPtr: pointer;
+constructor T6502VirtualMemory.Create( const InitialSize: nativeuint );
+var
+  DataSize: nativeuint;
 begin
-  Result := fBuffer.DataPtr;
-end;
-
-function TBytecode.getSizeBytes: nativeuint;
-begin
-  Result := fWritten;
+  DataSize := InitialSize;
+  if DataSize<c64KB then begin
+    DataSize := c64KB;
+  end;
+  inherited Create( DataSize );
+  PreArrangeBanks;
 end;
 
 end.
+

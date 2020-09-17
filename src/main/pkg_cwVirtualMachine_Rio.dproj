@@ -142,12 +142,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="api\cwvirtualmachine.mos6502.pas"/>
         <DCCReference Include="api\cwvirtualmachine.pas"/>
         <DCCReference Include="api\cwvirtualmachine.standard.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.virtualmachine.standard.pas"/>
-        <DCCReference Include="implementation\cwvirtualmachine.bytecode.standard.pas"/>
         <DCCReference Include="api\cwvirtualmachine.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmemory.custom.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualmemory.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.chappie.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.custom.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.bytecode.mos6502.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.opcodes.pas"/>
+        <DCCReference Include="implementation\cwvirtualmachine.virtualcpu.chappie.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

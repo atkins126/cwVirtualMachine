@@ -8,10 +8,7 @@ unit pkg_cwvirtualmachine_lazarus_2_0_10;
 interface
 
 uses
-  cwVirtualMachine, cwVirtualMachine.Standard, 
-  cwVirtualMachine.VirtualCPU.Chappie, 
-  cwVirtualMachine.VirtualMachine.Standard, 
-  cwVirtualMachine.ByteCode.Standard, cwVirtualMachine.Chappie;
+  cwVirtualMachine, cwVirtualMachine.Standard, cwVirtualMachine.Chappie, cwVirtualMachine.VirtualCPU.Chappie, cwVirtualMachine.ByteCode.Custom, cwVirtualMachine.Bytecode.Chappie, cwVirtualMachine.VirtualMemory.Custom, cwVirtualMachine.VirtualCPU.Chappie.Opcodes, cwVirtualMachine.Mos6502, cwVirtualMachine.VirtualCPU.Mos6502, cwVirtualMachine.VirtualMemory.Mos6502, cwVirtualMachine.ByteCode.Mos6502;
 
 implementation
 

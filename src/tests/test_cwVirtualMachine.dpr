@@ -29,8 +29,16 @@ program test_cwVirtualMachine;
 {$ifdef fpc}{$mode delphiunicode}{$H+}{$endif}
 
 uses
-  cwTest,
-  cwTest.Standard
+  cwTest
+, cwTest.Standard
+, TestCase.cwVirtualMachine.VirtualMemory
+, TestCase.cwVirtualMachine.VirtualMemory.Chappie
+, TestCase.cwVirtualMachine.VirtualMemory.Mos6502
+, TestCase.cwVirtualMachine.ByteCode
+, TestCase.cwVirtualMachine.ByteCode.Chappie
+, TestCase.cwVirtualMachine.ByteCode.Mos6502
+, TestCase.cwVirtualMachine.VirtualCPU.Chappie
+, TestCase.cwVirtualMachine.VirtualCPU.Mos6502
 ;
 
 var

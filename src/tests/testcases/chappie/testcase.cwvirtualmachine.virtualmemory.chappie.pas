@@ -1,6 +1,7 @@
 {$ifdef license}
 (*
   Copyright 2020 ChapmanWorld LLC ( https://chapmanworld.com )
+
   Redistribution and use in source and binary forms, with or without modification,
   are permitted provided that the following conditions are met:
 
@@ -25,66 +26,33 @@
   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 {$endif}
-unit cwVirtualMachine.VirtualMachine.Standard;
-{$ifdef fpc}{$mode delphiunicode}{$endif}
+unit TestCase.cwVirtualMachine.VirtualMemory.Chappie;
+{$ifdef fpc} {$mode delphiunicode} {$endif}
+{$M+}
 
 interface
 uses
-  cwIO
-, cwVirtualMachine
+  cwTest
 ;
 
 type
-  TVirtualMachine = class( TInterfacedObject, IVirtualMachine )
-  private
-    fCPU: IVirtualCPU;
-    fBytecode: IBytecode;
-    fStaticData: IBuffer;
-  strict private //- IVirtualMachine -//
-    function getBytecode: IBytecode;
-    procedure ExecuteStep;
-    procedure Execute;
-  public
-    constructor Create( const CPU: IVirtualCPU ); reintroduce;
-    destructor Destroy; override;
+  TTest_ChappieVirtualMemory = class(TTestCase)
+  published
+    (* Currently no tests because chappie memory is a reference to TCustomVirtialMemory which
+       is tested under testcase.cwvirtualmachine.virtualmemory. Retained as a placeholder for
+       potential chappy specific changes later *)
   end;
 
 implementation
 uses
-  cwStatus
-, cwVirtualMachine.Bytecode.Standard
+  cwTest.Standard
 ;
 
-constructor TVirtualMachine.Create(const CPU: IVirtualCPU);
-begin
-  inherited Create;
-  fCPU := CPU;
-  fBytecode := TBytecode.Create;
-end;
 
-destructor TVirtualMachine.Destroy;
-begin
-  fCPU := nil;
-  fBytecode := nil;
-  inherited Destroy;
-end;
-
-procedure TVirtualMachine.Execute;
-begin
-  if not assigned(fCPU) then exit;
-  fCPU.Reset( fBytecode.DataPtr, fBytecode.SizeBytes, fStaticData );
-  while fCPU.Clock do;
-end;
-
-procedure TVirtualMachine.ExecuteStep;
-begin
-  if not assigned(fCPU) then exit;
-  fCPU.Clock;
-end;
-
-function TVirtualMachine.getBytecode: IBytecode;
-begin
-  Result := fBytecode;
-end;
+initialization
+  TestSuite.RegisterTestCase(TTest_ChappieVirtualMemory)
 
 end.
+
+
+

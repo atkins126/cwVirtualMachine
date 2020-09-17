@@ -26,11 +26,56 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <Units Count="1">
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="9">
       <Unit0>
         <Filename Value="test_cwVirtualMachine.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="testcases\standard\testcase.cwvirtualmachine.virtualmemory.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.VirtualMemory"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="testcases\chappie\testcase.cwvirtualmachine.virtualmemory.chappie.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.VirtualMemory.Chappie"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="testcases\6502\testcase.cwvirtualmachine.virtualmemory.mos6502.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="testcase.cwVirtualMachine.VirtualMemory.Mos6502"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="testcases\standard\testcase.cwvirtualmachine.bytecode.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.ByteCode"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="testcases\chappie\testcase.cwvirtualmachine.bytecode.chappie.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.ByteCode.Chappie"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="testcases\6502\testcase.cwvirtualmachine.bytecode.mos6502.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.ByteCode.Mos6502"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="testcases\chappie\testcase.cwvirtualmachine.virtualcpu.chappie.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.VirtualCPU.Chappie"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="testcases\chappie\testcase.cwvirtualmachine.virtualcpu.mos6502.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TestCase.cwVirtualMachine.VirtualCPU.Mos6502"/>
+      </Unit8>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -41,7 +86,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\main\api;..\main\implementation;..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation"/>
+      <OtherUnitFiles Value="..\main\api;..\main\implementation;..\dependencies\cwRuntime\src\main\api;..\dependencies\cwRuntime\src\main\implementation;testcases\standard;testcases\chappie;testcases\6502"/>
       <UnitOutputDirectory Value="..\..\out\lib\$(TargetCPU)-$(TargetOS)\$(BuildMode)"/>
     </SearchPaths>
   </CompilerOptions>
