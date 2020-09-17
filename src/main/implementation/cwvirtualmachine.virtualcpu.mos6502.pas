@@ -444,12 +444,9 @@ begin
 end;
 
 procedure pushword( var State: T6502State; const v: pWord ); inline;
-var
-  pStack: ^uint16;
 begin
-  pStack := RealPointer( State, (cStackBase or State.SP) );
-  pStack^ := v^;
-  dec(State.SP,2);
+  pushbyte( State, pbyte(v) );
+  pushbyte( State, pbyte((nativeuint(v)+1)) );
 end;
 
 procedure popbyte( var State: T6502State; const v: pByte ); inline;
@@ -462,12 +459,9 @@ begin
 end;
 
 procedure popword( var State: T6502State; const v: pWord ); inline;
-var
-  pStack: ^uint16;
 begin
-  inc(State.SP,2);
-  pStack := RealPointer( State, (cStackBase or State.SP) );
-  v^ := pStack^;
+  popbyte( State, pbyte((nativeuint(v)+1)) );
+  popbyte( State, pbyte(v) );
 end;
 
 {$endregion}
@@ -1099,9 +1093,17 @@ end;
 
   {$region 'JSR'}
   procedure HandleJSR_abs( var State: T6502State );
+  var
+    Target: uint16;
   begin
-    pushword(State, @State.PC);
-    State.PC := uint16(ptr_abs(State)^);
+    // Program counter has been incremented beyond the op-code
+    // but we still didn't read the absolute target address.
+    // So we push PC+sizeof(uint16) to cover the abs addr.
+    Target := State.PC + sizeof(uint16);
+    pushword(State, @Target);
+    // Unlike other uses of absolute addressing, we aren't altering
+    // the target, but jumping to it, so load as immediate
+    State.PC := uint16(ptr_imm(State)^);
   end;
   {$endregion}
 

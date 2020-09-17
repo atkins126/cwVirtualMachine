@@ -2655,9 +2655,25 @@ end;
 {$region ' JSR '}
 
 procedure TTest_Mos6502CPU.JSR_abs;
+const
+  cDummyVal = $DD;
+  cTestVal = $CC;
+  cSRAddress = $0A00;
 begin
   // Arrange:
+  fByteCode.LDA_imm( cDummyVal );
+  fByteCode.JSR_abs( cSRAddress );
+  fByteCode.BRK;
+  fByteCode.Cursor := cSRAddress;
+  fBytecode.LDA_imm( cTestVal );
+  fByteCode.RTS;
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( cTestVal, fCPU.A );
 end;
 
 {$endregion}
@@ -3357,33 +3373,105 @@ end;
 {$region ' ROL '}
 
 procedure TTest_Mos6502CPU.ROL;
+const
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shl 1) or $01;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fByteCode.LDA_imm( cTestValue );
+  fByteCode.ROL;
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fCPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs_x;
+const
+  cByteUnderTest = $0A00;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shl 1) or $01;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[succ(cByteUnderTest)] := cTestValue;
+  fByteCode.LDX_imm( $01 );
+  fByteCode.ROL_abs_x( cByteUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[succ(cByteUnderTest)] )
 end;
 
 procedure TTest_Mos6502CPU.ROL_abs;
+const
+  cByteUnderTest = $0A00;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shl 1) or $01;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[cByteUnderTest] := cTestValue;
+  fByteCode.ROL_abs( cByteUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg_x;
+const
+  cByteUnderTest = $00BB;
+  cByteOffset = $02;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shl 1) or $01;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[cByteUnderTest] := cTestValue;
+  fByteCode.LDX_imm( cByteUnderTest-cByteOffset );
+  fByteCode.ROL_zpg_x( cByteOffset );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.ROL_zpg;
+const
+  cByteUnderTest = $BB;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shl 1) or $01;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[cByteUnderTest] := cTestValue;
+  fByteCode.ROL_zpg( cByteUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[cByteUnderTest] )
 end;
 
 {$endregion}
@@ -3391,33 +3479,105 @@ end;
 {$region ' ROR '}
 
 procedure TTest_Mos6502CPU.ROR;
+const
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shr 1) or $80;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fByteCode.LDA_imm( cTestValue );
+  fByteCode.ROR;
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fCPU.A )
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs_x;
+const
+  cByteUnderTest = $0A00;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shr 1) or $80;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[succ(cByteUnderTest)] := cTestValue;
+  fByteCode.LDX_imm( $01 );
+  fByteCode.ROR_abs_x( cByteUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[succ(cByteUnderTest)] )
 end;
 
 procedure TTest_Mos6502CPU.ROR_abs;
+const
+  cByteUnderTest = $0A00;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shr 1) or $80;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[cByteUnderTest] := cTestValue;
+  fByteCode.ROR_abs( cByteUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg_x;
+const
+  cByteUnderTest = $00BB;
+  cByteOffset = $02;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shr 1) or $80;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[cByteUnderTest] := cTestValue;
+  fByteCode.LDX_imm( cByteUnderTest-cByteOffset );
+  fByteCode.ROR_zpg_x( cByteOffset );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[cByteUnderTest] )
 end;
 
 procedure TTest_Mos6502CPU.ROR_zpg;
+const
+  cByteUnderTest = $BB;
+  cTestValue = $54;
+  cExpectedResult = (cTestValue shr 1) or $80;
 begin
   // Arrange:
+  fCPU.CarryFlag := TRUE;
+  fMemory[cByteUnderTest] := cTestValue;
+  fByteCode.ROR_zpg( cByteUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( FALSE, fCPU.CarryFlag );
+  TTest.Expect( cExpectedResult, fMemory[cByteUnderTest] )
 end;
 
 {$endregion}
@@ -3425,9 +3585,40 @@ end;
 {$region ' RTI '}
 
 procedure TTest_Mos6502CPU.RTI;
+const
+  cTestAddrHigh = $0A;
+  cTestAddrLow = $00;
+  cTestAddr = (cTestAddrHigh shl 8) or (cTestAddrLow);
+  cTestValue = $CC;
+  cStackAddr = $01FD;
+  cStackPtr = $FC;
+var
+  SetupStack: uint16;
 begin
   // Arrange:
-  // Assert:
+  SetupStack := cStackAddr;
+  fMemory[SetupStack] := cTestValue;
+  inc(SetupStack);
+  fMemory[SetupStack] := cTestAddrHigh;
+  inc(SetupStack);
+  fMemory[SetupStack] := cTestAddrLow;
+  fCPU.SP := cStackPtr;
+  fByteCode.LDA_imm( $FF );
+  fByteCode.RTI;
+  fByteCode.BRK;
+  //- Insert test peg
+  fByteCode.Cursor := cTestAddr;
+  fByteCode.LDA_imm( cTestValue );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  // - NOTE: SP will get the break flag set after RTI, so here we or ($01 shl 4) to add the break command to test val.
+  TTest.Expect( cTestValue or ($01 shl 4), fCPU.SR );
+  TTest.Expect( cTestValue, fCPU.A );
+  TTest.Expect( cStackPtr+sizeof(uint16)+sizeof(uint8), fCPU.SP );
 end;
 
 {$endregion}
@@ -3435,9 +3626,32 @@ end;
 {$region ' RTS '}
 
 procedure TTest_Mos6502CPU.RTS;
+const
+  cTestAddrHigh = $0A;
+  cTestAddrLow = $00;
+  cTestAddr = (cTestAddrHigh shl 8) or (cTestAddrLow);
+  cTestValue = $CC;
+  cStackAddr = $01FE;
+  cStackPtr = $FD;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cStackAddr] := cTestAddrHigh;
+  fMemory[succ(cStackAddr)] := cTestAddrLow;
+  fCPU.SP := cStackPtr;
+  fByteCode.LDA_imm( $FF );
+  fByteCode.RTS;
+  fByteCode.BRK;
+  //- Insert test peg
+  fByteCode.Cursor := cTestAddr;
+  fByteCode.LDA_imm( cTestValue );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( cTestValue, fCPU.A );
+  TTest.Expect( cStackPtr+sizeof(uint16), fCPU.SP );
 end;
 
 {$endregion}
