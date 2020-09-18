@@ -47,8 +47,6 @@ type
     procedure Setup;
     procedure Teardown;
   published
-    procedure Reset;
-    procedure Clock;
 
     {$region ' ADC '}
     procedure ADC_abs_x_NoOverflow;
@@ -135,8 +133,12 @@ type
     procedure BEQ_rel_FALSE;
     {$endregion}
     {$region ' BIT '}
-    procedure BIT_abs;
-    procedure BIT_zpg;
+    procedure BIT_abs_NonZeroTF;
+    procedure BIT_zpg_NonZeroTF;
+    procedure BIT_abs_NonZeroFT;
+    procedure BIT_zpg_NonZeroFT;
+    procedure BIT_abs_ZeroFF;
+    procedure BIT_zpg_ZeroFF;
     {$endregion}
     {$region ' BMI '}
     procedure BMI_rel_TRUE;
@@ -171,24 +173,58 @@ type
     procedure CLV;
     {$endregion}
     {$region ' CMP '}
-    procedure CMP_abs_x;
-    procedure CMP_abs_y;
-    procedure CMP_abs;
-    procedure CMP_imm;
-    procedure CMP_ind_y;
-    procedure CMP_x_ind;
-    procedure CMP_zpg_x;
-    procedure CMP_zpg;
+    procedure CMP_abs_x_Negative;
+    procedure CMP_abs_y_Negative;
+    procedure CMP_abs_Negative;
+    procedure CMP_imm_Negative;
+    procedure CMP_ind_y_Negative;
+    procedure CMP_x_ind_Negative;
+    procedure CMP_zpg_x_Negative;
+    procedure CMP_zpg_Negative;
+
+    procedure CMP_abs_x_Zero;
+    procedure CMP_abs_y_Zero;
+    procedure CMP_abs_Zero;
+    procedure CMP_imm_Zero;
+    procedure CMP_ind_y_Zero;
+    procedure CMP_x_ind_Zero;
+    procedure CMP_zpg_x_Zero;
+    procedure CMP_zpg_Zero;
+
+    procedure CMP_abs_x_Carry;
+    procedure CMP_abs_y_Carry;
+    procedure CMP_abs_Carry;
+    procedure CMP_imm_Carry;
+    procedure CMP_ind_y_Carry;
+    procedure CMP_x_ind_Carry;
+    procedure CMP_zpg_x_Carry;
+    procedure CMP_zpg_Carry;
     {$endregion}
     {$region ' CPX '}
-    procedure CPX_abs;
-    procedure CPX_imm;
-    procedure CPX_zpg;
+    procedure CPX_abs_Negative;
+    procedure CPX_imm_Negative;
+    procedure CPX_zpg_Negative;
+
+    procedure CPX_abs_Zero;
+    procedure CPX_imm_Zero;
+    procedure CPX_zpg_Zero;
+
+    procedure CPX_abs_Carry;
+    procedure CPX_imm_Carry;
+    procedure CPX_zpg_Carry;
     {$endregion}
     {$region ' CPY '}
-    procedure CPY_abs;
-    procedure CPY_imm;
-    procedure CPY_zpg;
+    procedure CPY_abs_Negative;
+    procedure CPY_imm_Negative;
+    procedure CPY_zpg_Negative;
+
+    procedure CPY_abs_Zero;
+    procedure CPY_imm_Zero;
+    procedure CPY_zpg_Zero;
+
+    procedure CPY_abs_Carry;
+    procedure CPY_imm_Carry;
+    procedure CPY_zpg_Carry;
     {$endregion}
     {$region ' DEC '}
     procedure DEC_abs_x;
@@ -389,16 +425,6 @@ begin
   fMemory := nil;
   fCPU := nil;
   fByteCode := nil;
-end;
-
-procedure TTest_Mos6502CPU.Reset;
-begin
-
-end;
-
-procedure TTest_Mos6502CPU.Clock;
-begin
-
 end;
 
 {$region ' ADC '}
@@ -1851,16 +1877,130 @@ end;
 
 {$region ' BIT '}
 
-procedure TTest_Mos6502CPU.BIT_abs;
+procedure TTest_Mos6502CPU.BIT_abs_NonZeroTF;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $FF;
+  cTestAnd = $B0;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cTestAnd;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.BIT_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, fCPU.ZeroFlag );
+  TTest.Expect( TRUE,  fCPU.NegativeFlag );
+  TTest.Expect( FALSE, fCPU.OverflowFlag );
 end;
 
-procedure TTest_Mos6502CPU.BIT_zpg;
+procedure TTest_Mos6502CPU.BIT_zpg_NonZeroTF;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $FF;
+  cTestAnd = $B0;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cTestAnd;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.BIT_zpg( $BB );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, fCPU.ZeroFlag );
+  TTest.Expect( TRUE,  fCPU.NegativeFlag );
+  TTest.Expect( FALSE, fCPU.OverflowFlag );
+end;
+
+procedure TTest_Mos6502CPU.BIT_abs_NonZeroFT;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $FF;
+  cTestAnd = $70;
+ begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAnd;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.BIT_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, fCPU.ZeroFlag );
+  TTest.Expect( FALSE, fCPU.NegativeFlag );
+  TTest.Expect( TRUE,  fCPU.OverflowFlag );
+end;
+
+procedure TTest_Mos6502CPU.BIT_zpg_NonZeroFT;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $FF;
+  cTestAnd = $70;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAnd;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.BIT_zpg( $BB );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, fCPU.ZeroFLag );
+  TTest.Expect( FALSE, fCPU.NegativeFlag );
+  TTest.Expect( TRUE,  fCPU.OverflowFlag );
+end;
+
+procedure TTest_Mos6502CPU.BIT_abs_ZeroFF;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $FF;
+  cTestAnd = $30;
+ begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAnd;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.BIT_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, fCPU.ZeroFlag );
+  TTest.Expect( FALSE, fCPU.NegativeFlag );
+  TTest.Expect( FALSE, fCPU.OverflowFlag );
+end;
+
+procedure TTest_Mos6502CPU.BIT_zpg_ZeroFF;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $FF;
+  cTestAnd = $30;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAnd;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.BIT_zpg( $BB );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( FALSE, fCPU.ZeroFlag );
+  TTest.Expect( FALSE, fCPU.NegativeFlag );
+  TTest.Expect( FALSE, fCPU.OverflowFlag );
 end;
 
 {$endregion}
@@ -2141,96 +2281,847 @@ end;
 
 {$region ' CMP '}
 
-procedure TTest_Mos6502CPU.CMP_abs_x;
+procedure TTest_Mos6502CPU.CMP_abs_x_Negative;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs_x( pred(cMemoryLocationUnderTest) );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_abs_y;
+procedure TTest_Mos6502CPU.CMP_abs_y_Negative;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDY_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs_y( pred(cMemoryLocationUnderTest) );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_abs;
+procedure TTest_Mos6502CPU.CMP_abs_Negative;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_imm;
+procedure TTest_Mos6502CPU.CMP_imm_Negative;
+const
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_imm( cSub );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_ind_y;
+procedure TTest_Mos6502CPU.CMP_ind_y_Negative;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fMemory[$00BB] := $00;
+  fMemory[$00BC] := $0A;
+  fByteCode.LDY_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_ind_y( $BB );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_x_ind;
+procedure TTest_Mos6502CPU.CMP_x_ind_Negative;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fMemory[$00BB] := $00;
+  fMemory[$00BC] := $0A;
+  fByteCode.LDX_imm( $BB );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_x_ind( $00 );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_zpg_x;
+procedure TTest_Mos6502CPU.CMP_zpg_x_Negative;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( $B9 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_zpg_x( $02 );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CMP_zpg;
+procedure TTest_Mos6502CPU.CMP_zpg_Negative;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_abs_x_Zero;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDX_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs_x( pred(cMemoryLocationUnderTest) );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_abs_y_Zero;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDY_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs_y( pred(cMemoryLocationUnderTest) );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_abs_Zero;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_imm_Zero;
+const
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_imm( cTestAcc );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_ind_y_Zero;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fMemory[$00BB] := $00;
+  fMemory[$00BC] := $0A;
+  fByteCode.LDY_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_ind_y( $BB );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_x_ind_Zero;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fMemory[$00BB] := $00;
+  fMemory[$00BC] := $0A;
+  fByteCode.LDX_imm( $BB );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_x_ind( $00 );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_zpg_x_Zero;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDX_imm( $B9 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_zpg_x( $02 );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_zpg_Zero;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_abs_x_Carry;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs_x( pred(cMemoryLocationUnderTest) );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_abs_y_Carry;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDY_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs_y( pred(cMemoryLocationUnderTest) );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_abs_Carry;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_imm_Carry;
+const
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_imm( cSub );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_ind_y_Carry;
+const
+  cMemoryLocationUnderTest = $0A01;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fMemory[$00BB] := $00;
+  fMemory[$00BC] := $0A;
+  fByteCode.LDY_imm( $01 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_ind_y( $BB );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_x_ind_Carry;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fMemory[$00BB] := $00;
+  fMemory[$00BC] := $0A;
+  fByteCode.LDX_imm( $BB );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_x_ind( $00 );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_zpg_x_Carry;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( $B9 );
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_zpg_x( $02 );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CMP_zpg_Carry;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDA_imm( cTestAcc );
+  fByteCode.CMP_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
 end;
 
 {$endregion}
 
 {$region ' CPX '}
 
-procedure TTest_Mos6502CPU.CPX_abs;
+procedure TTest_Mos6502CPU.CPX_abs_Negative;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CPX_imm;
+procedure TTest_Mos6502CPU.CPX_imm_Negative;
+const
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_imm( cSub );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CPX_zpg;
+procedure TTest_Mos6502CPU.CPX_zpg_Negative;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPX_abs_Zero;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPX_imm_Zero;
+const
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_imm( cTestAcc );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPX_zpg_Zero;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPX_abs_Carry;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPX_imm_Carry;
+const
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_imm( cSub );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPX_zpg_Carry;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDX_imm( cTestAcc );
+  fByteCode.CPX_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
 end;
 
 {$endregion}
 
 {$region ' CPY '}
 
-procedure TTest_Mos6502CPU.CPY_abs;
+procedure TTest_Mos6502CPU.CPY_abs_Negative;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CPY_imm;
+procedure TTest_Mos6502CPU.CPY_imm_Negative;
+const
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_imm( cSub );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
 end;
 
-procedure TTest_Mos6502CPU.CPY_zpg;
+procedure TTest_Mos6502CPU.CPY_zpg_Negative;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+  cSub     = $57;
 begin
   // Arrange:
-  // Assert:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.NegativeFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.NegativeFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPY_abs_Zero;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPY_imm_Zero;
+const
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_imm( cTestAcc );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPY_zpg_Zero;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $55;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cTestAcc;
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.ZeroFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.ZeroFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPY_abs_Carry;
+const
+  cMemoryLocationUnderTest = $0A00;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_abs( cMemoryLocationUnderTest );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPY_imm_Carry;
+const
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_imm( cSub );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
+end;
+
+procedure TTest_Mos6502CPU.CPY_zpg_Carry;
+const
+  cMemoryLocationUnderTest = $00BB;
+  cTestAcc = $F0;
+  cSub = $F0;
+begin
+  // Arrange:
+  fMemory[cMemoryLocationUnderTest] := cSub;
+  fByteCode.LDY_imm( cTestAcc );
+  fByteCode.CPY_zpg( $BB );
+  fByteCode.BRK;
+  fCPU.CarryFlag := False;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
+  // Asert:
+  TTest.Expect( TRUE, fCPU.CarryFlag );
 end;
 
 {$endregion}
@@ -2639,15 +3530,50 @@ end;
 {$region ' JMP '}
 
 procedure TTest_Mos6502CPU.JMP_abs;
+const
+  cDummyVal = $DD;
+  cTestVal = $CC;
+  cSRAddress = $0A00;
 begin
   // Arrange:
+  fByteCode.LDA_imm( cDummyVal );
+  fByteCode.JMP_abs( cSRAddress );
+  fByteCode.BRK;
+  fByteCode.Cursor := cSRAddress;
+  fBytecode.LDA_imm( cTestVal );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( cTestVal, fCPU.A );
 end;
 
 procedure TTest_Mos6502CPU.JMP_ind;
+const
+  cDummyVal = $DD;
+  cTestVal = $CC;
+  cVectorLocation = $0B00;
+  cVectorTarget = $0A00;
+  cVectorTargetH = $0A;
+  cVectorTargetL = $00;
 begin
   // Arrange:
+  fMemory[cVectorLocation] := cVectorTargetH;
+  fMemory[succ(cVectorLocation)] := cVectorTargetL;
+  fByteCode.LDA_imm( cDummyVal );
+  fByteCode.JMP_ind( cVectorLocation );
+  fByteCode.BRK;
+  fByteCode.Cursor := cVectorTarget;
+  fBytecode.LDA_imm( cTestVal );
+  fByteCode.BRK;
+  // Act:
+  while not fCPU.BreakFlag do begin
+    fCPU.Clock;
+  end;
   // Assert:
+  TTest.Expect( cTestVal, fCPU.A );
 end;
 
 {$endregion}
