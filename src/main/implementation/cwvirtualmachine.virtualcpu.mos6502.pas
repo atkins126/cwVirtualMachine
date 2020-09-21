@@ -325,6 +325,26 @@ begin
   inc(Result);
 end;
 
+procedure ClearOverflow( var State: T6502State ); inline;
+begin
+  State.SR := State.SR and (not cOverflowFlag);
+end;
+
+procedure TestNegative( var State: T6502State; const value: uint8 ); inline;
+begin
+  State.SR := State.SR and (not cNegativeFlag);
+  State.SR := State.SR or (cNegativeFlag and value);
+end;
+
+procedure TestZero( var State: T6502State; const value: uint8 );  inline;
+begin
+  if value=0 then begin
+    State.SR := State.SR or cZeroFlag;
+  end else begin
+    State.SR := State.SR and (not cZeroFlag);
+  end;
+end;
+
 procedure instr_ALU_ADC( var State: T6502State; const l, r: pByte; const saveProduct: boolean = TRUE ); inline;
 var
   cf: boolean;
@@ -374,6 +394,12 @@ begin
     end;
   end;
 
+  //- Set negative flag.
+  TestNegative( State, Product );
+
+  //- Set zero flag.
+  TestZero( State, Product );
+
   // ADC does not necessarily alter 'A', sometimes just the flags are needed :-)
   if saveProduct then begin
     l^ := Product;
@@ -392,7 +418,7 @@ begin
   //- respectively. Start with left & right...
   OverflowCheck := ((r^ and cSignBit) shr 6);
   OverflowCheck := OverflowCheck or ((l^ and cSignBit) shr 5);
-  State.SR := State.SR and (not cOverflowFlag);
+  clearOverflow( State );
   //- Perform adc
   instr_ALU_ADC( State, l, r, saveProduct );
   //- Add the sign bit of our result to the bit pattern described above.
@@ -418,7 +444,7 @@ begin
   OverflowCheck := 0;
   OverflowCheck := OverflowCheck or ((r^ and cSignBit) shr 6);
   OverflowCheck := OverflowCheck or ((l^ and cSignBit) shr 5);
-  State.SR := State.SR and (not cOverflowFlag);
+  clearOverflow( State );
   //- Peform adc
   instr_ALU_ADC( State, l, @nr, saveProduct );
   //- Add the sign bit of our result to the bit pattern described above.
@@ -429,6 +455,7 @@ begin
     State.SR := State.SR or cOverflowFlag;
   end;
 end;
+
 
 {$endregion}
 
@@ -444,12 +471,9 @@ begin
 end;
 
 procedure pushword( var State: T6502State; const v: pWord ); inline;
-var
-  pStack: ^uint16;
 begin
-  pStack := RealPointer( State, (cStackBase or State.SP) );
-  pStack^ := v^;
-  dec(State.SP,2);
+  pushbyte( State, pbyte(v) );
+  pushbyte( State, pbyte((nativeuint(v)+1)) );
 end;
 
 procedure popbyte( var State: T6502State; const v: pByte ); inline;
@@ -462,12 +486,9 @@ begin
 end;
 
 procedure popword( var State: T6502State; const v: pWord ); inline;
-var
-  pStack: ^uint16;
 begin
-  inc(State.SP,2);
-  pStack := RealPointer( State, (cStackBase or State.SP) );
-  v^ := pStack^;
+  popbyte( State, pbyte((nativeuint(v)+1)) );
+  popbyte( State, pbyte(v) );
 end;
 
 {$endregion}
@@ -727,40 +748,44 @@ end;
   {$endregion}
 
   {$region 'BIT'}
+
+
   procedure HandleBIT_abs( var State: T6502State );
   var
-    pOperand: ^int8;
+    pOperand: ^uint8;
+    value: uint8;
   begin
     // BIT  Test Bits in Memory with Accumulator
     // bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
     // the zeroflag is set to the result of operand AND accumulator.
+    ClearOverflow(State);
     pOperand := ptr_abs(State);
+    value := pOperand^;
     inc_abs(State);
-    if (pOperand^ AND State.A)=0 then begin
-      State.SR := State.SR and (not cZeroFlag);
-    end else begin
-      State.SR := State.SR or cZeroFlag;
-    end;
-    State.SR := State.SR and $3F;
-    State.SR := State.SR or (pOperand^ and $C0);
+    TestZero( State, (Value AND State.A) );
+    //- Get only bits 7&6 from value and copy to SR
+    State.SR := State.SR and ((not cBit7) or (not cBit6)); // - Clear 7&6
+    State.SR := State.SR or (Value and cBit7);
+    State.SR := State.SR or (Value and cBit6);
   end;
 
   procedure HandleBIT_zpg( var State: T6502State );
   var
-    pOperand: ^int8;
+    pOperand: ^uint8;
+    value: uint8;
   begin
     // BIT  Test Bits in Memory with Accumulator
     // bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
     // the zeroflag is set to the result of operand AND accumulator.
+    ClearOverflow(State);
     pOperand := ptr_zpg(State);
+    value := pOperand^;
     inc_zpg(State);
-    if (pOperand^ AND State.A)=0 then begin
-      State.SR := State.SR and (not cZeroFlag);
-    end else begin
-      State.SR := State.SR or cZeroFlag;
-    end;
-    State.SR := State.SR and $3F;
-    State.SR := State.SR or (pOperand^ and $C0);
+    TestZero( State, (Value AND State.A) );
+    //- Get only bits 7&6 from value and copy to SR
+    State.SR := State.SR and ((not cBit7) or (not cBit6)); // - Clear 7&6
+    State.SR := State.SR or (Value and cBit7);
+    State.SR := State.SR or (Value and cBit6);
   end;
 
   {$endregion}
@@ -1088,20 +1113,34 @@ end;
   {$region 'JMP'}
   procedure HandleJMP_abs( var State: T6502State );
   begin
-    State.PC := uint16(ptr_abs(State)^);
+    //- Usually absolute addressing is used to modify the target value,
+    //- in this case we want to jump to it, so substitute immediate
+    //- addressing.
+    State.PC := uint16(ptr_imm(State)^);
   end;
 
   procedure HandleJMP_ind( var State: T6502State );
   begin
-    State.PC := uint16(ptr_ind(State)^);
+    //- Usually indirect addressing is used to modify the target value,
+    //- in this case we want to jump to it, so substitute absolute
+    //- addressing.
+    State.PC := uint16(ptr_abs(State)^);
   end;
   {$endregion}
 
   {$region 'JSR'}
   procedure HandleJSR_abs( var State: T6502State );
+  var
+    Target: uint16;
   begin
-    pushword(State, @State.PC);
-    State.PC := uint16(ptr_abs(State)^);
+    // Program counter has been incremented beyond the op-code
+    // but we still didn't read the absolute target address.
+    // So we push PC+sizeof(uint16) to cover the abs addr.
+    Target := State.PC + sizeof(uint16);
+    pushword(State, @Target);
+    // Unlike other uses of absolute addressing, we aren't altering
+    // the target, but jumping to it, so load as immediate
+    State.PC := uint16(ptr_imm(State)^);
   end;
   {$endregion}
 
@@ -1862,7 +1901,7 @@ begin
   if value then begin
     fState.SR := fState.SR or cOverflowFlag;
   end else begin
-    fState.SR := fState.SR and (not cOverflowFlag);
+    ClearOverflow(fState);
   end;
 end;
 
